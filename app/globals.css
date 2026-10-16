@@ -1,0 +1,197 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ── Header ──────────────────────────────────────────────────────── */
+@keyframes header-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-header-in {
+  animation: header-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────── */
+@keyframes footer-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-footer-in {
+  animation: footer-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+
+/* ── Carousel ────────────────────────────────────────────────────── */
+@keyframes carousel-enter-right {
+  from { opacity: 0; transform: translateX(56px) rotate(2.5deg) scale(0.95); filter: blur(3px); }
+  to   { opacity: 1; transform: translateX(0)    rotate(0deg)   scale(1);    filter: blur(0); }
+}
+@keyframes carousel-enter-left {
+  from { opacity: 0; transform: translateX(-56px) rotate(-2.5deg) scale(0.95); filter: blur(3px); }
+  to   { opacity: 1; transform: translateX(0)     rotate(0deg)    scale(1);    filter: blur(0); }
+}
+@keyframes carousel-exit-left {
+  from { opacity: 1; transform: translateX(0)     rotate(0deg)   scale(1);    filter: blur(0); }
+  to   { opacity: 0; transform: translateX(-56px) rotate(-2.5deg) scale(0.95); filter: blur(3px); }
+}
+@keyframes carousel-exit-right {
+  from { opacity: 1; transform: translateX(0)    rotate(0deg)   scale(1);    filter: blur(0); }
+  to   { opacity: 0; transform: translateX(56px) rotate(2.5deg) scale(0.95); filter: blur(3px); }
+}
+
+.carousel-enter-right { animation: carousel-enter-right 420ms cubic-bezier(0.34, 1.4, 0.64, 1) both; }
+.carousel-enter-left  { animation: carousel-enter-left  420ms cubic-bezier(0.34, 1.4, 0.64, 1) both; }
+.carousel-exit-left   { animation: carousel-exit-left   320ms cubic-bezier(0.4, 0, 1, 1) both; pointer-events: none; }
+.carousel-exit-right  { animation: carousel-exit-right  320ms cubic-bezier(0.4, 0, 1, 1) both; pointer-events: none; }
+
+/* ── Checkbox / Radio mark ──────────────────────────────────── */
+@keyframes checkbox-in {
+  0%   { transform: scale(0);    opacity: 0; }
+  55%  { transform: scale(1.25); opacity: 1; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+.animate-checkbox-in {
+  animation: checkbox-in 220ms cubic-bezier(0.34, 1.2, 0.64, 1) both;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes draw-checkmark {
+  from { stroke-dashoffset: 15; }
+  to   { stroke-dashoffset: 0;  }
+}
+.animate-draw-check {
+  stroke-dasharray: 15;
+  stroke-dashoffset: 15;
+  animation: draw-checkmark 200ms cubic-bezier(0.65, 0, 0.35, 1) 80ms both;
+}
+
+/* ── Tab panel ───────────────────────────────────────────────────── */
+@keyframes tab-slide-right {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes tab-slide-left {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.animate-tab-slide-right {
+  animation: tab-slide-right 280ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.animate-tab-slide-left {
+  animation: tab-slide-left 280ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── Mobile menu ─────────────────────────────────────────────────── */
+@keyframes menu-in {
+  from { opacity: 0; transform: translateY(-100%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes menu-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-100%); }
+}
+@keyframes menu-item-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.94) translateY(12px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+@keyframes modal-out {
+  from { opacity: 1; transform: scale(1)    translateY(0); }
+  to   { opacity: 0; transform: scale(0.96) translateY(8px); }
+}
+.animate-modal-in  { animation: modal-in  300ms cubic-bezier(0.34,1.4,0.64,1) both; }
+.animate-modal-out { animation: modal-out 220ms ease-in both; }
+
+@keyframes backdrop-in  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes backdrop-out { from { opacity: 1; } to { opacity: 0; } }
+.animate-backdrop-in  { animation: backdrop-in  260ms ease-out both; }
+.animate-backdrop-out { animation: backdrop-out 220ms ease-in  both; }
+
+/* ── Tooltip (handled via inline transitions) ────────────────────── */
+
+/* ── Input / Select shimmer sweep ────────────────────────────────── */
+@keyframes input-shimmer {
+  0%   { transform: translateX(0%);   opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { transform: translateX(420%); opacity: 0; }
+}
+.animate-input-shimmer {
+  animation: input-shimmer 850ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes select-option-in {
+  from { opacity: 0; transform: translateY(-6px); filter: blur(1px); }
+  to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
+}
+
+/* ── Pagination number shift ─────────────────────────────────────── */
+@keyframes page-in-up {
+  from { opacity: 0; transform: translateY(7px); filter: blur(2px); }
+  to   { opacity: 1; transform: translateY(0);   filter: blur(0); }
+}
+@keyframes page-in-down {
+  from { opacity: 0; transform: translateY(-7px); filter: blur(2px); }
+  to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
+}
+.animate-page-in-up {
+  animation: page-in-up 260ms cubic-bezier(0.16,1,0.3,1) both;
+}
+.animate-page-in-down {
+  animation: page-in-down 260ms cubic-bezier(0.16,1,0.3,1) both;
+}
+
+/* ── Toast ───────────────────────────────────────────────────────── */
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(-14px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes toast-out {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(-10px) scale(0.97); }
+}
+.animate-toast-in {
+  animation: toast-in 320ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
+}
+.animate-toast-out {
+  animation: toast-out 180ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+/* ── Popover (handled via inline transitions) ────────────────────── */
+
+/* ── Skeleton ────────────────────────────────────────────────────── */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.4; }
+}
+.animate-skeleton-pulse {
+  animation: skeleton-pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ── Link underline slide ────────────────────────────────────────── */
+.link-slide {
+  position: relative;
+  display: inline-block;
+}
+.link-slide::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: -1px;
+  width: 100%; height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 220ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.link-slide:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+

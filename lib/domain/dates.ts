@@ -1,0 +1,58 @@
+/**
+ * Date helpers. Calendar dates travel as "YYYY-MM-DD" strings and all math is
+ * done in UTC so results never depend on the server's or browser's timezone.
+ */
+
+const DAY_MS = 86_400_000;
+
+export const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+export function parseDate(s: string): Date {
+  const [y, m, d] = s.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d));
+}
+
+export function toISODate(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
+/** True for strings that are well-formed AND real calendar dates (no 2026-02-30). */
+export function isValidDate(s: unknown): s is string {
+  if (typeof s !== "string" || !ISO_DATE.test(s)) return false;
+  return toISODate(parseDate(s)) === s;
+}
+
+export function todayISO(now: Date = new Date()): string {
+  return toISODate(now);
+}
+
+export function addDays(s: string, n: number): string {
+  return toISODate(new Date(parseDate(s).getTime() + n * DAY_MS));
+}
+
+export function isWeekend(s: string): boolean {
+  const day = parseDate(s).getUTCDay();
+  return day === 0 || day === 6;
+}
+
+/** Working days (Mon-Fri) in the inclusive range [start, end]. */
+export function workingDays(start: string, end: string): number {
+  let n = 0;
+  for (let t = parseDate(start).getTime(); t <= parseDate(end).getTime(); t += DAY_MS) {
+    const day = new Date(t).getUTCDay();
+    if (day !== 0 && day !== 6) n++;
+  }
+  return n;
+}
+
+/** Do the inclusive ranges [aStart,aEnd] and [bStart,bEnd] share any day? */
+export function rangesOverlap(aStart: string, aEnd: string, bStart: string, bEnd: string): boolean {
+  return aStart <= bEnd && bStart <= aEnd;
+}
+
+/** Next Monday strictly after `s` (used by the seed to build realistic dates). */
+export function nextWeekday(s: string, weekday: number): string {
+  let cur = addDays(s, 1);
+  while (parseDate(cur).getUTCDay() !== weekday) cur = addDays(cur, 1);
+  return cur;
+}
