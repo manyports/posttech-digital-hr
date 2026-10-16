@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Vendored design system, copied unchanged from ../blogs.
+    "app/components/ui/**",
   ]),
 ]);
 

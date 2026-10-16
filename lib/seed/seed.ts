@@ -55,11 +55,11 @@ const PEOPLE: PersonInput[] = [
 
 /** Demo personas shown on the login screen (public, fake, no secrets). */
 export const DEMO_PERSONAS = [
-  { email: `aruzhan.kassymova@${DOMAIN}`, label: "Employee", hint: "Senior Frontend Developer · Engineering" },
-  { email: `daniyar.omarov@${DOMAIN}`, label: "Manager", hint: "Head of Engineering · 4 direct reports" },
-  { email: `aigerim.sadykova@${DOMAIN}`, label: "HR / Admin", hint: "HR Director · sees the whole company" },
-  { email: `alikhan.ryskulov@${DOMAIN}`, label: "Employee (other team)", hint: "Marketing · reports to Madina" },
-  { email: `madina.tleuova@${DOMAIN}`, label: "Manager (other team)", hint: "Head of Marketing · 3 direct reports" },
+  { email: `aruzhan.kassymova@${DOMAIN}`, name: "Aruzhan Kassymova", label: "Employee", hint: "Senior Frontend Developer · Engineering" },
+  { email: `daniyar.omarov@${DOMAIN}`, name: "Daniyar Omarov", label: "Manager", hint: "Head of Engineering · 4 direct reports" },
+  { email: `aigerim.sadykova@${DOMAIN}`, name: "Aigerim Sadykova", label: "HR / Admin", hint: "HR Director · sees the whole company" },
+  { email: `alikhan.ryskulov@${DOMAIN}`, name: "Alikhan Ryskulov", label: "Employee · other team", hint: "Marketing Specialist · reports to Madina" },
+  { email: `madina.tleuova@${DOMAIN}`, name: "Madina Tleuova", label: "Manager · other team", hint: "Head of Marketing · 3 direct reports" },
 ] as const;
 
 const isoAt = (now: Date, daysAgo: number, hour = 10) => {
