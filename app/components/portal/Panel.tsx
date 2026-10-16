@@ -78,7 +78,7 @@ export function Spinner({ className = "" }: { className?: string }) {
   return (
     <span
       role="status"
-      aria-label="Loading"
+      aria-label="Загрузка"
       className={["inline-block w-4 h-4 rounded-full border-2 border-neutral-200 border-t-neutral-700 animate-spin", className].join(" ")}
     />
   );
@@ -100,11 +100,11 @@ export function ErrorBlock({ message, onRetry }: { message: string; onRetry?: ()
       <div className="flex items-start gap-3">
         <div className="w-7 h-7 rounded-lg bg-red-600 text-white flex items-center justify-center shrink-0 text-[13px] font-semibold">!</div>
         <div className="min-w-0">
-          <p className="text-[13px] font-semibold text-neutral-900">Something went wrong</p>
+          <p className="text-[13px] font-semibold text-neutral-900">Что-то пошло не так</p>
           <p className="text-[13px] text-neutral-500 mt-0.5">{message}</p>
           {onRetry && (
             <button onClick={onRetry} className="mt-2 text-[13px] font-medium text-neutral-900 underline underline-offset-2 cursor-pointer">
-              Try again
+              Попробовать снова
             </button>
           )}
         </div>
@@ -114,7 +114,7 @@ export function ErrorBlock({ message, onRetry }: { message: string; onRetry?: ()
 }
 
 export function AccessDenied({
-  message = "You don't have access to this page.",
+  message = "У вас нет доступа к этой странице.",
 }: {
   message?: string;
 }) {
@@ -122,9 +122,9 @@ export function AccessDenied({
     <Panel padding="p-10">
       <div className="text-center max-w-sm mx-auto">
         <div className="w-11 h-11 rounded-xl bg-neutral-900 text-white flex items-center justify-center mx-auto mb-4 text-[15px] font-semibold">403</div>
-        <p className="text-[15px] font-semibold tracking-[-0.01em]">Access denied</p>
+        <p className="text-[15px] font-semibold tracking-[-0.01em]">Доступ запрещен</p>
         <p className="text-[13px] text-neutral-500 mt-1.5 leading-relaxed">{message}</p>
-        <p className="text-[11.5px] text-neutral-400 mt-3">This is enforced by the server, not just hidden in the UI.</p>
+        <p className="text-[11.5px] text-neutral-400 mt-3">Ограничение действует на уровне сервера, а не только скрыто в интерфейсе.</p>
       </div>
     </Panel>
   );

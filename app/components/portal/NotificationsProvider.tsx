@@ -30,9 +30,17 @@ const POLL_MS = 5000;
 
 function variantFor(n: NotificationView): "default" | "success" | "warning" | "error" {
   const t = n.title.toLowerCase();
-  if (t.includes("approved") || t.includes("completed") || t.includes("replied")) return "success";
-  if (t.includes("rejected")) return "error";
-  if (t.includes("review")) return "warning";
+  if (
+    t.includes("approved") ||
+    t.includes("completed") ||
+    t.includes("replied") ||
+    t.includes("одобр") ||
+    t.includes("заверш") ||
+    t.includes("ответ")
+  )
+    return "success";
+  if (t.includes("rejected") || t.includes("отклон")) return "error";
+  if (t.includes("review") || t.includes("рассмотр")) return "warning";
   return "default";
 }
 

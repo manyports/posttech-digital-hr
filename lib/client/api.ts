@@ -39,7 +39,7 @@ export async function api<T>(path: string, { method = "GET", body, signal }: Opt
     if (res.status === 401 && typeof window !== "undefined" && !path.startsWith("/api/auth/login")) {
       window.location.assign("/login");
     }
-    throw new ApiError(res.status, err?.code ?? "error", err?.message ?? "Request failed.", err?.fields);
+    throw new ApiError(res.status, err?.code ?? "error", err?.message ?? "Запрос не удался.", err?.fields);
   }
   return json as T;
 }

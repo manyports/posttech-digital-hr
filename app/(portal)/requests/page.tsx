@@ -53,21 +53,21 @@ function RequestsInner() {
   return (
     <>
       <PageHeader
-        title="My requests"
-        description="Every vacation and salary advance request in one place, with live status and full history."
+        title="Мои заявки"
+        description="Все заявки на отпуск и аванс в одном месте с актуальным статусом и полной историей."
         actions={
           <Button variant="primary" size="sm" onClick={() => setManualOpen(true)}>
-            <PlusIcon size={14} /> New request
+            <PlusIcon size={14} /> Новая заявка
           </Button>
         }
       />
 
       <Tabs
         tabs={[
-          { key: "all", label: `All · ${counts.all}` },
-          { key: "open", label: `Open · ${counts.open}` },
-          { key: "approved", label: `Approved · ${counts.approved}` },
-          { key: "rejected", label: `Rejected / cancelled · ${counts.rejected}` },
+          { key: "all", label: `Все · ${counts.all}` },
+          { key: "open", label: `Открытые · ${counts.open}` },
+          { key: "approved", label: `Одобренные · ${counts.approved}` },
+          { key: "rejected", label: `Отклоненные / отмененные · ${counts.rejected}` },
         ]}
         onChange={(k) => setFilter(k as Filter)}
       />
@@ -78,12 +78,12 @@ function RequestsInner() {
       {data && visible.length === 0 && (
         <EmptyState
           icon={<DocIcon size={20} />}
-          title={filter === "all" ? "No requests yet" : "Nothing here"}
-          description={filter === "all" ? "Submit a vacation or salary advance request and follow it from here." : "No requests match this filter."}
+          title={filter === "all" ? "Заявок пока нет" : "Ничего не найдено"}
+          description={filter === "all" ? "Подайте заявку на отпуск или аванс и отслеживайте её статус здесь." : "Нет заявок, соответствующих этому фильтру."}
           action={
             filter === "all" ? (
               <Button variant="primary" size="sm" onClick={() => setManualOpen(true)}>
-                <PlusIcon size={14} /> New request
+                <PlusIcon size={14} /> Новая заявка
               </Button>
             ) : undefined
           }

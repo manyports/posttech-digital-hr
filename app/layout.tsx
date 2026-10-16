@@ -19,12 +19,12 @@ const archivo = localFont({
 
 export const metadata: Metadata = {
   title: "Digital HR",
-  description: "One portal for everything HR: requests, training, and answers.",
+  description: "Единый портал для всего, что связано с HR: заявки, обучение и ответы на вопросы.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${archivo.variable} h-full antialiased`}>
+    <html lang="ru" className={`${archivo.variable} h-full antialiased`}>
       <body className="min-h-full bg-[#EBEBEB] font-sans text-neutral-900">
         <Providers>{children}</Providers>
       </body>

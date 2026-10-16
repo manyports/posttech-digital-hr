@@ -21,7 +21,7 @@ export default function TeamPage() {
   if (error?.status === 403) {
     return (
       <>
-        <PageHeader title="Team" />
+        <PageHeader title="Команда" />
         <AccessDenied message={error.message} />
       </>
     );
@@ -30,11 +30,11 @@ export default function TeamPage() {
   return (
     <>
       <PageHeader
-        title={isHr ? "People" : "My team"}
+        title={isHr ? "Сотрудники" : "Моя команда"}
         description={
           isHr
-            ? "Everyone at Jana Group."
-            : `Your direct reports${data ? ` (${data.team.length})` : ""}. You can't open anyone outside your team.`
+            ? "Все сотрудники Jana Group."
+            : `Ваши прямые подчиненные${data ? ` (${data.team.length})` : ""}. Доступ к сотрудникам вне вашей команды ограничен.`
         }
       />
 
@@ -54,21 +54,21 @@ export default function TeamPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="text-[15px] font-semibold tracking-[-0.01em] truncate">{m.fullName}</p>
-                    {m.role !== "employee" && <Badge variant={m.role === "hr" ? "default" : "accent"}>{m.role === "hr" ? "HR" : "Manager"}</Badge>}
+                    {m.role !== "employee" && <Badge variant={m.role === "hr" ? "default" : "accent"}>{m.role === "hr" ? "HR" : "Руководитель"}</Badge>}
                   </div>
                   <p className="text-[12.5px] text-neutral-500 truncate">{m.position}</p>
-                  {isHr && <p className="text-[11.5px] text-neutral-400 truncate">{m.department}{m.managerName ? ` · reports to ${m.managerName}` : ""}</p>}
+                  {isHr && <p className="text-[11.5px] text-neutral-400 truncate">{m.department}{m.managerName ? ` · руководитель: ${m.managerName}` : ""}</p>}
                 </div>
                 <ArrowRightIcon size={14} className="text-neutral-300 mt-1 transition-all duration-200 group-hover/t:text-neutral-700 group-hover/t:translate-x-0.5" />
               </div>
               <dl className="mt-4 grid grid-cols-3 gap-3 pt-4 border-t border-neutral-100">
-                <Metric label="Vacation left" value={`${m.vacationRemaining} d`} />
-                <Metric label="Open requests" value={m.openRequests} />
-                <Metric label="Training" value={`${m.coursesCompleted}/${m.coursesAssigned}`} />
+                <Metric label="Остаток отпуска" value={`${m.vacationRemaining} дн.`} />
+                <Metric label="Открытые заявки" value={m.openRequests} />
+                <Metric label="Обучение" value={`${m.coursesCompleted}/${m.coursesAssigned}`} />
               </dl>
               {m.coursesOverdue > 0 && (
                 <div className="mt-3">
-                  <Pill tone="bad">{m.coursesOverdue} overdue course{m.coursesOverdue > 1 ? "s" : ""}</Pill>
+                  <Pill tone="bad">{m.coursesOverdue} {m.coursesOverdue === 1 ? "курс просрочен" : "курса(-ов) просрочено"}</Pill>
                 </div>
               )}
             </Link>

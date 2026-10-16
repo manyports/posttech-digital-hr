@@ -10,10 +10,10 @@ import { Textarea } from "../ui/Textarea";
 import { useToast } from "../ui/Toast";
 
 const COPY: Record<RequestAction, { label: string; title: string; done: string; needsComment: boolean; askComment: boolean }> = {
-  start_review: { label: "Start review", title: "Start reviewing this request?", done: "Review started. The employee was notified.", needsComment: false, askComment: false },
-  approve: { label: "Approve", title: "Approve this request", done: "Request approved. The employee was notified.", needsComment: false, askComment: true },
-  reject: { label: "Reject", title: "Reject this request", done: "Request rejected. The employee was notified.", needsComment: true, askComment: true },
-  cancel: { label: "Cancel request", title: "Cancel this request?", done: "Request cancelled.", needsComment: false, askComment: false },
+  start_review: { label: "Взять в работу", title: "Начать рассмотрение заявки?", done: "Рассмотрение начато. Сотрудник уведомлен.", needsComment: false, askComment: false },
+  approve: { label: "Одобрить", title: "Одобрить заявку", done: "Заявка одобрена. Сотрудник уведомлен.", needsComment: false, askComment: true },
+  reject: { label: "Отклонить", title: "Отклонить заявку", done: "Заявка отклонена. Сотрудник уведомлен.", needsComment: true, askComment: true },
+  cancel: { label: "Отозвать заявку", title: "Отозвать эту заявку?", done: "Заявка отменена.", needsComment: false, askComment: false },
 };
 
 /**
@@ -50,9 +50,9 @@ export function RequestActions({
       setComment("");
       onDone(updated);
     } catch (e) {
-      const msg = e instanceof ApiError ? e.message : "Something went wrong.";
+      const msg = e instanceof ApiError ? e.message : "Что-то пошло не так.";
       setError(msg);
-      toast({ title: "Action failed", description: msg, variant: "error" });
+      toast({ title: "Ошибка выполнения действия", description: msg, variant: "error" });
     } finally {
       setBusy(false);
     }
@@ -94,7 +94,7 @@ export function RequestActions({
         actions={
           <>
             <Button variant="ghost" size="sm" onClick={() => setPending(null)} disabled={busy}>
-              Back
+              Назад
             </Button>
             <Button
               variant={pending === "reject" || pending === "cancel" ? "outline" : "primary"}
@@ -102,14 +102,14 @@ export function RequestActions({
               disabled={busy || (copy?.needsComment === true && comment.trim().length < 3)}
               onClick={() => pending && void run(pending, comment)}
             >
-              {busy ? "Working…" : copy?.label}
+              {busy ? "Обработка…" : copy?.label}
             </Button>
           </>
         }
       >
         {copy?.askComment && (
           <Textarea
-            label={copy.needsComment ? "Reason (shown to the employee)" : "Comment (optional)"}
+            label={copy.needsComment ? "Причина (будет видна сотруднику)" : "Комментарий (необязательно)"}
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             rows={3}

@@ -232,7 +232,7 @@ function ToastCard({
           </div>
           <button
             onClick={() => onDismiss(item.id)}
-            aria-label="Dismiss"
+            aria-label="Закрыть"
             className="shrink-0 w-6 h-6 flex items-center justify-center rounded-md text-neutral-300 hover:text-neutral-600 hover:bg-neutral-100 transition-colors cursor-pointer"
           >
             <svg width="8" height="8" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">

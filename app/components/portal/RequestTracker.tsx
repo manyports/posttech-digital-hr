@@ -31,16 +31,16 @@ export function RequestTracker({
   const terminal = TERMINAL.includes(status);
 
   const decisionLabel =
-    status === "approved" ? "Approved" : status === "rejected" ? "Rejected" : status === "cancelled" ? "Cancelled" : "Decision";
+    status === "approved" ? "Одобрено" : status === "rejected" ? "Отклонено" : status === "cancelled" ? "Отменено" : "Решение";
 
   const stages = [
-    { label: "Submitted", time: at(history, "submitted") },
-    { label: "In review", time: at(history, "in_review") },
+    { label: "Подано", time: at(history, "submitted") },
+    { label: "На рассмотрении", time: at(history, "in_review") },
     { label: decisionLabel, time: at(history, "approved", "rejected", "cancelled") },
   ];
 
   return (
-    <ol className="grid grid-cols-3" aria-label="Request progress">
+    <ol className="grid grid-cols-3" aria-label="Прогресс заявки">
       {stages.map((s, i) => {
         const done = i < current || (i === current && terminal);
         const isCurrent = i === current && !terminal;
@@ -99,7 +99,7 @@ export function RequestTracker({
             <span className="mt-0.5 text-[10.5px] text-neutral-400 tabular-nums min-h-[14px]">
               {s.time && (done || isCurrent) ? fmtDateTime(s.time) : ""}
             </span>
-            <span className="sr-only">{lineDone ? "completed" : ""}</span>
+            <span className="sr-only">{lineDone ? "завершено" : ""}</span>
           </li>
         );
       })}

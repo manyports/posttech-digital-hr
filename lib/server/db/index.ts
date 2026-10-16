@@ -58,7 +58,15 @@ async function insertSeed(db: Db) {
 }
 
 async function seedIfEmpty(db: Db) {
-  if ((await db.employees.count()) === 0) await insertSeed(db);
+  if ((await db.employees.count()) === 0) {
+    await insertSeed(db);
+  } else {
+    const seed = buildSeed();
+    for (const c of seed.courses) {
+      await db.courses.deleteMany({ _id: c._id });
+      await db.courses.insertOne(structuredClone(c));
+    }
+  }
 }
 
 /** Wipe all business data (not sessions) and restore the pristine demo seed. */

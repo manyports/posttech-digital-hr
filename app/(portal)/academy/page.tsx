@@ -15,6 +15,15 @@ import { CourseStatusBadge } from "../../components/portal/StatusBadge";
 const SHADOW =
   "0 1px 3px rgba(17,17,17,0.02), 0 4px 12px -2px rgba(17,17,17,0.05), 0 0 0 1px rgba(17,17,17,0.06), inset 0 1.5px 0 rgba(255,255,255,0.95)";
 
+function pluralLessons(n: number): string {
+  const abs = Math.abs(n) % 100;
+  const rem = abs % 10;
+  if (abs > 10 && abs < 20) return `${n} уроков`;
+  if (rem > 1 && rem < 5) return `${n} урока`;
+  if (rem === 1) return `${n} урок`;
+  return `${n} уроков`;
+}
+
 export default function AcademyPage() {
   const { data, error, loading, reload } = useApi<{ assignments: AssignmentView[] }>("/api/academy", { interval: 10000 });
   const list = data?.assignments ?? [];
@@ -25,18 +34,18 @@ export default function AcademyPage() {
     <>
       <PageHeader
         title="Jana Academy"
-        description="Courses assigned to you. Open the materials, track your progress, and pass the test to complete a course."
+        description="Курсы, назначенные вам. Изучайте материалы, следите за прогрессом и сдавайте тесты для завершения курсов."
       />
 
       {loading && !data && <LoadingBlock rows={2} />}
       {error && !data && <ErrorBlock message={error.message} onRetry={reload} />}
 
       {data && list.length === 0 && (
-        <EmptyState icon={<BookIcon size={20} />} title="No courses assigned" description="When a manager or HR assigns you a course, it will show up here and in your notifications." />
+        <EmptyState icon={<BookIcon size={20} />} title="Нет назначенных курсов" description="Когда руководитель или HR назначит вам курс, он появится здесь и в ваших уведомлениях." />
       )}
 
-      {todo.length > 0 && <Section title="To do" count={todo.length} items={todo} />}
-      {done.length > 0 && <Section title="Completed" count={done.length} items={done} />}
+      {todo.length > 0 && <Section title="К прохождению" count={todo.length} items={todo} />}
+      {done.length > 0 && <Section title="Завершено" count={done.length} items={done} />}
     </>
   );
 }
@@ -59,13 +68,13 @@ function Section({ title, count, items }: { title: string; count: number; items:
 }
 
 function CourseCard({ a }: { a: AssignmentView }) {
-  const cta = a.status === "completed" ? "Review" : a.status === "assigned" ? "Start course" : "Continue";
+  const cta = a.status === "completed" ? "Повторить" : a.status === "assigned" ? "Начать курс" : "Продолжить";
   return (
     <article className="h-full rounded-[22px] bg-white p-6 flex flex-col gap-4" style={{ boxShadow: SHADOW }}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2">
           <Badge variant="muted">{a.course.category}</Badge>
-          {a.course.mandatory && <Badge variant="accent">Mandatory</Badge>}
+          {a.course.mandatory && <Badge variant="accent">Обязательный</Badge>}
         </div>
         <CourseStatusBadge status={a.status} overdue={a.overdue} />
       </div>
@@ -76,12 +85,12 @@ function CourseCard({ a }: { a: AssignmentView }) {
       </div>
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-neutral-400">
-        <span className="inline-flex items-center gap-1.5"><ClockIcon size={13} /> {a.course.durationMin} min</span>
-        <span>{a.course.lessonCount} lessons + test</span>
-        {a.status === "completed" ? <span>Score {a.bestScore}%</span> : <span>Due {fmtDate(a.dueDate)}</span>}
+        <span className="inline-flex items-center gap-1.5"><ClockIcon size={13} /> {a.course.durationMin} мин.</span>
+        <span>{pluralLessons(a.course.lessonCount)} + тест</span>
+        {a.status === "completed" ? <span>Результат {a.bestScore}%</span> : <span>Срок до {fmtDate(a.dueDate)}</span>}
       </div>
 
-      <Progress value={a.progress} showValue label={`${a.completedLessons}/${a.course.lessonCount} lessons`} />
+      <Progress value={a.progress} showValue label={`${a.completedLessons} из ${a.course.lessonCount} уроков`} />
 
       <div className="mt-auto pt-1">
         <Link href={`/academy/${a.id}`}>

@@ -23,7 +23,7 @@ export function TagInput({
   value,
   defaultValue = [],
   onChange,
-  placeholder = "Add tag…",
+  placeholder = "Добавить тег…",
   label,
   hint,
   maxTags,

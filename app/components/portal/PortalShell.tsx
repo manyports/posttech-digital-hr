@@ -34,30 +34,30 @@ interface NavItem {
 
 function navFor(user: SessionUser, unread: number): { title?: string; items: NavItem[] }[] {
   const mine: NavItem[] = [
-    { href: "/dashboard", label: "Dashboard", icon: <HomeIcon /> },
-    { href: "/profile", label: "My profile", icon: <UserIcon /> },
-    { href: "/requests", label: "My requests", icon: <DocIcon /> },
+    { href: "/dashboard", label: "Главная", icon: <HomeIcon /> },
+    { href: "/profile", label: "Мой профиль", icon: <UserIcon /> },
+    { href: "/requests", label: "Мои заявки", icon: <DocIcon /> },
     { href: "/academy", label: "Jana Academy", icon: <BookIcon /> },
     { href: "/assistant", label: "Al Jana", icon: <SparkleIcon /> },
-    { href: "/notifications", label: "Notifications", icon: <BellIcon />, badge: unread || undefined },
+    { href: "/notifications", label: "Уведомления", icon: <BellIcon />, badge: unread || undefined },
   ];
-  const sections: { title?: string; items: NavItem[] }[] = [{ title: "Me", items: mine }];
+  const sections: { title?: string; items: NavItem[] }[] = [{ title: "Основное", items: mine }];
   if (user.role === "manager") {
     sections.push({
-      title: "My team",
+      title: "Моя команда",
       items: [
-        { href: "/approvals", label: "Approvals", icon: <CheckCircleIcon /> },
-        { href: "/team", label: "Team", icon: <UsersIcon /> },
+        { href: "/approvals", label: "Согласования", icon: <CheckCircleIcon /> },
+        { href: "/team", label: "Команда", icon: <UsersIcon /> },
       ],
     });
   }
   if (user.role === "hr") {
     sections.push({
-      title: "HR / Admin",
+      title: "HR / Админ",
       items: [
-        { href: "/approvals", label: "All requests", icon: <CheckCircleIcon /> },
-        { href: "/team", label: "People", icon: <UsersIcon /> },
-        { href: "/hr", label: "HR inbox", icon: <InboxIcon /> },
+        { href: "/approvals", label: "Все заявки", icon: <CheckCircleIcon /> },
+        { href: "/team", label: "Сотрудники", icon: <UsersIcon /> },
+        { href: "/hr", label: "Входящие HR", icon: <InboxIcon /> },
       ],
     });
   }
@@ -76,7 +76,7 @@ function NavList({ user, onNavigate }: { user: SessionUser; onNavigate?: () => v
     .sort((a, b) => b.length - a.length)[0];
 
   return (
-    <nav aria-label="Main" className="flex flex-col gap-4">
+    <nav aria-label="Основная навигация" className="flex flex-col gap-4">
       {sections.map((section, si) => (
         <div key={si} className="flex flex-col gap-0.5">
           {section.title && (
@@ -174,7 +174,7 @@ function Shell({ user, children }: { user: SessionUser; children: React.ReactNod
             <button
               className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg text-neutral-700 hover:bg-neutral-100 transition-colors cursor-pointer"
               onClick={() => setNavOpen(true)}
-              aria-label="Open menu"
+              aria-label="Открыть меню"
             >
               <MenuIcon size={17} />
             </button>
@@ -184,7 +184,7 @@ function Shell({ user, children }: { user: SessionUser; children: React.ReactNod
           <div className="flex items-center gap-1.5">
             <Link
               href="/notifications"
-              aria-label={unread ? `Notifications (${unread} unread)` : "Notifications"}
+              aria-label={unread ? `Уведомления (${unread} непрочитанных)` : "Уведомления"}
               className="relative w-8 h-8 flex items-center justify-center rounded-lg text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
             >
               <BellIcon size={17} />
@@ -202,14 +202,14 @@ function Shell({ user, children }: { user: SessionUser; children: React.ReactNod
                 if (key === "signout") void signOut();
               }}
               items={[
-                { key: "profile", label: "My profile", icon: <UserIcon size={14} /> },
+                { key: "profile", label: "Мой профиль", icon: <UserIcon size={14} /> },
                 { key: "div", label: "", divider: true },
-                { key: "signout", label: "Sign out", icon: <LogoutIcon size={14} />, danger: true },
+                { key: "signout", label: "Выйти", icon: <LogoutIcon size={14} />, danger: true },
               ]}
               trigger={
                 <button
                   className="flex items-center gap-2.5 pl-1 pr-2 py-1 rounded-xl hover:bg-neutral-100 transition-colors cursor-pointer"
-                  aria-label="Account menu"
+                  aria-label="Меню аккаунта"
                 >
                   <Avatar name={user.fullName} size="sm" />
                   <span className="hidden sm:flex flex-col items-start leading-tight">
@@ -235,7 +235,7 @@ function Shell({ user, children }: { user: SessionUser; children: React.ReactNod
             <NavList user={user} />
           </div>
           <p className="text-[11px] text-neutral-400 mt-3 px-2 leading-relaxed">
-            Prototype · all data is fictional
+            Прототип · все данные вымышлены
           </p>
         </aside>
 

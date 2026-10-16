@@ -107,7 +107,7 @@ export function ShareButtons({
 
   const buttons = [
     {
-      label: "Copy link",
+      label: copied ? "Скопировано" : "Копировать ссылку",
       icon: copied ? <CheckIcon /> : <LinkIcon />,
       onClick: handleCopy,
     },

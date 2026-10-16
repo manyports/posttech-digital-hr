@@ -37,7 +37,7 @@ export function CommandPalette({
   open,
   onClose,
   sections,
-  placeholder = "Search commands…",
+  placeholder = "Поиск команд…",
   className = "",
 }: CommandPaletteProps) {
   const [mounted, setMounted] = useState(false);
@@ -275,7 +275,7 @@ export function CommandPalette({
           >
             {filtered.length === 0 ? (
               <div className="py-8 text-center text-[13px] text-neutral-400">
-                No results found
+                Ничего не найдено
               </div>
             ) : (
               filtered.map((section, si) => (

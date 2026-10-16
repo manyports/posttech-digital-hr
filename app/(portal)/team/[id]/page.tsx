@@ -28,7 +28,7 @@ export default function TeamMemberPage({ params }: { params: Promise<{ id: strin
 
   const back = (
     <Link href="/team" className="inline-flex items-center gap-1.5 text-[13px] text-neutral-500 hover:text-neutral-900 transition-colors w-fit">
-      <ArrowLeftIcon size={13} /> Team
+      <ArrowLeftIcon size={13} /> Команда
     </Link>
   );
 
@@ -58,26 +58,26 @@ export default function TeamMemberPage({ params }: { params: Promise<{ id: strin
                 <Badge variant="muted">{ROLE_LABEL[p.role]}</Badge>
               </div>
               <p className="text-[13.5px] text-neutral-500 mt-0.5">
-                {p.position} · {p.department} · hired {fmtDate(p.hireDate)}
+                {p.position} · {p.department} · в компании с {fmtDate(p.hireDate)}
               </p>
               <p className="text-[12.5px] text-neutral-400 mt-0.5">{p.email}</p>
             </div>
           </div>
           <Button variant="primary" size="sm" onClick={() => setAssignOpen(true)}>
-            <PlusIcon size={14} /> Assign course
+            <PlusIcon size={14} /> Назначить курс
           </Button>
         </div>
         <dl className="grid grid-cols-3 border-t border-neutral-100 [&>div+div]:border-l [&>div]:border-neutral-100">
-          <Stat label="Vacation remaining" value={`${p.vacation.remaining} d`} />
-          <Stat label="Pending" value={`${p.vacation.pending} d`} />
-          <Stat label="Entitlement" value={`${p.vacation.entitlement} d`} />
+          <Stat label="Остаток отпуска" value={`${p.vacation.remaining} дн.`} />
+          <Stat label="На рассмотрении" value={`${p.vacation.pending} дн.`} />
+          <Stat label="Ежегодный отпуск" value={`${p.vacation.entitlement} дн.`} />
         </dl>
       </Panel>
 
       <section aria-labelledby="req" className="flex flex-col gap-3">
-        <h2 id="req" className="text-[14px] font-semibold">Requests <span className="text-neutral-400 font-normal ml-1">{requests.length}</span></h2>
+        <h2 id="req" className="text-[14px] font-semibold">Заявки <span className="text-neutral-400 font-normal ml-1">{requests.length}</span></h2>
         {requests.length === 0 ? (
-          <Panel padding="p-6"><p className="text-[13px] text-neutral-500">No requests.</p></Panel>
+          <Panel padding="p-6"><p className="text-[13px] text-neutral-500">Нет заявок.</p></Panel>
         ) : (
           requests.map((r) => (
             <RequestCard key={r.id} request={r} footer={r.allowedActions.length > 0 ? <RequestActions request={r} onDone={reload} compact /> : undefined} />
@@ -85,9 +85,9 @@ export default function TeamMemberPage({ params }: { params: Promise<{ id: strin
         )}
       </section>
 
-      <Panel title="Training" description={`${training.filter((t) => t.status === "completed").length} of ${training.length} completed`} padding="p-0">
+      <Panel title="Обучение" description={`${training.filter((t) => t.status === "completed").length} из ${training.length} завершено`} padding="p-0">
         {training.length === 0 ? (
-          <p className="p-5 text-[13px] text-neutral-500">No courses assigned.</p>
+          <p className="p-5 text-[13px] text-neutral-500">Нет назначенных курсов.</p>
         ) : (
           <ul className="divide-y divide-neutral-100">
             {training.map((t) => (
@@ -98,7 +98,7 @@ export default function TeamMemberPage({ params }: { params: Promise<{ id: strin
                     <div className="w-28"><Progress value={t.progress} /></div>
                     <span className="text-[11.5px] text-neutral-400 tabular-nums">{t.progress}%</span>
                     <span className="text-[11.5px] text-neutral-400">
-                      {t.status === "completed" ? `score ${t.bestScore}%` : `due ${fmtDate(t.dueDate)}`}
+                      {t.status === "completed" ? `балл: ${t.bestScore}%` : `срок: ${fmtDate(t.dueDate)}`}
                     </span>
                   </div>
                 </div>
@@ -151,12 +151,12 @@ function AssignModal({ open, employeeId, employeeName, onClose }: { open: boolea
         courseId,
         dueDate: dueDate || undefined,
       });
-      toast({ title: "Course assigned", description: `${assignment.course.title} → ${employeeName}`, variant: "success" });
+      toast({ title: "Курс назначен", description: `${assignment.course.title} → ${employeeName}`, variant: "success" });
       setCourseId("");
       setDueDate("");
       onClose();
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "Could not assign the course.");
+      setError(e instanceof ApiError ? e.message : "Не удалось назначить курс.");
     } finally {
       setBusy(false);
     }
@@ -166,27 +166,27 @@ function AssignModal({ open, employeeId, employeeName, onClose }: { open: boolea
     <Modal
       open={open}
       onClose={onClose}
-      title="Assign a course"
-      description={`${employeeName} will be notified and the course appears in their Academy.`}
+      title="Назначить курс"
+      description={`${employeeName} получит уведомление, и курс появится в его Академии.`}
       actions={
         <>
-          <Button variant="ghost" size="sm" onClick={onClose} disabled={busy}>Cancel</Button>
+          <Button variant="ghost" size="sm" onClick={onClose} disabled={busy}>Отмена</Button>
           <Button variant="primary" size="sm" disabled={busy || !courseId} onClick={() => void submit()}>
-            {busy ? "Assigning…" : "Assign"}
+            {busy ? "Назначение…" : "Назначить"}
           </Button>
         </>
       }
     >
       <div className="flex flex-col gap-4">
         <Select
-          label="Course"
+          label="Курс"
           fullWidth
-          placeholder="Choose a course…"
+          placeholder="Выберите курс…"
           value={courseId}
           onChange={setCourseId}
-          options={courses.map((c) => ({ value: c.id, label: `${c.title}${c.mandatory ? " (mandatory)" : ""}` }))}
+          options={courses.map((c) => ({ value: c.id, label: `${c.title}${c.mandatory ? " (обязательный)" : ""}` }))}
         />
-        <Input label="Due date (optional, default 30 days)" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} fullWidth />
+        <Input label="Срок прохождения (необязательно, по умолчанию 30 дней)" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} fullWidth />
         {error && <p role="alert" className="text-[12.5px] text-red-600 font-medium">{error}</p>}
       </div>
     </Modal>

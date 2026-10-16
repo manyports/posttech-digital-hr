@@ -10,6 +10,7 @@ import type { Db } from "../db";
 import { badRequest, conflict, forbidden, notFound } from "../errors";
 import { isHr, type Actor } from "../policy";
 import { notify } from "./notifications";
+import { KB_ANSWERS_RU, MESSAGES_RU } from "../../assistant/translations";
 
 const MAX_QUESTION = 500;
 
@@ -20,13 +21,74 @@ function cleanQuestion(q: unknown): string {
   return s;
 }
 
+const RU_TO_EN_EXACT: Record<string, string> = {
+  "сколько дней отпуска мне положено?": "How many vacation days do I get?",
+  "сколько дней отпуска мне положено": "How many vacation days do I get?",
+  "как запросить аванс по зарплате?": "How do I request a salary advance?",
+  "как запросить аванс по зарплате": "How do I request a salary advance?",
+  "что делать, если я заболел?": "What should I do if I am sick?",
+  "что делать, если я заболел": "What should I do if I am sick?",
+  "могу ли я работать из дома?": "Can I work from home?",
+  "могу ли я работать из дома": "Can I work from home?",
+  "в какой день выплачивается зарплата?": "When is salary paid?",
+  "в какой день выплачивается зарплата": "When is salary paid?",
+  "есть ли у нас опционы на акции?": "Do we have stock options?",
+  "есть ли у нас опционы на акции": "Do we have stock options?",
+};
+
+function mapRussianQuery(raw: string): string {
+  const lower = raw.toLowerCase().trim();
+  if (RU_TO_EN_EXACT[lower]) return RU_TO_EN_EXACT[lower];
+
+  // If no Cyrillic characters, return as is.
+  if (!/[а-яё]/i.test(raw)) return raw;
+
+  if (/опцион|акци/i.test(raw)) return "Do we have stock options?";
+  if (/привет|здравствуй|добрый (день|вечер|утро)/i.test(raw)) return "hello";
+  if (/спасибо|благодар/i.test(raw)) return "thanks";
+  if (/пока|до свидания/i.test(raw)) return "bye";
+  if (/кто ты|что ты (умеешь|можешь)/i.test(raw)) return "who are you?";
+
+  if (/больничн|заболел|врач|болею/i.test(raw)) {
+    if (/оплат|плат/i.test(raw)) return "Do I get paid during sick leave?";
+    if (/справк|лист|сертификат/i.test(raw)) return "Do I need a medical certificate when I am sick?";
+    return "What should I do if I am sick?";
+  }
+  if (/аванс/i.test(raw)) {
+    if (/скольк|максимум|лимит|процент/i.test(raw)) return "How much can I take as an advance on my salary?";
+    if (/когда|сроки|выплат/i.test(raw)) return "How long until my advance is paid out?";
+    return "How do I request a salary advance?";
+  }
+  if (/отпуск/i.test(raw)) {
+    if (/остаток|баланс|сколько/i.test(raw)) return "How many vacation days do I get?";
+    if (/оформить|подать|запрос|заявк/i.test(raw)) return "How do I apply for a vacation?";
+    if (/согласов|кто/i.test(raw)) return "Who has to approve my leave?";
+    if (/перенос|следующ/i.test(raw)) return "Can I carry unused vacation over into next year?";
+    if (/без содерж|за свой счет/i.test(raw)) return "Is it possible to get leave without pay?";
+    return "How many vacation days do I get?";
+  }
+  if (/дом|удален|дистанцион/i.test(raw)) return "Can I work from home?";
+  if (/расчетн|квитанц|листок/i.test(raw)) return "Where do I download my pay slip?";
+  if (/зарплат|деньги|оплат/i.test(raw)) return "When is salary paid?";
+  if (/командиров/i.test(raw)) return "What approval do I need for a business trip?";
+  if (/увольн|уход/i.test(raw)) return "How do I hand in my resignation?";
+  if (/страхов/i.test(raw)) return "Do employees get health insurance?";
+  if (/обучен|курс|академи/i.test(raw)) return "Is there a budget for training courses?";
+  if (/контакт|связаться|hr/i.test(raw)) return "How do I reach HR?";
+  if (/справк/i.test(raw)) return "I need proof of employment, who can issue it?";
+
+  return raw;
+}
+
 /**
  * Answer from the knowledge base ONLY. The engine is deterministic retrieval;
  * the returned text is the KB entry verbatim, never generated.
  */
 export async function ask(actor: Actor, question: unknown): Promise<AssistantReply> {
   const q = cleanQuestion(question);
-  const reply = askKnowledgeBase(q);
+  const isRu = /[а-яё]/i.test(q);
+  const effectiveQuestion = mapRussianQuery(q);
+  const reply = askKnowledgeBase(effectiveQuestion);
   const db = await getDb();
   const log: AssistantLogDoc = {
     _id: `log-${await db.nextSeq("assistantLog")}`,
@@ -37,7 +99,32 @@ export async function ask(actor: Actor, question: unknown): Promise<AssistantRep
     createdAt: new Date().toISOString(),
   };
   await db.assistantLog.insertOne(log);
-  return reply;
+
+  if (isRu) {
+    if (reply.kind === "answer") {
+      const ruAnswer = KB_ANSWERS_RU[reply.entryId];
+      return {
+        ...reply,
+        question: q,
+        answer: ruAnswer ?? reply.answer,
+      };
+    }
+    if (reply.kind === "no_answer") {
+      return {
+        ...reply,
+        question: q,
+        message: MESSAGES_RU.noAnswer,
+      };
+    }
+    return {
+      ...reply,
+      question: q,
+      message: MESSAGES_RU[reply.kind as keyof typeof MESSAGES_RU] ?? reply.message,
+    };
+  }
+
+  // Keep original question in the reply for UI consistency
+  return { ...reply, question: q };
 }
 
 async function toView(db: Db, docs: EscalationDoc[]): Promise<EscalationView[]> {

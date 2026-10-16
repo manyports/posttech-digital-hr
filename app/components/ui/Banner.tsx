@@ -65,7 +65,7 @@ export function Banner({
         <button
           onClick={onDismiss}
           className="ml-3 flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-white/50 hover:text-white hover:bg-white/10 cursor-pointer transition-all duration-150"
-          aria-label="Dismiss"
+          aria-label="Закрыть"
         >
           <svg
             width="11"

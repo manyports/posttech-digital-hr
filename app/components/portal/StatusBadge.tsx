@@ -61,9 +61,9 @@ export function StatusBadge({ status }: { status: RequestStatus }) {
 }
 
 const courseLabel: Record<AssignmentStatus, string> = {
-  assigned: "Not started",
-  in_progress: "In progress",
-  completed: "Completed",
+  assigned: "Не начато",
+  in_progress: "В процессе",
+  completed: "Завершено",
 };
 const courseTone: Record<AssignmentStatus, keyof typeof tones> = {
   assigned: "neutral",
@@ -72,6 +72,6 @@ const courseTone: Record<AssignmentStatus, keyof typeof tones> = {
 };
 
 export function CourseStatusBadge({ status, overdue }: { status: AssignmentStatus; overdue?: boolean }) {
-  if (overdue) return <Pill tone="bad">Overdue</Pill>;
+  if (overdue) return <Pill tone="bad">Просрочено</Pill>;
   return <Pill tone={courseTone[status]}>{courseLabel[status]}</Pill>;
 }

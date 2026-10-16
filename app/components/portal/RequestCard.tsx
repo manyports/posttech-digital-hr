@@ -43,7 +43,7 @@ export function RequestCard({
           <p className="text-[13px] text-neutral-500 mt-0.5 truncate">{payloadSummary(request.payload)}</p>
           <div className="mt-2.5 flex items-center gap-3">
             <MiniTracker status={request.status} />
-            <span className="text-[11.5px] text-neutral-400 hidden sm:inline">Submitted {fmtDate(request.createdAt)}</span>
+            <span className="text-[11.5px] text-neutral-400 hidden sm:inline">Подано {fmtDate(request.createdAt)}</span>
           </div>
         </div>
         <div className="flex flex-col items-end gap-2 shrink-0">

@@ -34,7 +34,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
   if (error && !data) {
     return (
       <>
-        <BackLink to="/requests" label="My requests" />
+        <BackLink to="/requests" label="Мои заявки" />
         {error.status === 403 ? <AccessDenied message={error.message} /> : <ErrorBlock message={error.message} onRetry={reload} />}
       </>
     );
@@ -47,21 +47,21 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
 
   return (
     <>
-      <BackLink to={mine ? "/requests" : "/approvals"} label={mine ? "My requests" : "Approvals"} />
+      <BackLink to={mine ? "/requests" : "/approvals"} label={mine ? "Мои заявки" : "Согласования"} />
 
       <Panel padding="p-0">
         <div className="p-5 sm:p-6 flex flex-wrap items-start justify-between gap-4 border-b border-neutral-100">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2.5">
-              <h1 className="text-[22px] font-semibold tracking-[-0.025em]">{TYPE_LABEL[r.type]} request</h1>
+              <h1 className="text-[22px] font-semibold tracking-[-0.025em]">Заявка: {TYPE_LABEL[r.type]}</h1>
               <StatusBadge status={r.status} />
             </div>
             <p className="text-[13px] text-neutral-500 mt-1">
-              {r.id} · {mine ? "Submitted by you" : r.employee.fullName} · {fmtDateTime(r.createdAt)}
+              {r.id} · {mine ? "Подана вами" : r.employee.fullName} · {fmtDateTime(r.createdAt)}
             </p>
           </div>
           <Pill tone="dark" pulse>
-            Live
+            В реальном времени
           </Pill>
         </div>
 
@@ -72,7 +72,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
         {r.allowedActions.length > 0 && (
           <div className="px-5 sm:px-6 py-4 border-t border-neutral-100 bg-neutral-50/60 flex flex-wrap items-center justify-between gap-3">
             <p className="text-[12.5px] text-neutral-500">
-              {mine ? "You can withdraw this request while it is open." : "This request is waiting for your decision."}
+              {mine ? "Вы можете отозвать эту заявку, пока она открыта." : "Эта заявка ожидает вашего решения."}
             </p>
             <RequestActions request={r} onDone={reload} />
           </div>
@@ -80,31 +80,31 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
       </Panel>
 
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-6 items-start">
-        <Panel title="Details" padding="p-0">
+        <Panel title="Детали заявки" padding="p-0">
           <dl>
-            <Row label="Employee">{r.employee.fullName}</Row>
-            <Row label="Approver">{r.approver.fullName}</Row>
+            <Row label="Сотрудник">{r.employee.fullName}</Row>
+            <Row label="Согласующий">{r.approver.fullName}</Row>
             {p.kind === "vacation" ? (
               <>
-                <Row label="Dates">
+                <Row label="Даты">
                   {fmtDate(p.startDate)} – {fmtDate(p.endDate)}
                 </Row>
-                <Row label="Working days">{p.days}</Row>
-                {p.comment && <Row label="Comment">{p.comment}</Row>}
+                <Row label="Рабочих дней">{p.days}</Row>
+                {p.comment && <Row label="Комментарий">{p.comment}</Row>}
               </>
             ) : (
               <>
-                <Row label="Amount">{fmtKzt(p.amount)}</Row>
-                <Row label="Reason">{p.reason}</Row>
+                <Row label="Сумма">{fmtKzt(p.amount)}</Row>
+                <Row label="Причина">{p.reason}</Row>
               </>
             )}
-            <Row label="Last update">{fmtDateTime(r.updatedAt)}</Row>
+            <Row label="Обновлено">{fmtDateTime(r.updatedAt)}</Row>
           </dl>
         </Panel>
 
         <Panel
-          title="Connected systems"
-          description="Mock adapters today; see the architecture notes"
+          title="Интегрированные системы"
+          description="Тестовые адаптеры (см. архитектурные заметки)"
           padding="p-0"
         >
           <dl>
@@ -115,24 +115,24 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
                   <span className="text-[11.5px] font-normal text-neutral-400">{r.integration.documentolog.state}</span>
                 </span>
               ) : (
-                <span className="text-neutral-400 font-normal">Not started</span>
+                <span className="text-neutral-400 font-normal">Не запущено</span>
               )}
             </Row>
-            <Row label="1C:ZUP">
+            <Row label="1C:ЗУП">
               {r.integration.zup ? (
                 <span className="inline-flex flex-col items-end gap-0.5">
                   <span className="inline-flex items-center gap-1.5"><LinkIcon size={13} className="text-neutral-400" />{r.integration.zup.ref}</span>
                   <span className="text-[11.5px] font-normal text-neutral-400">{r.integration.zup.state}</span>
                 </span>
               ) : (
-                <span className="text-neutral-400 font-normal">{r.status === "approved" ? "-" : "Registered after approval"}</span>
+                <span className="text-neutral-400 font-normal">{r.status === "approved" ? "-" : "Регистрация после одобрения"}</span>
               )}
             </Row>
           </dl>
         </Panel>
       </div>
 
-      <Panel title="History" description="Every status change, who made it, and when">
+      <Panel title="История" description="Каждое изменение статуса, кто изменил и когда">
         <Timeline
           items={[...r.history].reverse().map((h, i) => ({
             key: `${h.at}-${i}`,

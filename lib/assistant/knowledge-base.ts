@@ -18,7 +18,7 @@
 
 import type { KbEntry, KbSource } from "../domain/types";
 
-const HR = "HR Department";
+const HR = "HR-департамент";
 
 function src(
   docId: string,
@@ -31,23 +31,23 @@ function src(
 }
 
 const LEAVE = (section: string, rev = "rev. 2025-01") =>
-  src("HR-POL-01", "Leave Policy", section, rev);
+  src("HR-POL-01", "Политика отпусков (Leave Policy)", section, rev);
 const SICK = (section: string) =>
-  src("HR-POL-02", "Sick Leave Policy", section, "rev. 2024-11");
+  src("HR-POL-02", "Политика больничных листов (Sick Leave Policy)", section, "rev. 2024-11");
 const TIME = (section: string) =>
-  src("HR-POL-03", "Working Time & Remote Work Policy", section, "rev. 2025-02");
+  src("HR-POL-03", "Политика рабочего времени и удаленной работы (Working Time & Remote Work Policy)", section, "rev. 2025-02");
 const PAY = (section: string) =>
-  src("HR-POL-04", "Payroll & Salary Advance Policy", section, "rev. 2025-03", "Finance & HR");
+  src("HR-POL-04", "Политика оплаты труда и авансов (Payroll & Salary Advance Policy)", section, "rev. 2025-03", "Финансы и HR");
 const BEN = (section: string) =>
-  src("HR-POL-05", "Benefits Guide", section, "rev. 2025-01");
+  src("HR-POL-05", "Руководство по льготам и бенефитам (Benefits Guide)", section, "rev. 2025-01");
 const TRAVEL = (section: string) =>
-  src("HR-POL-06", "Business Travel Policy", section, "rev. 2024-09", "Finance");
+  src("HR-POL-06", "Политика командировок (Business Travel Policy)", section, "rev. 2024-09", "Финансы");
 const LIFE = (section: string) =>
-  src("HR-POL-07", "Employment Lifecycle Handbook", section, "rev. 2025-02");
+  src("HR-POL-07", "Справочник жизненного цикла сотрудника (Employment Lifecycle Handbook)", section, "rev. 2025-02");
 const ACADEMY = (section: string) =>
-  src("HR-POL-08", "Jana Academy Training Policy", section, "rev. 2025-04");
+  src("HR-POL-08", "Политика обучения в Jana Academy (Jana Academy Training Policy)", section, "rev. 2025-04");
 const GUIDE = (section: string) =>
-  src("HR-GUIDE-01", "Digital HR Portal User Guide", section, "rev. 2025-05");
+  src("HR-GUIDE-01", "Руководство пользователя Digital HR (Digital HR Portal User Guide)", section, "rev. 2025-05");
 
 export const KB: KbEntry[] = [
   /* ── Leave (HR-POL-01) ─────────────────────────────────────────────── */

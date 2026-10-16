@@ -12,19 +12,20 @@ import { useToast } from "../../components/ui/Toast";
 import { ArrowRightIcon, BookIcon, CheckIcon, SendIcon, SparkleIcon } from "../../components/portal/icons";
 import { PageHeader, Panel } from "../../components/portal/Panel";
 import { Pill } from "../../components/portal/StatusBadge";
+import { KB_ANSWERS_RU, RU_QUESTIONS, MESSAGES_RU } from "@/lib/assistant/translations";
 
 type Msg =
   | { id: number; role: "user"; text: string }
   | { id: number; role: "bot"; reply: AssistantReply; escalation?: EscalationView; escalating?: boolean };
 
 const STARTERS = [
-  "How many vacation days do I get?",
-  "How do I request a salary advance?",
-  "What should I do if I am sick?",
-  "Can I work from home?",
-  "When is salary paid?",
+  "Сколько дней отпуска мне положено?",
+  "Как запросить аванс по зарплате?",
+  "Что делать, если я заболел?",
+  "Могу ли я работать из дома?",
+  "В какой день выплачивается зарплата?",
 ];
-const OUTSIDE_KB = ["Do we have stock options?"];
+const OUTSIDE_KB = ["Есть ли у нас опционы на акции?"];
 
 export default function AssistantPage() {
   const { toast } = useToast();
@@ -51,7 +52,7 @@ export default function AssistantPage() {
       await new Promise((r) => setTimeout(r, 350));
       setMessages((m) => [...m, { id: nextId.current++, role: "bot", reply }]);
     } catch (e) {
-      toast({ title: "Al Jana couldn't answer", description: e instanceof ApiError ? e.message : undefined, variant: "error" });
+      toast({ title: "Al Jana не смогла ответить", description: e instanceof ApiError ? e.message : undefined, variant: "error" });
     } finally {
       setThinking(false);
     }
@@ -62,11 +63,11 @@ export default function AssistantPage() {
     try {
       const { escalation } = await post<{ escalation: EscalationView }>("/api/assistant/escalate", { question });
       setMessages((m) => m.map((x) => (x.id === msgId && x.role === "bot" ? { ...x, escalating: false, escalation } : x)));
-      toast({ title: "Question sent to HR", description: `Ticket ${escalation.id}. You'll get a notification when HR replies.`, variant: "success" });
+      toast({ title: "Вопрос передан в HR", description: `Обращение ${escalation.id}. Вы получите уведомление, когда HR ответит.`, variant: "success" });
       reloadEsc();
     } catch (e) {
       setMessages((m) => m.map((x) => (x.id === msgId && x.role === "bot" ? { ...x, escalating: false } : x)));
-      toast({ title: "Could not contact HR", description: e instanceof ApiError ? e.message : undefined, variant: "error" });
+      toast({ title: "Не удалось связаться с HR", description: e instanceof ApiError ? e.message : undefined, variant: "error" });
     }
   }
 
@@ -74,7 +75,7 @@ export default function AssistantPage() {
     <>
       <PageHeader
         title="Al Jana"
-        description="Your HR assistant. It answers only from the HR knowledge base, always shows its source, and never guesses."
+        description="Ваш HR-ассистент. Отвечает строго по корпоративной базе знаний HR, всегда указывает источник и не выдумывает факты."
       />
 
       <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-6 items-start">
@@ -85,18 +86,17 @@ export default function AssistantPage() {
             </span>
             <div className="min-w-0">
               <p className="text-[14px] font-semibold tracking-[-0.01em] leading-tight">Al Jana</p>
-              <p className="text-[12px] text-neutral-400">Answers from the HR knowledge base only</p>
+              <p className="text-[12px] text-neutral-400">Ответы только из базы знаний HR</p>
             </div>
           </div>
 
-          <div role="log" aria-live="polite" aria-label="Conversation" className="px-4 sm:px-5 py-5 flex flex-col gap-5 min-h-[380px] max-h-[62vh] overflow-y-auto">
+          <div role="log" aria-live="polite" aria-label="Диалог" className="px-4 sm:px-5 py-5 flex flex-col gap-5 min-h-[380px] max-h-[62vh] overflow-y-auto">
             <BotBubble>
               <p className="text-[14px] leading-relaxed text-neutral-800">
-                Hi! Ask me about vacation, salary advances, sick leave, working hours, benefits or training. I answer only from our HR knowledge
-                base and always show where the answer comes from. If I can&apos;t find a reliable answer, I&apos;ll say so and offer to pass it to HR.
+                Здравствуйте! Спросите меня об отпуске, авансе, больничных, рабочем времени, льготах или обучении. Я отвечаю только по нашей базе знаний HR и всегда показываю источник. Если точного ответа нет, я честно сообщу об этом и предложу передать вопрос в HR.
               </p>
-              <Chips label="Try asking" items={STARTERS} onPick={ask} disabled={thinking} />
-              <Chips label="Outside the knowledge base (see escalation)" items={OUTSIDE_KB} onPick={ask} disabled={thinking} subtle />
+              <Chips label="Попробуйте спросить" items={STARTERS} onPick={ask} disabled={thinking} />
+              <Chips label="Вне базы знаний (пример передачи в HR)" items={OUTSIDE_KB} onPick={ask} disabled={thinking} subtle />
             </BotBubble>
 
             {messages.map((m) =>
@@ -109,7 +109,7 @@ export default function AssistantPage() {
 
             {thinking && (
               <BotBubble>
-                <span className="inline-flex gap-1 py-1" aria-label="Al Jana is searching the knowledge base">
+                <span className="inline-flex gap-1 py-1" aria-label="Al Jana ищет ответ в базе знаний">
                   {[0, 1, 2].map((i) => (
                     <span key={i} className="w-1.5 h-1.5 rounded-full bg-neutral-400 animate-bounce" style={{ animationDelay: `${i * 120}ms` }} />
                   ))}
@@ -128,8 +128,8 @@ export default function AssistantPage() {
           >
             <div className="flex-1">
               <Input
-                aria-label="Ask an HR question"
-                placeholder="Ask an HR question…"
+                aria-label="Задать вопрос HR"
+                placeholder="Задайте вопрос HR…"
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 maxLength={500}
@@ -138,35 +138,35 @@ export default function AssistantPage() {
               />
             </div>
             <Button type="submit" variant="primary" size="md" disabled={thinking || !draft.trim()}>
-              <SendIcon size={15} /> Ask
+              <SendIcon size={15} /> Спросить
             </Button>
           </form>
         </Panel>
 
         <div className="flex flex-col gap-6 min-w-0">
-          <Panel title="How Al Jana works" padding="p-5">
+          <Panel title="Как работает Al Jana" padding="p-5">
             <ul className="flex flex-col gap-3 text-[13px] text-neutral-600 leading-snug">
-              <Point>Answers are written by HR and shown <strong className="text-neutral-900">word for word</strong>. Nothing is generated or guessed.</Point>
-              <Point>Every answer cites its <strong className="text-neutral-900">source document and section</strong>.</Point>
-              <Point>No reliable match? It says so and offers to <strong className="text-neutral-900">escalate to HR</strong>.</Point>
+              <Point>Ответы составлены HR и отображаются <strong className="text-neutral-900">слово в слово</strong>. Ничего не генерируется и не додумывается.</Point>
+              <Point>Каждый ответ содержит ссылку на <strong className="text-neutral-900">исходный документ и раздел</strong>.</Point>
+              <Point>Нет надежного совпадения? Ассистент скажет об этом и предложит <strong className="text-neutral-900">передать вопрос в HR</strong>.</Point>
             </ul>
           </Panel>
 
-          <Panel title="My questions to HR" description="Escalated from Al Jana" padding="p-0">
+          <Panel title="Мои вопросы в HR" description="Передано из Al Jana" padding="p-0">
             {!esc || esc.escalations.length === 0 ? (
-              <p className="p-5 text-[13px] text-neutral-500">Nothing yet. If Al Jana can&apos;t answer, you can send the question to HR.</p>
+              <p className="p-5 text-[13px] text-neutral-500">Пока вопросов нет. Если Al Jana не сможет ответить, вы сможете отправить вопрос в HR.</p>
             ) : (
               <ul className="divide-y divide-neutral-100">
                 {esc.escalations.map((e) => (
                   <li key={e.id} className="px-5 py-3.5">
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-[11.5px] text-neutral-400 tabular-nums">{e.id} · {fmtRelative(e.createdAt)}</span>
-                      <Pill tone={e.status === "answered" ? "good" : "warn"}>{e.status === "answered" ? "Answered" : "Waiting for HR"}</Pill>
+                      <Pill tone={e.status === "answered" ? "good" : "warn"}>{e.status === "answered" ? "Отвечено" : "Ожидает HR"}</Pill>
                     </div>
                     <p className="text-[13px] font-medium text-neutral-900 mt-1.5 leading-snug">{e.question}</p>
                     {e.answer && (
                       <p className="mt-2 text-[13px] text-neutral-600 leading-relaxed bg-neutral-50 rounded-lg px-3 py-2.5">
-                        <span className="block text-[10.5px] font-semibold uppercase tracking-widest text-neutral-400 mb-1">HR replied</span>
+                        <span className="block text-[10.5px] font-semibold uppercase tracking-widest text-neutral-400 mb-1">HR ответил(а)</span>
                         {e.answer}
                       </p>
                     )}
@@ -259,19 +259,21 @@ function BotMessage({
   const r = msg.reply;
 
   if (r.kind === "answer") {
+    const text = KB_ANSWERS_RU[r.entryId] ?? r.answer;
+    const relatedItems = r.related.map((x) => RU_QUESTIONS[x.entryId] ?? x.question);
     return (
       <BotBubble>
-        <p className="text-[14.5px] leading-[1.7] text-neutral-900">{r.answer}</p>
+        <p className="text-[14.5px] leading-[1.7] text-neutral-900">{text}</p>
 
         <aside
-          aria-label="Source"
+          aria-label="Источник"
           className="rounded-xl bg-neutral-50 px-3.5 py-3 flex items-start gap-3 ring-1 ring-inset ring-neutral-900/5"
         >
           <span className="w-7 h-7 rounded-lg bg-white text-neutral-700 flex items-center justify-center shrink-0 ring-1 ring-inset ring-neutral-900/8">
             <BookIcon size={14} />
           </span>
           <div className="min-w-0">
-            <p className="text-[10.5px] font-semibold uppercase tracking-widest text-neutral-400">Source</p>
+            <p className="text-[10.5px] font-semibold uppercase tracking-widest text-neutral-400">Источник</p>
             <p className="text-[13px] font-semibold text-neutral-900 leading-snug mt-0.5">
               {r.source.docTitle} <span className="text-neutral-400 font-medium">· {r.source.docId}</span>
             </p>
@@ -291,45 +293,47 @@ function BotMessage({
           </div>
         )}
 
-        <Chips label="Related" items={r.related.map((x) => x.question)} onPick={onAsk} disabled={disabled} />
+        <Chips label="Похожие вопросы" items={relatedItems} onPick={onAsk} disabled={disabled} />
       </BotBubble>
     );
   }
 
   if (r.kind === "no_answer") {
+    const message = MESSAGES_RU.noAnswer;
     return (
       <BotBubble>
         <div className="flex items-start gap-3">
           <span className="w-6 h-6 rounded-md bg-amber-500 text-white flex items-center justify-center shrink-0 text-[13px] font-semibold mt-0.5">?</span>
           <div>
-            <p className="text-[14px] font-semibold text-neutral-900 leading-snug">No reliable answer found</p>
-            <p className="text-[13.5px] leading-relaxed text-neutral-600 mt-1">{r.message}</p>
+            <p className="text-[14px] font-semibold text-neutral-900 leading-snug">Надежный ответ не найден</p>
+            <p className="text-[13.5px] leading-relaxed text-neutral-600 mt-1">{message}</p>
           </div>
         </div>
 
         {msg.escalation ? (
           <div className="rounded-xl bg-emerald-50 text-emerald-800 px-3.5 py-3 text-[13px] leading-snug ring-1 ring-inset ring-emerald-600/15">
-            <p className="font-semibold">Sent to HR · {msg.escalation.id}</p>
-            <p className="mt-0.5 text-emerald-700">You&apos;ll get a notification when HR replies. Track it under &ldquo;My questions to HR&rdquo;.</p>
+            <p className="font-semibold">Передано в HR · {msg.escalation.id}</p>
+            <p className="mt-0.5 text-emerald-700">Вы получите уведомление, когда HR ответит. Отслеживать можно в разделе «Мои вопросы в HR».</p>
           </div>
         ) : (
           <div className="flex flex-wrap items-center gap-2">
             <Button variant="primary" size="sm" disabled={msg.escalating} onClick={onEscalate}>
-              {msg.escalating ? "Sending…" : "Send this question to HR"}
+              {msg.escalating ? "Отправка…" : "Передать этот вопрос в HR"}
             </Button>
-            <span className="text-[12px] text-neutral-400">A person from HR will reply.</span>
+            <span className="text-[12px] text-neutral-400">Сотрудник HR подготовит ответ.</span>
           </div>
         )}
 
-        <Chips label="Or try one of these" items={r.suggestions} onPick={onAsk} disabled={disabled} />
+        <Chips label="Или попробуйте один из этих вопросов" items={STARTERS.slice(0, 4)} onPick={onAsk} disabled={disabled} />
       </BotBubble>
     );
   }
 
+  const smalltalkMessage = MESSAGES_RU[r.kind as keyof typeof MESSAGES_RU] ?? MESSAGES_RU.greeting;
   return (
     <BotBubble>
-      <p className="text-[14px] leading-relaxed text-neutral-800">{r.message}</p>
-      <Chips label="Try asking" items={r.suggestions} onPick={onAsk} disabled={disabled} />
+      <p className="text-[14px] leading-relaxed text-neutral-800">{smalltalkMessage}</p>
+      <Chips label="Попробуйте спросить" items={STARTERS.slice(0, 4)} onPick={onAsk} disabled={disabled} />
     </BotBubble>
   );
 }

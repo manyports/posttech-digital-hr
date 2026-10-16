@@ -28,7 +28,7 @@ export default function ApprovalsPage() {
   if (error?.status === 403) {
     return (
       <>
-        <PageHeader title="Approvals" />
+        <PageHeader title="Согласования" />
         <AccessDenied message={error.message} />
       </>
     );
@@ -37,19 +37,19 @@ export default function ApprovalsPage() {
   return (
     <>
       <PageHeader
-        title={isHr ? "All requests" : "Approvals"}
+        title={isHr ? "Все заявки" : "Согласования"}
         description={
           isHr
-            ? "Company-wide view. Decide any request except your own."
-            : "Requests from your direct reports only. Nobody outside your team appears here."
+            ? "Просмотр по всей компании. Принятие решений по любым заявкам, кроме собственных."
+            : "Заявки только от ваших прямых подчиненных. Никто вне вашей команды здесь не отображается."
         }
       />
 
       <Tabs
         tabs={[
-          { key: "action", label: `Needs action · ${open.length}` },
-          { key: "decided", label: `Decided · ${decided.length}` },
-          { key: "all", label: `All · ${all.length}` },
+          { key: "action", label: `Требуют решения · ${open.length}` },
+          { key: "decided", label: `Рассмотрено · ${decided.length}` },
+          { key: "all", label: `Все · ${all.length}` },
         ]}
         onChange={(k) => setTab(k as Tab)}
       />
@@ -60,8 +60,8 @@ export default function ApprovalsPage() {
       {data && list.length === 0 && (
         <EmptyState
           icon={<CheckCircleIcon size={20} />}
-          title={tab === "action" ? "Inbox zero" : "Nothing here"}
-          description={tab === "action" ? "No requests are waiting for your decision." : "No requests in this view."}
+          title={tab === "action" ? "Входящих нет" : "Ничего не найдено"}
+          description={tab === "action" ? "Нет заявок, ожидающих вашего решения." : "В этом разделе нет заявок."}
         />
       )}
 

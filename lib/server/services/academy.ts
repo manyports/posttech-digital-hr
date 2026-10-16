@@ -18,6 +18,7 @@ import {
   type Actor,
 } from "../policy";
 import { notify } from "./notifications";
+import { COURSES } from "../../seed/courses";
 
 /* ── Views ─────────────────────────────────────────────────────────── */
 
@@ -44,7 +45,7 @@ export function progressOf(a: AssignmentDoc, c: CourseDoc): number {
 
 async function assignmentViews(db: Db, docs: AssignmentDoc[]): Promise<AssignmentView[]> {
   if (!docs.length) return [];
-  const courses = new Map((await db.courses.find({})).map((c) => [c._id, c]));
+  const courses = new Map(COURSES.map((c) => [c._id, c]));
   const people = new Map(
     (await db.employees.find({ _id: { $in: [...new Set(docs.map((d) => d.assignedById))] } })).map((e) => [e._id, e]),
   );
@@ -87,7 +88,7 @@ async function loadForViewer(db: Db, actor: Actor, id: string) {
   if (!a) throw notFound("Course assignment not found.");
   const owner = await db.employees.findOne({ _id: a.userId });
   if (!owner || !canViewEmployee(actor, owner)) throw forbidden("You can't view this course assignment.");
-  const course = await db.courses.findOne({ _id: a.courseId });
+  const course = COURSES.find((c) => c._id === a.courseId) ?? (await db.courses.findOne({ _id: a.courseId }));
   if (!course) throw notFound("Course not found.");
   return { a, course, owner };
 }
@@ -213,8 +214,7 @@ export async function submitTest(actor: Actor, id: string, input: unknown): Prom
 
 export async function listCourses(actor: Actor): Promise<CourseSummary[]> {
   if (!canManageTeam(actor)) throw forbidden("Only managers and HR can browse the course catalogue.");
-  const db = await getDb();
-  return (await db.courses.find({}, { sort: { title: 1 } })).map(courseSummary);
+  return COURSES.map(courseSummary);
 }
 
 export async function assignCourse(actor: Actor, input: unknown): Promise<AssignmentView> {
@@ -230,7 +230,7 @@ export async function assignCourse(actor: Actor, input: unknown): Promise<Assign
   if (!canAssignCourseTo(actor, target)) {
     throw forbidden("You can only assign training to your direct reports.");
   }
-  const course = await db.courses.findOne({ _id: courseId });
+  const course = COURSES.find((c) => c._id === courseId) ?? (await db.courses.findOne({ _id: courseId }));
   if (!course) throw notFound("Course not found.");
 
   const due = dueDate === undefined || dueDate === "" ? addDays(todayISO(), 30) : dueDate;

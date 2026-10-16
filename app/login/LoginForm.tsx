@@ -30,6 +30,17 @@ export function LoginForm({
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const PERSONA_LABELS: Record<string, string> = {
+    "Employee": "Сотрудник",
+    "Manager": "Руководитель",
+    "HR / Admin": "HR / Админ",
+  };
+  const PERSONA_HINTS: Record<string, string> = {
+    "aruzhan.kassymova@jana.example": "Senior Frontend Developer · Инжиниринг",
+    "daniyar.omarov@jana.example": "Руководитель разработки · 4 подчиненных",
+    "aigerim.sadykova@jana.example": "HR-директор · вся компания",
+  };
+
   async function signIn(address: string, pwd?: string) {
     setBusy(address);
     setError(null);
@@ -38,7 +49,7 @@ export function LoginForm({
       router.replace("/dashboard");
       router.refresh();
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "Could not sign in.");
+      setError(e instanceof ApiError ? e.message : "Не удалось войти.");
       setBusy(null);
     }
   }
@@ -53,9 +64,9 @@ export function LoginForm({
           <div>
             <h1 className="text-[28px] font-semibold tracking-[-0.03em] leading-tight">Digital HR</h1>
             <p className="text-[14px] text-neutral-500 mt-1 leading-relaxed">
-              Requests, training and answers.
+              Заявки, обучение и ответы на вопросы.
               <br />
-              One portal instead of five systems.
+              Единый портал вместо пяти систем.
             </p>
           </div>
         </div>
@@ -69,7 +80,7 @@ export function LoginForm({
             }}
           >
             <Input
-              label="Work e-mail"
+              label="Рабочий e-mail"
               type="email"
               autoComplete="username"
               placeholder="name@jana.example"
@@ -80,7 +91,7 @@ export function LoginForm({
             />
             {passwordRequired && (
               <Input
-                label="Demo password"
+                label="Демо-пароль"
                 type="password"
                 autoComplete="current-password"
                 value={password}
@@ -95,13 +106,13 @@ export function LoginForm({
               </p>
             )}
             <Button type="submit" variant="primary" fullWidth disabled={busy !== null || !email}>
-              {busy === email ? "Signing in…" : "Sign in"}
+              {busy === email ? "Вход…" : "Войти"}
               <ArrowRightIcon size={13} />
             </Button>
             <p className="text-[11.5px] text-neutral-400 leading-relaxed text-center">
               {passwordRequired
-                ? "Mock SSO with a shared demo password."
-                : "Mock SSO: no passwords are stored or needed in this prototype. A corporate identity provider replaces this screen in production."}
+                ? "Тестовый SSO с общим демо-паролем."
+                : "Тестовый SSO: пароли не требуются в прототипе. В рабочей среде используется корпоративный Identity Provider."}
             </p>
           </form>
         </Panel>
@@ -109,9 +120,9 @@ export function LoginForm({
         <section aria-labelledby="demo-accounts" className="flex flex-col gap-2.5">
           <div className="flex items-center justify-between px-1">
             <h2 id="demo-accounts" className="text-[12px] font-semibold uppercase tracking-widest text-neutral-400">
-              Demo accounts
+              Демо-аккаунты
             </h2>
-            <span className="text-[11.5px] text-neutral-400">fictional people</span>
+            <span className="text-[11.5px] text-neutral-400">демо-пользователи</span>
           </div>
           <ul className="flex flex-col gap-2">
             {personas.map((p) => (
@@ -131,10 +142,10 @@ export function LoginForm({
                     <span className="flex items-center gap-2">
                       <span className="text-[13.5px] font-semibold text-neutral-900 truncate">{p.name}</span>
                       <Badge variant={p.label.startsWith("Employee") ? "muted" : p.label.startsWith("Manager") ? "accent" : "default"}>
-                        {p.label}
+                        {PERSONA_LABELS[p.label] ?? p.label}
                       </Badge>
                     </span>
-                    <span className="block text-[12px] text-neutral-400 truncate mt-0.5">{p.hint}</span>
+                    <span className="block text-[12px] text-neutral-400 truncate mt-0.5">{PERSONA_HINTS[p.email] ?? p.hint}</span>
                   </span>
                   <ArrowRightIcon
                     size={14}
@@ -145,7 +156,7 @@ export function LoginForm({
             ))}
           </ul>
           {passwordRequired && (
-            <p className="text-[11.5px] text-neutral-400 px-1">Enter the demo password above first, then pick an account.</p>
+            <p className="text-[11.5px] text-neutral-400 px-1">Сначала введите демо-пароль выше, затем выберите аккаунт.</p>
           )}
         </section>
       </div>

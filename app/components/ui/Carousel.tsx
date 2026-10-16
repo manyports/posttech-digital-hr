@@ -144,12 +144,12 @@ export function Carousel({
         </div>
 
         <div className="flex gap-1.5">
-          <Button variant="secondary" size="icon" onClick={goPrev} aria-label="Previous slide">
+          <Button variant="secondary" size="icon" onClick={goPrev} aria-label="Предыдущий слайд">
             <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
           </Button>
-          <Button variant="secondary" size="icon" onClick={goNext} aria-label="Next slide">
+          <Button variant="secondary" size="icon" onClick={goNext} aria-label="Следующий слайд">
             <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>

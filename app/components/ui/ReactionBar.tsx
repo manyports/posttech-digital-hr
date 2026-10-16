@@ -15,11 +15,11 @@ interface ReactionBarProps {
 }
 
 const defaultReactions: ReactionItem[] = [
-  { emoji: "👏", label: "Clap", count: 0 },
-  { emoji: "❤️", label: "Love", count: 0 },
-  { emoji: "🔥", label: "Fire", count: 0 },
-  { emoji: "💡", label: "Insightful", count: 0 },
-  { emoji: "🎉", label: "Celebrate", count: 0 },
+  { emoji: "👏", label: "Аплодисменты", count: 0 },
+  { emoji: "❤️", label: "Нравится", count: 0 },
+  { emoji: "🔥", label: "Огонь", count: 0 },
+  { emoji: "💡", label: "Полезно", count: 0 },
+  { emoji: "🎉", label: "Празднуем", count: 0 },
 ];
 
 export function ReactionBar({

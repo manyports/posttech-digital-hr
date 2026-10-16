@@ -10,10 +10,10 @@ import { useNotifications } from "../../components/portal/NotificationsProvider"
 import { LoadingBlock, PageHeader, Panel } from "../../components/portal/Panel";
 
 const KIND: Record<NotificationKind, { icon: React.ReactNode; label: string }> = {
-  request: { icon: <DocIcon size={15} />, label: "Request" },
-  course: { icon: <BookIcon size={15} />, label: "Training" },
+  request: { icon: <DocIcon size={15} />, label: "Заявка" },
+  course: { icon: <BookIcon size={15} />, label: "Обучение" },
   escalation: { icon: <SparkleIcon size={15} />, label: "Al Jana" },
-  system: { icon: <InboxIcon size={15} />, label: "System" },
+  system: { icon: <InboxIcon size={15} />, label: "Система" },
 };
 
 export default function NotificationsPage() {
@@ -28,11 +28,11 @@ export default function NotificationsPage() {
   return (
     <>
       <PageHeader
-        title="Notifications"
-        description="Status changes on your requests, course assignments and completions, and replies from HR."
+        title="Уведомления"
+        description="Изменения статусов ваших заявок, назначение и завершение курсов, ответы от HR."
         actions={
           <Button variant="secondary" size="sm" disabled={unread === 0} onClick={() => void markAllRead()}>
-            Mark all as read
+            Прочитать все
           </Button>
         }
       />
@@ -40,7 +40,7 @@ export default function NotificationsPage() {
       {loading && notifications.length === 0 && <LoadingBlock rows={3} />}
 
       {!loading && notifications.length === 0 && (
-        <EmptyState icon={<BellIcon size={20} />} title="You're all caught up" description="New alerts appear here and as a toast the moment they happen." />
+        <EmptyState icon={<BellIcon size={20} />} title="Все уведомления прочитаны" description="Новые оповещения появляются здесь и во всплывающих уведомлениях в момент события." />
       )}
 
       {notifications.length > 0 && (
@@ -65,7 +65,7 @@ export default function NotificationsPage() {
                     <span className="flex-1 min-w-0">
                       <span className="flex items-center gap-2">
                         <span className={["text-[13.5px] leading-snug", n.readAt ? "font-medium text-neutral-700" : "font-semibold text-neutral-900"].join(" ")}>{n.title}</span>
-                        {!n.readAt && <span className="w-1.5 h-1.5 rounded-full bg-neutral-900" aria-label="unread" />}
+                        {!n.readAt && <span className="w-1.5 h-1.5 rounded-full bg-neutral-900" aria-label="не прочитано" />}
                       </span>
                       <span className="block text-[13px] text-neutral-500 mt-0.5 leading-relaxed">{n.body}</span>
                       <span className="block text-[11.5px] text-neutral-400 mt-1.5">

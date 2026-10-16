@@ -21,18 +21,18 @@ export default function DashboardPage() {
   return (
     <>
       <PageHeader
-        title={`Welcome back, ${first}`}
+        title={`С возвращением, ${first}`}
         description={`${user.position} · ${user.department}`}
         actions={
           <>
             <Link href="/assistant">
               <Button variant="secondary" size="sm">
-                <SparkleIcon size={14} /> Ask Al Jana
+                <SparkleIcon size={14} /> Спросить Al Jana
               </Button>
             </Link>
             <Link href="/requests?new=vacation">
               <Button variant="primary" size="sm">
-                <PlusIcon size={14} /> New request
+                <PlusIcon size={14} /> Новая заявка
               </Button>
             </Link>
           </>
@@ -44,76 +44,76 @@ export default function DashboardPage() {
 
       {data && (
         <>
-          <section aria-label="Summary" className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <section aria-label="Сводка" className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <StatTile
               tone="dark"
-              label="Vacation days"
+              label="Дни отпуска"
               value={data.vacation.available}
               hint={
                 <>
-                  available of {data.vacation.remaining} remaining
-                  {data.vacation.pending > 0 && ` · ${data.vacation.pending} pending`}
+                  доступно из {data.vacation.remaining} оставшихся
+                  {data.vacation.pending > 0 && ` · ${data.vacation.pending} на рассмотрении`}
                 </>
               }
               href="/profile"
             />
             <StatTile
-              label="Open requests"
+              label="Открытые заявки"
               value={data.openRequests}
-              hint={data.openRequests ? "waiting for a decision" : "nothing pending"}
+              hint={data.openRequests ? "ожидают решения" : "нет открытых заявок"}
               href="/requests"
             />
             <StatTile
-              label="Training"
+              label="Обучение"
               value={`${data.training.completed}/${data.training.total}`}
-              hint={data.training.overdue ? `${data.training.overdue} overdue` : "courses completed"}
+              hint={data.training.overdue ? `${data.training.overdue} просрочено` : "курсов пройдено"}
               href="/academy"
             />
             <StatTile
-              label="Unread alerts"
+              label="Непрочитанные"
               value={data.unread}
-              hint={data.unread ? "need your attention" : "all caught up"}
+              hint={data.unread ? "требуют внимания" : "все прочитано"}
               href="/notifications"
             />
           </section>
 
           {data.manager && (
             <Panel
-              title="My team"
-              description="Your direct reports only"
+              title="Моя команда"
+              description="Только ваши прямые подчиненные"
               actions={
                 <Link href="/team">
                   <Button variant="ghost" size="sm">
-                    Open team <ArrowRightIcon size={13} />
+                    Перейти к команде <ArrowRightIcon size={13} />
                   </Button>
                 </Link>
               }
             >
               <dl className="grid grid-cols-3 gap-4">
-                <Kpi label="Team members" value={data.manager.teamSize} />
-                <Kpi label="Awaiting decision" value={data.manager.awaitingDecision} href="/approvals" />
-                <Kpi label="Overdue training" value={data.manager.teamOverdueTraining} warn={data.manager.teamOverdueTraining > 0} />
+                <Kpi label="Сотрудников" value={data.manager.teamSize} />
+                <Kpi label="Ожидают решения" value={data.manager.awaitingDecision} href="/approvals" />
+                <Kpi label="Просрочено обучение" value={data.manager.teamOverdueTraining} warn={data.manager.teamOverdueTraining > 0} />
               </dl>
             </Panel>
           )}
 
           {data.hr && (
             <Panel
-              title="Company overview"
-              description="HR / Admin view"
+              title="Обзор компании"
+              description="Вид для HR / Администратора"
               actions={
                 <Link href="/hr">
                   <Button variant="ghost" size="sm">
-                    HR inbox <ArrowRightIcon size={13} />
+                    Входящие HR <ArrowRightIcon size={13} />
                   </Button>
                 </Link>
               }
             >
               <dl className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <Kpi label="Employees" value={data.hr.employees} />
-                <Kpi label="Awaiting decision" value={data.hr.awaitingDecision} href="/approvals" />
-                <Kpi label="Open HR questions" value={data.hr.openEscalations} href="/hr" warn={data.hr.openEscalations > 0} />
-                <Kpi label="Mandatory training" value={`${data.hr.mandatoryCompletionPct}%`} />
+                <Kpi label="Сотрудников" value={data.hr.employees} />
+                <Kpi label="Ожидают решения" value={data.hr.awaitingDecision} href="/approvals" />
+                <Kpi label="Вопросов к HR" value={data.hr.openEscalations} href="/hr" warn={data.hr.openEscalations > 0} />
+                <Kpi label="Обязательное обучение" value={`${data.hr.mandatoryCompletionPct}%`} />
               </dl>
             </Panel>
           )}
@@ -122,18 +122,18 @@ export default function DashboardPage() {
             <section aria-labelledby="recent" className="flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <h2 id="recent" className="text-[14px] font-semibold">
-                  Recent requests
+                  Недавние заявки
                 </h2>
                 <Link href="/requests" className="text-[12.5px] text-neutral-500 hover:text-neutral-900 link-slide">
-                  View all
+                  Все заявки
                 </Link>
               </div>
               {data.recentRequests.length === 0 ? (
                 <Panel padding="p-8">
                   <p className="text-[13px] text-neutral-500 text-center">
-                    No requests yet.{" "}
+                    Заявок пока нет.{" "}
                     <Link href="/requests?new=vacation" className="font-medium text-neutral-900 underline underline-offset-2">
-                      Submit your first one
+                      Подать первую заявку
                     </Link>
                     .
                   </p>
@@ -143,25 +143,25 @@ export default function DashboardPage() {
               )}
             </section>
 
-            <Panel title="Up next in Jana Academy" description={data.training.next ? undefined : "No pending courses"}>
+            <Panel title="Обучение в Jana Academy" description={data.training.next ? undefined : "Нет текущих курсов"}>
               {data.training.next ? (
                 <div className="flex flex-col gap-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-[14px] font-semibold tracking-[-0.01em]">{data.training.next.course.title}</p>
-                      <p className="text-[12px] text-neutral-400 mt-0.5">Due {fmtDate(data.training.next.dueDate)}</p>
+                      <p className="text-[12px] text-neutral-400 mt-0.5">Срок до {fmtDate(data.training.next.dueDate)}</p>
                     </div>
                     <CourseStatusBadge status={data.training.next.status} overdue={data.training.next.overdue} />
                   </div>
-                  <Progress value={data.training.next.progress} showValue label="Progress" />
+                  <Progress value={data.training.next.progress} showValue label="Прогресс" />
                   <Link href={`/academy/${data.training.next.id}`}>
                     <Button variant="primary" size="sm" fullWidth>
-                      {data.training.next.status === "assigned" ? "Start course" : "Continue"} <ArrowRightIcon size={13} />
+                      {data.training.next.status === "assigned" ? "Начать курс" : "Продолжить"} <ArrowRightIcon size={13} />
                     </Button>
                   </Link>
                 </div>
               ) : (
-                <p className="text-[13px] text-neutral-500">You&apos;re all caught up. Nice work.</p>
+                <p className="text-[13px] text-neutral-500">Все курсы пройдены. Отличная работа!</p>
               )}
             </Panel>
           </div>

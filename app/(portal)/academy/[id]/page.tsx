@@ -76,9 +76,9 @@ export default function CoursePlayerPage({ params }: { params: Promise<{ id: str
       const next = a.lessons[lessonIndex + 1];
       if (next) setView({ kind: "lesson", id: next.id });
       else setView({ kind: "test" });
-      toast({ title: "Lesson completed", description: l.title, variant: "success", duration: 2500 });
+      toast({ title: "Урок завершен", description: l.title, variant: "success", duration: 2500 });
     } catch (e) {
-      toast({ title: "Could not save progress", description: e instanceof ApiError ? e.message : undefined, variant: "error" });
+      toast({ title: "Не удалось сохранить прогресс", description: e instanceof ApiError ? e.message : undefined, variant: "error" });
     } finally {
       setBusy(false);
     }
@@ -93,32 +93,32 @@ export default function CoursePlayerPage({ params }: { params: Promise<{ id: str
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2 mb-2">
               <Badge variant="muted">{a.course.category}</Badge>
-              {a.course.mandatory && <Badge variant="accent">Mandatory</Badge>}
+              {a.course.mandatory && <Badge variant="accent">Обязательный</Badge>}
               <CourseStatusBadge status={a.status} overdue={a.overdue} />
             </div>
             <h1 className="text-[24px] font-semibold tracking-[-0.025em] leading-tight">{a.course.title}</h1>
             <p className="text-[13.5px] text-neutral-500 mt-1.5 max-w-2xl leading-relaxed">{a.course.description}</p>
             <p className="text-[12px] text-neutral-400 mt-2">
-              Assigned by {a.assignedBy.fullName} · due {fmtDate(a.dueDate)} · pass mark {a.course.passScore}%
+              Назначил(а) {a.assignedBy.fullName} · срок до {fmtDate(a.dueDate)} · проходной балл {a.course.passScore}%
             </p>
           </div>
           <div className="w-full sm:w-60">
-            <Progress value={a.progress} showValue label="Overall progress" />
+            <Progress value={a.progress} showValue label="Общий прогресс" />
             <p className="text-[11.5px] text-neutral-400 mt-1.5">
-              {a.completedLessons} of {a.course.lessonCount} lessons{a.status === "completed" ? " · test passed" : " · then the test"}
+              {a.completedLessons} из {a.course.lessonCount} уроков{a.status === "completed" ? " · тест сдан" : " · затем тест"}
             </p>
           </div>
         </div>
         {!isLearner && (
           <p className="px-5 sm:px-6 py-2.5 text-[12.5px] bg-neutral-50 border-t border-neutral-100 text-neutral-500">
-            You&apos;re viewing this course as a manager/HR. Only the assigned employee can progress through it.
+            Вы просматриваете этот курс как руководитель/HR. Проходить уроки может только назначенный сотрудник.
           </p>
         )}
       </Panel>
 
       <div className="grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] gap-6 items-start">
         <Panel padding="p-1.5" as="div">
-          <ol className="flex flex-col gap-0.5" aria-label="Course contents">
+          <ol className="flex flex-col gap-0.5" aria-label="Содержание курса">
             {a.lessons.map((l, i) => {
               const active = view.kind === "lesson" && view.id === l.id;
               return (
@@ -134,7 +134,7 @@ export default function CoursePlayerPage({ params }: { params: Promise<{ id: str
                     <StepDot done={l.completed} active={active} n={i + 1} />
                     <span className="flex-1 min-w-0">
                       <span className="block text-[13px] font-medium leading-snug">{l.title}</span>
-                      <span className={["block text-[11px] mt-0.5", active ? "text-white/60" : "text-neutral-400"].join(" ")}>{l.durationMin} min</span>
+                      <span className={["block text-[11px] mt-0.5", active ? "text-white/60" : "text-neutral-400"].join(" ")}>{l.durationMin} мин.</span>
                     </span>
                   </button>
                 </li>
@@ -158,9 +158,9 @@ export default function CoursePlayerPage({ params }: { params: Promise<{ id: str
                   {a.status === "completed" ? <CheckIcon size={12} /> : a.testUnlocked ? <span className="text-[11px] font-semibold">?</span> : <LockIcon size={12} />}
                 </span>
                 <span className="flex-1">
-                  <span className="block text-[13px] font-medium">Final test</span>
+                  <span className="block text-[13px] font-medium">Итоговый тест</span>
                   <span className={["block text-[11px] mt-0.5", view.kind === "test" ? "text-white/60" : "text-neutral-400"].join(" ")}>
-                    {a.course.questionCount} questions
+                    {a.course.questionCount} вопросов
                   </span>
                 </span>
               </button>
@@ -233,7 +233,7 @@ function LessonPanel({
       <article>
         <header className="px-6 pt-6 pb-4 border-b border-neutral-100">
           <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400">
-            Lesson {index + 1} of {total} · <ClockIcon size={11} className="inline -mt-0.5" /> {lesson.durationMin} min
+            Урок {index + 1} из {total} · <ClockIcon size={11} className="inline -mt-0.5" /> {lesson.durationMin} мин.
           </p>
           <h2 className="text-[20px] font-semibold tracking-[-0.02em] mt-1.5">{lesson.title}</h2>
           <p className="text-[14px] text-neutral-500 mt-1.5 leading-relaxed">{lesson.summary}</p>
@@ -248,7 +248,7 @@ function LessonPanel({
         </div>
 
         <div className="mx-6 mb-6 rounded-xl bg-neutral-50 p-4 ring-1 ring-inset ring-neutral-900/5">
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400 mb-2">Key points</p>
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400 mb-2">Ключевые моменты</p>
           <ul className="flex flex-col gap-1.5">
             {lesson.keyPoints.map((k) => (
               <li key={k} className="flex items-start gap-2.5 text-[13.5px] text-neutral-700 leading-snug">
@@ -260,16 +260,16 @@ function LessonPanel({
         </div>
 
         <footer className="px-6 py-4 border-t border-neutral-100 flex flex-wrap items-center justify-between gap-3">
-          {lesson.completed ? <Pill tone="good">Completed</Pill> : <span className="text-[12.5px] text-neutral-400">Mark the lesson complete to track your progress.</span>}
+          {lesson.completed ? <Pill tone="good">Завершено</Pill> : <span className="text-[12.5px] text-neutral-400">Отметьте урок завершенным, чтобы сохранить прогресс.</span>}
           <div className="flex items-center gap-2">
             {canProgress && !lesson.completed && (
               <Button variant="primary" size="sm" disabled={busy} onClick={onComplete}>
-                {index + 1 < total ? "Mark complete & continue" : "Mark complete & go to test"} <ArrowRightIcon size={13} />
+                {index + 1 < total ? "Завершить и продолжить" : "Завершить и перейти к тесту"} <ArrowRightIcon size={13} />
               </Button>
             )}
             {(lesson.completed || !canProgress) && (
               <Button variant="secondary" size="sm" onClick={onNext}>
-                {index + 1 < total ? "Next lesson" : "Go to test"} <ArrowRightIcon size={13} />
+                {index + 1 < total ? "Следующий урок" : "Перейти к тесту"} <ArrowRightIcon size={13} />
               </Button>
             )}
           </div>
@@ -300,29 +300,29 @@ function TestPanel({ a, isLearner, onChange }: { a: AssignmentDetailView; isLear
       onChange();
       toast(
         r.passed
-          ? { title: "Course completed 🎉", description: `You scored ${r.score}%.`, variant: "success" }
-          : { title: "Not passed yet", description: `You scored ${r.score}%; the pass mark is ${r.passScore}%.`, variant: "warning" },
+          ? { title: "Курс завершен 🎉", description: `Вы набрали ${r.score}%.`, variant: "success" }
+          : { title: "Тест пока не сдан", description: `Вы набрали ${r.score}%; проходной балл: ${r.passScore}%.`, variant: "warning" },
       );
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "Could not submit the test.");
+      setError(e instanceof ApiError ? e.message : "Не удалось отправить тест.");
     } finally {
       setBusy(false);
     }
   }
 
   const history = a.attempts.length > 0 && (
-    <Panel title="Attempts" description="Every result is recorded" padding="p-0" as="div">
+    <Panel title="Попытки" description="История всех попыток сохраняется" padding="p-0" as="div">
       <ul className="divide-y divide-neutral-100">
         {[...a.attempts].reverse().map((t, i) => (
           <li key={t.at} className="flex items-center justify-between gap-3 px-5 py-3 text-[13px]">
             <span className="text-neutral-500">
-              Attempt {a.attempts.length - i} · {fmtDateTime(t.at)}
+              Попытка {a.attempts.length - i} · {fmtDateTime(t.at)}
             </span>
             <span className="flex items-center gap-3">
               <span className="tabular-nums font-medium">
                 {t.correct}/{t.total} · {t.score}%
               </span>
-              <Pill tone={t.passed ? "good" : "bad"}>{t.passed ? "Passed" : "Not passed"}</Pill>
+              <Pill tone={t.passed ? "good" : "bad"}>{t.passed ? "Сдано" : "Не сдано"}</Pill>
             </span>
           </li>
         ))}
@@ -337,9 +337,9 @@ function TestPanel({ a, isLearner, onChange }: { a: AssignmentDetailView; isLear
           <div className="w-11 h-11 rounded-xl bg-neutral-100 text-neutral-500 flex items-center justify-center mx-auto mb-4">
             <LockIcon size={20} />
           </div>
-          <p className="text-[15px] font-semibold">The test is locked</p>
+          <p className="text-[15px] font-semibold">Тест заблокирован</p>
           <p className="text-[13px] text-neutral-500 mt-1.5 leading-relaxed">
-            Complete all {a.course.lessonCount} lessons to unlock it. You&apos;ve finished {a.completedLessons}.
+            Пройдите все {a.course.lessonCount} уроков, чтобы открыть тест. Пройдено: {a.completedLessons}.
           </p>
         </div>
       </Panel>
@@ -360,9 +360,9 @@ function TestPanel({ a, isLearner, onChange }: { a: AssignmentDetailView; isLear
               <span className="text-[26px] font-semibold tabular-nums leading-none">{result.score}%</span>
             </div>
             <div className="min-w-0">
-              <h2 className="text-[20px] font-semibold tracking-[-0.02em]">{result.passed ? "You passed! Course completed." : "Not passed this time"}</h2>
+              <h2 className="text-[20px] font-semibold tracking-[-0.02em]">{result.passed ? "Вы сдали тест! Курс завершен." : "В этот раз тест не сдан"}</h2>
               <p className="text-[13.5px] text-neutral-500 mt-1">
-                {result.correct} of {result.total} correct · pass mark {result.passScore}%. Your result has been recorded.
+                {result.correct} из {result.total} верно · проходной балл {result.passScore}%. Ваш результат сохранен.
               </p>
             </div>
           </div>
@@ -385,12 +385,12 @@ function TestPanel({ a, isLearner, onChange }: { a: AssignmentDetailView; isLear
           <div className="px-6 py-4 border-t border-neutral-100 flex justify-end gap-2">
             {!result.passed && (
               <Button variant="primary" size="sm" onClick={() => { setResult(null); setAnswers({}); }}>
-                Retake the test
+                Пройти тест повторно
               </Button>
             )}
             <Link href="/academy">
               <Button variant={result.passed ? "primary" : "secondary"} size="sm">
-                Back to Academy
+                Вернуться в Академию
               </Button>
             </Link>
           </div>
@@ -408,8 +408,8 @@ function TestPanel({ a, isLearner, onChange }: { a: AssignmentDetailView; isLear
             <div className="w-11 h-11 rounded-xl bg-emerald-600 text-white flex items-center justify-center mx-auto mb-4">
               <CheckIcon size={20} />
             </div>
-            <p className="text-[15px] font-semibold">Test passed with {a.bestScore}%</p>
-            <p className="text-[13px] text-neutral-500 mt-1.5">Completed {a.completedAt ? fmtDateTime(a.completedAt) : ""}.</p>
+            <p className="text-[15px] font-semibold">Тест сдан с результатом {a.bestScore}%</p>
+            <p className="text-[13px] text-neutral-500 mt-1.5">Завершено {a.completedAt ? fmtDateTime(a.completedAt) : ""}.</p>
           </div>
         </Panel>
         {history}
@@ -419,7 +419,7 @@ function TestPanel({ a, isLearner, onChange }: { a: AssignmentDetailView; isLear
 
   return (
     <>
-      <Panel title="Final test" description={`${a.questions.length} questions · pass mark ${a.course.passScore}% · unlimited retakes`} padding="p-0" as="div">
+      <Panel title="Итоговый тест" description={`${a.questions.length} вопросов · проходной балл ${a.course.passScore}% · количество попыток не ограничено`} padding="p-0" as="div">
         <ol className="divide-y divide-neutral-100">
           {a.questions.map((q, i) => (
             <li key={q.id} className="px-6 py-5">
@@ -440,12 +440,12 @@ function TestPanel({ a, isLearner, onChange }: { a: AssignmentDetailView; isLear
         </ol>
         <div className="px-6 py-4 border-t border-neutral-100 flex flex-wrap items-center justify-between gap-3">
           <span className="text-[12.5px] text-neutral-500">
-            {isLearner ? `${answered} of ${a.questions.length} answered` : "Only the assigned employee can take the test."}
+            {isLearner ? `Отвечено на ${answered} из ${a.questions.length}` : "Проходить тест может только назначенный сотрудник."}
           </span>
           <div className="flex items-center gap-3">
             {error && <span role="alert" className="text-[12.5px] text-red-600 font-medium">{error}</span>}
             <Button variant="primary" size="sm" disabled={!isLearner || busy || answered < a.questions.length} onClick={() => void submit()}>
-              {busy ? "Grading…" : "Submit test"}
+              {busy ? "Проверка…" : "Сдать тест"}
             </Button>
           </div>
         </div>
