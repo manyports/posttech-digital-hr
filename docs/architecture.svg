@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="640" viewBox="0 0 1100 640">
+  <rect width="1100" height="640" fill="#F6F6F6"/>
+  <text x="48" y="48" fill="#12151A" font-family="Arial, sans-serif" font-size="22" font-weight="700">Digital HR · 0@E8B5:BC@0</text>
+  <text x="48" y="74" fill="#5E5E60" font-family="Arial, sans-serif" font-size="13">>@B0; 7028A8B >B ?>@B>2. 82K5 1!:# 8 Documentolog ?>4:;NG0NBAO 040?B5@><, 157 A<5=K A5@28A>2 8 M:@0=>2.</text>
+
+  <rect x="48" y="110" width="200" height="72" rx="12" fill="#FFFFFF" stroke="#DFDFDF"/>
+  <text x="148" y="142" text-anchor="middle" fill="#12151A" font-family="Arial, sans-serif" font-size="14" font-weight="700">@0C75@</text>
+  <text x="148" y="162" text-anchor="middle" fill="#5E5E60" font-family="Arial, sans-serif" font-size="12">RU / KZ · @>;8</text>
+
+  <rect x="320" y="110" width="240" height="72" rx="12" fill="#FFFFFF" stroke="#DFDFDF"/>
+  <text x="440" y="142" text-anchor="middle" fill="#12151A" font-family="Arial, sans-serif" font-size="14" font-weight="700">Next.js</text>
+  <text x="440" y="162" text-anchor="middle" fill="#5E5E60" font-family="Arial, sans-serif" font-size="12">M:@0=K 8 /api</text>
+
+  <rect x="632" y="110" width="220" height="72" rx="12" fill="#008C00"/>
+  <text x="742" y="142" text-anchor="middle" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="14" font-weight="700">policy.ts</text>
+  <text x="742" y="162" text-anchor="middle" fill="#F1FFF1" font-family="Arial, sans-serif" font-size="12">?@020 =0 A5@25@5</text>
+
+  <line x1="248" y1="146" x2="320" y2="146" stroke="#12151A" stroke-width="1.5"/>
+  <line x1="560" y1="146" x2="632" y2="146" stroke="#12151A" stroke-width="1.5"/>
+
+  <rect x="200" y="240" width="700" height="150" rx="16" fill="#FFFFFF" stroke="#DFDFDF"/>
+  <text x="224" y="268" fill="#898989" font-family="Arial, sans-serif" font-size="11" font-weight="700">! !+</text>
+  <rect x="224" y="286" width="150" height="72" rx="10" fill="#F6F6F6" stroke="#DFDFDF"/>
+  <text x="299" y="316" text-anchor="middle" fill="#12151A" font-family="Arial, sans-serif" font-size="13" font-weight="700">0O2:8</text>
+  <text x="299" y="336" text-anchor="middle" fill="#5E5E60" font-family="Arial, sans-serif" font-size="11">>B?CA:, 020=A</text>
+  <rect x="394" y="286" width="150" height="72" rx="10" fill="#F6F6F6" stroke="#DFDFDF"/>
+  <text x="469" y="316" text-anchor="middle" fill="#12151A" font-family="Arial, sans-serif" font-size="13" font-weight="700">Academy</text>
+  <text x="469" y="336" text-anchor="middle" fill="#5E5E60" font-family="Arial, sans-serif" font-size="11">:C@A, B5AB</text>
+  <rect x="564" y="286" width="150" height="72" rx="10" fill="#F6F6F6" stroke="#DFDFDF"/>
+  <text x="639" y="316" text-anchor="middle" fill="#12151A" font-family="Arial, sans-serif" font-size="13" font-weight="700">Al Jana</text>
+  <text x="639" y="336" text-anchor="middle" fill="#5E5E60" font-family="Arial, sans-serif" font-size="11">1070 7=0=89</text>
+  <rect x="734" y="286" width="142" height="72" rx="10" fill="#F6F6F6" stroke="#DFDFDF"/>
+  <text x="805" y="316" text-anchor="middle" fill="#12151A" font-family="Arial, sans-serif" font-size="13" font-weight="700">#254><;5=8O</text>
+  <text x="805" y="336" text-anchor="middle" fill="#5E5E60" font-family="Arial, sans-serif" font-size="11">AB0BCA, :C@A</text>
+
+  <line x1="440" y1="182" x2="440" y2="240" stroke="#12151A" stroke-width="1.5"/>
+
+  <rect x="48" y="440" width="300" height="140" rx="16" fill="#FFFFFF" stroke="#008C00" stroke-width="1.5"/>
+  <text x="72" y="470" fill="#008C00" font-family="Arial, sans-serif" font-size="12" font-weight="700">HrCorePort</text>
+  <text x="72" y="496" fill="#12151A" font-family="Arial, sans-serif" font-size="16" font-weight="700">1!:#</text>
+  <text x="72" y="520" fill="#5E5E60" font-family="Arial, sans-serif" font-size="12">10;0=A >B?CA:0, ?@8:07,</text>
+  <text x="72" y="538" fill="#5E5E60" font-family="Arial, sans-serif" font-size="12">020=A 2 @0AGQB5</text>
+  <text x="72" y="560" fill="#898989" font-family="Arial, sans-serif" font-size="11">A59G0A: mock.ts</text>
+
+  <rect x="400" y="440" width="300" height="140" rx="16" fill="#FFFFFF" stroke="#008C00" stroke-width="1.5"/>
+  <text x="424" y="470" fill="#008C00" font-family="Arial, sans-serif" font-size="12" font-weight="700">DocumentflowPort</text>
+  <text x="424" y="496" fill="#12151A" font-family="Arial, sans-serif" font-size="16" font-weight="700">Documentolog</text>
+  <text x="424" y="520" fill="#5E5E60" font-family="Arial, sans-serif" font-size="12"><0@H@CB A>3;0A>20=8O</text>
+  <text x="424" y="538" fill="#5E5E60" font-family="Arial, sans-serif" font-size="12">8 :0@B>G:0 4>:C<5=B0</text>
+  <text x="424" y="560" fill="#898989" font-family="Arial, sans-serif" font-size="11">A59G0A: mock.ts</text>
+
+  <rect x="752" y="440" width="300" height="140" rx="16" fill="#FFFFFF" stroke="#DFDFDF"/>
+  <text x="776" y="470" fill="#898989" font-family="Arial, sans-serif" font-size="12" font-weight="700">% )</text>
+  <text x="776" y="500" fill="#12151A" font-family="Arial, sans-serif" font-size="16" font-weight="700">MongoDB</text>
+  <text x="776" y="524" fill="#5E5E60" font-family="Arial, sans-serif" font-size="12">8;8 ?0<OBL ?@>F5AA0,</text>
+  <text x="776" y="542" fill="#5E5E60" font-family="Arial, sans-serif" font-size="12">5A;8 URI =5 7040=</text>
+  <text x="776" y="560" fill="#898989" font-family="Arial, sans-serif" font-size="11">:04@>2K5 ?>;O read-only</text>
+
+  <line x1="360" y1="390" x2="198" y2="440" stroke="#008C00" stroke-width="1.5"/>
+  <line x1="550" y1="390" x2="550" y2="440" stroke="#008C00" stroke-width="1.5"/>
+  <line x1="740" y1="390" x2="902" y2="440" stroke="#12151A" stroke-width="1.5"/>
+</svg>

@@ -13,6 +13,8 @@ npm run dev
 
 Портал: http://localhost:3000
 
+Схема: [docs/architecture.svg](docs/architecture.svg). Презентация: [docs/Digital-HR.pptx](docs/Digital-HR.pptx).
+
 Без переменных окружения данные живут в памяти процесса и заполняются демо-набором. Шаблон опций: `.env.example`.
 
 ```bash
