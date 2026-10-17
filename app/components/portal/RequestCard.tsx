@@ -7,6 +7,7 @@ import { tx } from "@/lib/i18n/locale";
 import { DocIcon, ArrowRightIcon } from "./icons";
 import { MiniTracker } from "./RequestTracker";
 import { StatusBadge } from "./StatusBadge";
+import { CoverageNote } from "./TeamWeek";
 
 const SHADOW =
   "0 1px 2px rgba(17,17,17,0.04), 0 2px 8px -2px rgba(17,17,17,0.04), 0 0 0 1px rgba(17,17,17,0.05), inset 0 1px 0 rgba(255,255,255,0.9)";
@@ -44,6 +45,7 @@ export function RequestCard({
             <span className="text-[11.5px] text-tertiary tabular-nums">{request.id}</span>
           </div>
           <p className="text-[13px] text-hero-muted mt-0.5 truncate">{payloadSummary(request.payload, locale)}</p>
+          <div className="mt-1"><CoverageNote coverage={request.coverage} /></div>
           <div className="mt-2.5 flex items-center gap-3">
             <MiniTracker status={request.status} history={request.history} />
             <span className="text-[11.5px] text-tertiary hidden sm:inline">{tx(m.requests.filed, { date: fmtDate(request.createdAt, locale) })}</span>

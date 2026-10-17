@@ -624,6 +624,43 @@ export function explain(question: string, kb: KbEntry[] = KB): Explanation {
   return { tokens, candidates, decision: "answer", reason: "passed all gates", entryId: best.entryId };
 }
 
+function relatedQuestions(entry: KbEntry, kb: KbEntry[]): { entryId: string; question: string }[] {
+  const related: { entryId: string; question: string }[] = [];
+  for (const id of entry.related ?? []) {
+    const rel = kb.find((e) => e.id === id);
+    if (rel && rel.id !== entry.id && rel.questions.length > 0 && related.length < 3) {
+      related.push({ entryId: rel.id, question: rel.questions[0] });
+    }
+  }
+  return related;
+}
+
+export function answerFromEntry(entryId: string, question: string, kb: KbEntry[] = KB): AssistantReply | null {
+  const entry = kb.find((e) => e.id === entryId);
+  if (!entry) return null;
+  return {
+    kind: "answer",
+    question,
+    entryId: entry.id,
+    title: entry.title,
+    answer: entry.answer,
+    source: entry.source,
+    ...(entry.action ? { action: entry.action } : {}),
+    related: relatedQuestions(entry, kb),
+    confidence: 1,
+  };
+}
+
+export function noAnswerReply(question: string, kb: KbEntry[] = KB): AssistantReply {
+  return {
+    kind: "no_answer",
+    question,
+    message: MESSAGES.noAnswer,
+    suggestions: starterQuestions(kb),
+    canEscalate: true,
+  };
+}
+
 export function ask(question: string, kb: KbEntry[] = KB): AssistantReply {
   const q = typeof question === "string" ? question.trim() : "";
   const exp = explain(q, kb);
@@ -633,28 +670,11 @@ export function ask(question: string, kb: KbEntry[] = KB): AssistantReply {
     return { kind: "smalltalk", question: q, message: MESSAGES[kind], suggestions: starterQuestions(kb) };
   }
   if (exp.decision === "answer" && exp.entryId) {
-    const entry = kb.find((e) => e.id === exp.entryId);
+    const built = answerFromEntry(exp.entryId, q, kb);
     const best = exp.candidates[0];
-    if (entry) {
-      const related: { entryId: string; question: string }[] = [];
-      for (const id of entry.related ?? []) {
-        const rel = kb.find((e) => e.id === id);
-        if (rel && rel.id !== entry.id && rel.questions.length > 0 && related.length < 3) {
-          related.push({ entryId: rel.id, question: rel.questions[0] });
-        }
-      }
+    if (built && built.kind === "answer") {
       const confidence = Math.min(0.99, Math.round((0.5 * best.coverage + 0.5 * best.dice) * 100) / 100);
-      return {
-        kind: "answer",
-        question: q,
-        entryId: entry.id,
-        title: entry.title,
-        answer: entry.answer,
-        source: entry.source,
-        ...(entry.action ? { action: entry.action } : {}),
-        related,
-        confidence,
-      };
+      return { ...built, confidence };
     }
   }
   const message =

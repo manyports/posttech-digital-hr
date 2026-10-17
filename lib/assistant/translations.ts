@@ -103,6 +103,9 @@ export const KB_ANSWERS_RU: Record<string, string> = {
 
   "portal-overview":
     "В портале Digital HR вы можете подавать заявки на отпуск и аванс в разделе «Заявки», просматривать личный профиль и остаток отпуска, проходить обучение в Jana Academy, консультироваться с Al Jana и получать уведомления.",
+
+  "december-branch-coverage":
+    "В декабре из одного отделения нельзя уйти в отпуск всем сразу. Если на какие-то дни в команде никого не останется, портал покажет предупреждение. Заявку это не отклоняет: решение остается за руководителем.",
 };
 
 export const RU_QUESTIONS: Record<string, string> = {
@@ -141,6 +144,7 @@ export const RU_QUESTIONS: Record<string, string> = {
   "ask-hr-escalation": "Что происходит, если ассистент не нашел ответа?",
   "notifications": "Где посмотреть уведомления по моим заявкам?",
   "portal-overview": "Какие возможности доступны в портале Digital HR?",
+  "december-branch-coverage": "Можно ли всему отделению уйти в отпуск в декабре?",
 };
 
 export const MESSAGES_RU = {

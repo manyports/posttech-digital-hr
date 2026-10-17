@@ -126,6 +126,8 @@ export interface Dict {
     todoApprove: string;
     todoEsc: string;
     todoUnread: string;
+    todoRejected: string;
+    todoRejectedPlain: string;
     open: string;
   };
   requests: {
@@ -167,6 +169,8 @@ export interface Dict {
     afterApprove: string;
     history: string;
     historyHint: string;
+    coverageEmpty: string;
+    coverageDecember: string;
     progress: string;
     stepDone: string;
   };
@@ -346,6 +350,11 @@ export interface Dict {
     pickCourse: string;
     mandatory: string;
     dueOptional: string;
+    week: string;
+    weekHint: string;
+    onSite: string;
+    away: string;
+    pendingAway: string;
   };
   approvals: {
     title: string;
@@ -460,6 +469,8 @@ export interface Dict {
     canHelp: string;
     toHuman: string;
     restart: string;
+    openDraft: string;
+    balanceLine: string;
     starters: string[];
   };
 }
@@ -548,11 +559,11 @@ const ru: Dict = {
       "Manager · other team": "Руководитель · другая команда",
     },
     hints: {
-      "aruzhan.kassymova@jana.example": "Senior Frontend Developer · Инжиниринг",
-      "daniyar.omarov@jana.example": "Руководитель разработки · 4 подчиненных",
+      "aruzhan.kassymova@jana.example": "Курьер · отделение Алматы",
+      "daniyar.omarov@jana.example": "Начальник отделения · 4 подчиненных",
       "aigerim.sadykova@jana.example": "HR-директор · вся компания",
-      "alikhan.ryskulov@jana.example": "Маркетолог · подчиняется Madina",
-      "madina.tleuova@jana.example": "Руководитель маркетинга · 3 подчиненных",
+      "alikhan.ryskulov@jana.example": "Курьер · подчиняется Madina",
+      "madina.tleuova@jana.example": "Начальник отделения · 3 подчиненных",
     },
   },
   dashboard: {
@@ -602,6 +613,8 @@ const ru: Dict = {
     todoApprove: "Заявки ждут вашего решения: {n}",
     todoEsc: "Вопросы сотрудников без ответа: {n}",
     todoUnread: "Непрочитанные уведомления: {n}",
+    todoRejected: "Заявка отклонена. {comment}",
+    todoRejectedPlain: "Заявка отклонена",
     open: "Открыть",
   },
   requests: {
@@ -643,6 +656,8 @@ const ru: Dict = {
     afterApprove: "Регистрация после одобрения",
     history: "История",
     historyHint: "Каждое изменение статуса, кто изменил и когда",
+    coverageEmpty: "На эти дни в команде никого не останется.",
+    coverageDecember: "В декабре из отделения нельзя уйти всем сразу. На эти дни никого не останется.",
     progress: "Прогресс заявки",
     stepDone: "завершено",
   },
@@ -822,6 +837,11 @@ const ru: Dict = {
     pickCourse: "Выберите курс…",
     mandatory: "(обязательный)",
     dueOptional: "Срок прохождения (необязательно, по умолчанию 30 дней)",
+    week: "Две недели команды",
+    weekHint: "Кто уже в отпуске и чья заявка ещё открыта",
+    onSite: "Эти дни на месте",
+    away: "в отпуске",
+    pendingAway: "заявка открыта",
   },
   approvals: {
     title: "Согласования",
@@ -936,6 +956,8 @@ const ru: Dict = {
     canHelp: "Я могу помочь с этим:",
     toHuman: "Спросить специалиста HR",
     restart: "Новый диалог",
+    openDraft: "Открыть черновик",
+    balanceLine: "Вам доступно {n} дн.",
     starters: [
       "Сколько дней отпуска мне положено?",
       "Как запросить аванс по зарплате?",
@@ -1030,11 +1052,11 @@ const kk: Dict = {
       "Manager · other team": "Басшы · басқа команда",
     },
     hints: {
-      "aruzhan.kassymova@jana.example": "Senior Frontend Developer · Инжиниринг",
-      "daniyar.omarov@jana.example": "Әзірлеу басшысы · 4 бағынышты",
+      "aruzhan.kassymova@jana.example": "Курьер · Алматы бөлімшесі",
+      "daniyar.omarov@jana.example": "Бөлімше басшысы · 4 бағынышты",
       "aigerim.sadykova@jana.example": "HR-директор · бүкіл компания",
-      "alikhan.ryskulov@jana.example": "Маркетолог · Madina-ға бағынады",
-      "madina.tleuova@jana.example": "Маркетинг басшысы · 3 бағынышты",
+      "alikhan.ryskulov@jana.example": "Курьер · Madina-ға бағынады",
+      "madina.tleuova@jana.example": "Бөлімше басшысы · 3 бағынышты",
     },
   },
   dashboard: {
@@ -1084,6 +1106,8 @@ const kk: Dict = {
     todoApprove: "Шешіміңізді күтетін өтінімдер: {n}",
     todoEsc: "Жауапсыз сұрақтар: {n}",
     todoUnread: "Оқылмаған хабарламалар: {n}",
+    todoRejected: "Өтінім қабылданбады. {comment}",
+    todoRejectedPlain: "Өтінім қабылданбады",
     open: "Ашу",
   },
   requests: {
@@ -1125,6 +1149,8 @@ const kk: Dict = {
     afterApprove: "Мақұлданғаннан кейін тіркеледі",
     history: "Тарих",
     historyHint: "Әр күй өзгерісі: кім және қашан",
+    coverageEmpty: "Осы күндері командада ешкім қалмайды.",
+    coverageDecember: "Желтоқсанда бөлімшеден бәрі бірдей кете алмайды. Осы күндері ешкім қалмайды.",
     progress: "Өтінім барысы",
     stepDone: "аяқталды",
   },
@@ -1304,6 +1330,11 @@ const kk: Dict = {
     pickCourse: "Курсты таңдаңыз…",
     mandatory: "(міндетті)",
     dueOptional: "Өту мерзімі (міндетті емес, әдепкі 30 күн)",
+    week: "Команданың екі аптасы",
+    weekHint: "Кім демалыста және кімнің өтінімі ашық",
+    onSite: "Осы күндері орнында",
+    away: "демалыста",
+    pendingAway: "өтінім ашық",
   },
   approvals: {
     title: "Келісу",
@@ -1418,12 +1449,14 @@ const kk: Dict = {
     canHelp: "Мен мына тақырыптар бойынша көмектесемін:",
     toHuman: "HR маманынан сұрау",
     restart: "Жаңа диалог",
+    openDraft: "Жобаны ашу",
+    balanceLine: "Сізге {n} күн қолжетімді.",
     starters: [
-      "Сколько дней отпуска мне положено?",
-      "Как запросить аванс по зарплате?",
-      "Что делать, если я заболел?",
-      "Могу ли я работать из дома?",
-      "В какой день выплачивается зарплата?",
+      "Жылына неше күн демалыс беріледі?",
+      "Жалақы авансын қалай сұраймын?",
+      "Ауырып қалсам не істеуім керек?",
+      "Үйден жұмыс істей аламын ба?",
+      "Жалақы қай күні төленеді?",
     ],
   },
 };

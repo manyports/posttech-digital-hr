@@ -10,7 +10,7 @@ import type {
   RequestView,
   VacationPayload,
 } from "../../domain/types";
-import { isValidDate, rangesOverlap, todayISO, workingDays } from "../../domain/dates";
+import { addDays, isValidDate, isWeekend, rangesOverlap, todayISO, workingDays } from "../../domain/dates";
 import { getDb } from "../db";
 import type { Db } from "../db";
 import { badRequest, conflict, forbidden, notFound } from "../errors";
@@ -80,6 +80,47 @@ const wasSubmitted = (request: Pick<HrRequestDoc, "history">) =>
 
 /* ── Views ─────────────────────────────────────────────────────────── */
 
+async function coverageByRequest(db: Db, docs: HrRequestDoc[]): Promise<Map<string, { remainingOnSite: number; december: boolean }>> {
+  const out = new Map<string, { remainingOnSite: number; december: boolean }>();
+  const vacations = docs.filter((d) => d.payload.kind === "vacation");
+  if (vacations.length === 0) return out;
+  const owners = await db.employees.find({ _id: { $in: vacations.map((d) => d.employeeId) } });
+  const ownerById = new Map(owners.map((e) => [e._id, e]));
+  const managerIds = [...new Set(owners.map((e) => e.managerId).filter((id): id is string => Boolean(id)))];
+  const reports = managerIds.length ? await db.employees.find({ managerId: { $in: managerIds }, active: true }) : [];
+  const live = reports.length
+    ? await db.requests.find({
+        employeeId: { $in: reports.map((r) => r._id) },
+        type: "vacation",
+        status: { $in: ["submitted", "in_review", "approved"] },
+      })
+    : [];
+  for (const doc of vacations) {
+    const emp = ownerById.get(doc.employeeId);
+    if (!emp?.managerId || doc.payload.kind !== "vacation") continue;
+    const others = reports.filter((r) => r.managerId === emp.managerId && r._id !== emp._id);
+    let minOn = others.length;
+    let december = false;
+    for (let day = doc.payload.startDate; day <= doc.payload.endDate; day = addDays(day, 1)) {
+      if (day.slice(5, 7) === "12") december = true;
+      if (isWeekend(day)) continue;
+      const off = others.filter((person) =>
+        live.some(
+          (req) =>
+            req._id !== doc._id &&
+            req.employeeId === person._id &&
+            req.payload.kind === "vacation" &&
+            req.payload.startDate <= day &&
+            req.payload.endDate >= day,
+        ),
+      ).length;
+      minOn = Math.min(minOn, others.length - off);
+    }
+    out.set(doc._id, { remainingOnSite: minOn, december });
+  }
+  return out;
+}
+
 async function hydrate(db: Db, actor: Actor, docs: HrRequestDoc[]): Promise<RequestView[]> {
   const ids = new Set<string>();
   for (const d of docs) {
@@ -89,9 +130,11 @@ async function hydrate(db: Db, actor: Actor, docs: HrRequestDoc[]): Promise<Requ
   const people = new Map(
     (await db.employees.find({ _id: { $in: [...ids] } })).map((e) => [e._id, e]),
   );
+  const coverage = await coverageByRequest(db, docs);
   return docs.map((d) => {
     const emp = people.get(d.employeeId)!;
     const approver = people.get(d.approverId);
+    const row = coverage.get(d._id);
     return {
       id: d._id,
       type: d.type,
@@ -104,6 +147,7 @@ async function hydrate(db: Db, actor: Actor, docs: HrRequestDoc[]): Promise<Requ
       history: d.history,
       integration: d.integration,
       allowedActions: allowedRequestActions(actor, d, emp),
+      ...(row ? { coverage: row } : {}),
     };
   });
 }

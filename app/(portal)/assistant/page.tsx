@@ -406,6 +406,9 @@ function BotBody({
     return (
       <>
         <p className="text-[14px] leading-[1.7] text-hero-foreground">{text}</p>
+        {r.personalBalance && (
+          <p className="text-[13px] text-hero-muted">{tx(copy.assistant.balanceLine, { n: r.personalBalance.available })}</p>
+        )}
 
         <Link
           href={sourceHref(r.source)}
@@ -427,7 +430,7 @@ function BotBody({
           <div>
             <Link href={r.action.href}>
               <Button variant="secondary" size="sm">
-                {r.action.label} <ArrowRightIcon size={13} />
+                {r.action.label === "draft" ? copy.assistant.openDraft : r.action.label} <ArrowRightIcon size={13} />
               </Button>
             </Link>
           </div>

@@ -13,6 +13,7 @@ import { AccessDenied, ErrorBlock, LoadingBlock, Panel } from "../../../componen
 import { ArrowLeftIcon, LinkIcon } from "../../../components/portal/icons";
 import { RequestActions } from "../../../components/portal/RequestActions";
 import { RequestTracker } from "../../../components/portal/RequestTracker";
+import { CoverageNote } from "../../../components/portal/TeamWeek";
 import { Pill, StatusBadge } from "../../../components/portal/StatusBadge";
 import { useUser } from "../../../components/portal/UserContext";
 
@@ -94,6 +95,11 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
                   {fmtDate(p.startDate, locale)} – {fmtDate(p.endDate, locale)}
                 </Row>
                 <Row label={m.request.workDays}>{p.days}</Row>
+                {r.coverage?.remainingOnSite === 0 && (
+                  <div className="px-5 py-3 border-b border-hero-border">
+                    <CoverageNote coverage={r.coverage} />
+                  </div>
+                )}
                 {p.comment && <Row label={m.request.comment}>{p.comment}</Row>}
               </>
             ) : (
