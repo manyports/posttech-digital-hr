@@ -224,7 +224,7 @@ function simplePlain(text: string): string {
   return text
     .toLowerCase()
     .replace(/[’‘`']/g, "")
-    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/[^a-z0-9а-яё]+/g, " ")
     .trim();
 }
 
@@ -241,7 +241,7 @@ function plainText(text: string): string {
     .replace(/'s\b/g, "")
     .replace(/'/g, "")
     .replace(/(\d):(\d)/g, "$1$2")
-    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/[^a-z0-9а-яё]+/g, " ")
     .trim();
 }
 
@@ -576,7 +576,7 @@ export interface Explanation {
 /** Full decision trace (used by tests and debugging; `ask` is built on it). */
 export function explain(question: string, kb: KbEntry[] = KB): Explanation {
   const raw = typeof question === "string" ? question.slice(0, MAX_QUESTION_CHARS) : "";
-  if (!/[a-z0-9]{2}/i.test(raw)) {
+  if (!/[a-z0-9а-яё]{2}/i.test(raw)) {
     return { tokens: [], candidates: [], decision: "empty", reason: "no usable text" };
   }
   if (classifySmalltalk(raw)) {

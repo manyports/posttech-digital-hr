@@ -1,6 +1,6 @@
 import { buildSeed } from "../../seed/seed";
 import { createMongoDb } from "./mongo";
-import { MemoryDb } from "./memory";
+import { createLocalKnowledgeCollection, MemoryDb } from "./memory";
 import { RESETTABLE, type Db } from "./types";
 
 /**
@@ -25,14 +25,35 @@ export function getDb(): Promise<Db> {
       throw err;
     });
   }
-  return g.__hrDb;
+  return g.__hrDb.then(async (db) => {
+    if (db.kind === "mongodb" && !process.env.MONGODB_URI) {
+      g.__hrDb = undefined;
+      return getDb();
+    }
+    // Next.js hot reload can retain a DB created before this collection existed.
+    if (db.knowledgeArticles) return db;
+    if (db.kind === "memory") {
+      db.knowledgeArticles = createLocalKnowledgeCollection();
+      return db;
+    }
+    g.__hrDb = undefined;
+    return getDb();
+  });
 }
 
 async function init(): Promise<Db> {
   const uri = process.env.MONGODB_URI;
-  const db = uri
-    ? await createMongoDb(uri, process.env.MONGODB_DB ?? "digital_hr")
-    : new MemoryDb();
+  let db: Db;
+  if (uri) {
+    try {
+      db = await createMongoDb(uri, process.env.MONGODB_DB ?? "digital_hr");
+    } catch {
+      console.warn("MongoDB is unavailable; Al Jana is using the local JSON knowledge base.");
+      db = new MemoryDb();
+    }
+  } else {
+    db = new MemoryDb();
+  }
   await seedIfEmpty(db);
   return db;
 }

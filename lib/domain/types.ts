@@ -277,11 +277,32 @@ export interface KbEntry {
   keywords: string[];
   /** The ONLY text ever shown to the user for this entry. Written by HR. */
   answer: string;
+  /** Optional Russian text; if omitted, Al Jana uses the legacy translation. */
+  answerRu?: string;
   source: KbSource;
   /** Optional deep link into the portal. */
   action?: { label: string; href: string };
   /** Ids of related entries, shown as follow-up suggestions. */
   related?: string[];
+}
+
+export interface KnowledgeArticleVersion {
+  version: number;
+  entry: KbEntry;
+  editorId: string;
+  editorName: string;
+  savedAt: string;
+  publishedAt: string;
+}
+
+export interface KnowledgeArticleDoc {
+  _id: string;
+  ownerId: string;
+  ownerName: string;
+  currentVersion: number;
+  draft: KbEntry | null;
+  versions: KnowledgeArticleVersion[];
+  updatedAt: string;
 }
 
 export type AssistantReply =

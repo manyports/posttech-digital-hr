@@ -1,4 +1,13 @@
 import type { Collection, Db, Filter, FindOptions, UpdateOps } from "./types";
+import { resolve } from "node:path";
+import { JsonFileCollection } from "./json-collection";
+import type { KnowledgeArticleDoc } from "../../domain/types";
+
+export function createLocalKnowledgeCollection() {
+  return new JsonFileCollection<KnowledgeArticleDoc>(
+    process.env.JANA_KB_STORE_PATH ?? resolve(process.cwd(), "data/ai-jana-knowledge.json"),
+  );
+}
 
 /** Deep-clone so callers can never mutate stored state by accident. */
 const clone = <T>(v: T): T => structuredClone(v);
@@ -129,6 +138,7 @@ export class MemoryDb implements Db {
   escalations = col<"escalations">();
   assistantLog = col<"assistantLog">();
   sessions = col<"sessions">();
+  knowledgeArticles = createLocalKnowledgeCollection();
   private seqs = new Map<string, number>();
 
   async nextSeq(name: string): Promise<number> {

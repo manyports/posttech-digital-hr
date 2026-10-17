@@ -11,6 +11,7 @@ import { badRequest, conflict, forbidden, notFound } from "../errors";
 import { isHr, type Actor } from "../policy";
 import { notify } from "./notifications";
 import { KB_ANSWERS_RU, MESSAGES_RU } from "../../assistant/translations";
+import { getPublishedKnowledgeBase } from "./knowledge-base";
 
 const MAX_QUESTION = 500;
 
@@ -88,7 +89,7 @@ export async function ask(actor: Actor, question: unknown): Promise<AssistantRep
   const q = cleanQuestion(question);
   const isRu = /[а-яё]/i.test(q);
   const effectiveQuestion = mapRussianQuery(q);
-  const reply = askKnowledgeBase(effectiveQuestion);
+  const reply = askKnowledgeBase(effectiveQuestion, await getPublishedKnowledgeBase());
   const db = await getDb();
   const log: AssistantLogDoc = {
     _id: `log-${await db.nextSeq("assistantLog")}`,
@@ -102,7 +103,8 @@ export async function ask(actor: Actor, question: unknown): Promise<AssistantRep
 
   if (isRu) {
     if (reply.kind === "answer") {
-      const ruAnswer = KB_ANSWERS_RU[reply.entryId];
+      const entry = (await getPublishedKnowledgeBase()).find((item) => item.id === reply.entryId);
+      const ruAnswer = entry?.answerRu ?? KB_ANSWERS_RU[reply.entryId];
       return {
         ...reply,
         question: q,

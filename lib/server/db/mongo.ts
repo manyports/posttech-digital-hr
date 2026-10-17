@@ -76,8 +76,14 @@ export async function createMongoDb(uri: string, dbName: string): Promise<Db> {
   const { MongoClient } = await import("mongodb");
   // Reuse the client across serverless invocations of a warm instance.
   const g = globalThis as unknown as { __hrMongoClient?: Promise<InstanceType<typeof MongoClient>> };
-  g.__hrMongoClient ??= new MongoClient(uri, { maxPoolSize: 5 }).connect();
-  const client = await g.__hrMongoClient;
+  g.__hrMongoClient ??= new MongoClient(uri, { maxPoolSize: 5, serverSelectionTimeoutMS: 3000 }).connect();
+  let client;
+  try {
+    client = await g.__hrMongoClient;
+  } catch (error) {
+    g.__hrMongoClient = undefined;
+    throw error;
+  }
   const handle: MongoDbHandle = client.db(dbName);
   // Indexes speed queries up but nothing depends on them existing yet, so a
   // cold start doesn't wait for this.
@@ -98,6 +104,7 @@ export async function createMongoDb(uri: string, dbName: string): Promise<Db> {
     escalations: col("escalations"),
     assistantLog: col("assistantLog"),
     sessions: col("sessions"),
+    knowledgeArticles: col("knowledgeArticles"),
     async nextSeq(name: string) {
       const res = await counters.findOneAndUpdate(
         { _id: name },

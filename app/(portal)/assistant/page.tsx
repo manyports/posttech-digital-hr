@@ -16,7 +16,8 @@ import { ArrowRightIcon, DocIcon, InboxIcon, RefreshIcon, SendIcon } from "../..
 import { SectionSidebar } from "../../components/portal/PortalShell";
 import { Pill } from "../../components/portal/StatusBadge";
 import { useUser } from "../../components/portal/UserContext";
-import { KB_ANSWERS_RU, RU_QUESTIONS, MESSAGES_RU } from "@/lib/assistant/translations";
+import { RU_QUESTIONS, MESSAGES_RU } from "@/lib/assistant/translations";
+import { sourceHref } from "@/lib/assistant/source-links";
 
 type BotMsg = {
   id: number;
@@ -128,6 +129,17 @@ export default function AssistantPage() {
             <span className="hidden sm:block w-px h-4 bg-hero-border mx-0.5" />
             <span className="hidden sm:block text-[12px] text-tertiary truncate">{m.assistant.kbOnly}</span>
             <div className="ml-auto flex items-center gap-1 -mr-2">
+              {user.role === "hr" && (
+                <Link
+                  href="/hr/knowledge"
+                  aria-label="Открыть редактор базы знаний"
+                  className="h-8 inline-flex items-center gap-1.5 rounded-lg px-2 text-[12px] font-medium text-hero-muted hover:text-hero-foreground hover:bg-hero-cell-bg transition-colors"
+                >
+                  <DocIcon size={14} />
+                  <span className="hidden md:inline">Редактор базы знаний</span>
+                  <span className="md:hidden">База знаний</span>
+                </Link>
+              )}
               <button
                 onClick={() => setEscOpen((v) => !v)}
                 aria-pressed={escOpen}
@@ -389,13 +401,17 @@ function BotBody({
   const r = msg.reply;
 
   if (r.kind === "answer") {
-    const text = KB_ANSWERS_RU[r.entryId] ?? r.answer;
+    const text = r.answer;
     const relatedItems = r.related.map((x) => RU_QUESTIONS[x.entryId] ?? x.question);
     return (
       <>
         <p className="text-[14px] leading-[1.7] text-hero-foreground">{text}</p>
 
-        <aside aria-label={copy.assistant.source} className="self-start max-w-full flex items-start gap-2.5 rounded-lg border border-hero-border px-3 py-2">
+        <Link
+          href={sourceHref(r.source)}
+          aria-label={`${copy.assistant.source}: ${r.source.docTitle}, ${r.source.section}`}
+          className="self-start max-w-full flex items-start gap-2.5 rounded-lg border border-hero-border px-3 py-2 hover:bg-hero-cell-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-hero-foreground transition-colors"
+        >
           <DocIcon size={14} className="mt-0.5 shrink-0 text-tertiary" />
           <div className="min-w-0">
             <p className="text-[12.5px] font-semibold text-hero-foreground leading-snug">
@@ -405,7 +421,7 @@ function BotBody({
               {r.source.section} · {r.source.revision} · {r.source.owner}
             </p>
           </div>
-        </aside>
+        </Link>
 
         {r.action && (
           <div>

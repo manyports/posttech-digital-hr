@@ -5,6 +5,7 @@ import type {
   EmployeeDoc,
   EscalationDoc,
   HrRequestDoc,
+  KnowledgeArticleDoc,
   NotificationDoc,
   SessionDoc,
 } from "../../domain/types";
@@ -62,6 +63,7 @@ export interface Db {
   escalations: Collection<EscalationDoc>;
   assistantLog: Collection<AssistantLogDoc>;
   sessions: Collection<SessionDoc>;
+  knowledgeArticles: Collection<KnowledgeArticleDoc>;
   /** Monotonic counters for human-friendly ids (REQ-0001, ESC-0001, ...). */
   nextSeq(name: string): Promise<number>;
   /** Restart every counter, so ids after a demo reset begin again from the first. */

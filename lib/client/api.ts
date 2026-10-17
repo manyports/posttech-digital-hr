@@ -11,7 +11,7 @@ export class ApiError extends Error {
 }
 
 interface Options {
-  method?: "GET" | "POST";
+  method?: "GET" | "POST" | "PATCH";
   body?: unknown;
   signal?: AbortSignal;
 }
@@ -46,3 +46,6 @@ export async function api<T>(path: string, { method = "GET", body, signal }: Opt
 
 export const post = <T>(path: string, body?: unknown) =>
   api<T>(path, { method: "POST", body: body ?? {} });
+
+export const patch = <T>(path: string, body: unknown) =>
+  api<T>(path, { method: "PATCH", body });
