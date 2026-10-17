@@ -3,17 +3,18 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { RequestView } from "@/lib/domain/types";
-import { workingDays, isValidDate } from "@/lib/domain/dates";
+import { addDays, workingDays, isValidDate } from "@/lib/domain/dates";
 import { ApiError, api, post } from "@/lib/client/api";
-import { fmtKzt, pluralDays } from "@/lib/client/format";
+import { fmtDate, fmtKzt, pluralDays } from "@/lib/client/format";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import { tx } from "@/lib/i18n/locale";
 import { Button } from "../ui/Button";
-import { Input } from "../ui/Input";
 import { Modal } from "../ui/Modal";
+import { NumberField } from "../ui/NumberField";
 import { Tabs } from "../ui/Tabs";
 import { Textarea } from "../ui/Textarea";
 import { useToast } from "../ui/Toast";
+import { DateRangePicker } from "./DateRangePicker";
 
 interface FormInfo {
   today: string;
@@ -124,20 +125,33 @@ export function NewRequestModal({
 
         {kind === "vacation" ? (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Input
-                label={m.modal.start}
-                type="date"
-                min={info?.today}
-                value={startDate}
-                onChange={(e) => {
-                  setStartDate(e.target.value);
-                  if (!endDate || endDate < e.target.value) setEndDate(e.target.value);
-                }}
-                error={f.startDate}
-                fullWidth
-              />
-              <Input label={m.modal.end} type="date" min={startDate || info?.today} value={endDate} onChange={(e) => setEndDate(e.target.value)} error={f.endDate} fullWidth />
+            <div className="flex flex-col gap-1.5">
+              <span className="app-form-label">{m.modal.dates}</span>
+              {info ? (
+                <DateRangePicker
+                  start={startDate}
+                  end={endDate}
+                  onChange={(s, e) => {
+                    setStartDate(s);
+                    setEndDate(e);
+                  }}
+                  min={info.today}
+                  max={addDays(info.today, 365)}
+                  cap={info.vacation.available}
+                  locale={locale}
+                  labels={{
+                    pickStart: m.modal.pickStart,
+                    pickEnd: m.modal.pickEnd,
+                    prevMonth: m.modal.prevMonth,
+                    nextMonth: m.modal.nextMonth,
+                    noDays: m.modal.noDays,
+                    cap: tx(m.modal.capHint, { n: pluralDays(info.vacation.available, locale) }),
+                  }}
+                  error={f.startDate ?? f.endDate}
+                />
+              ) : (
+                <div className="h-[332px] rounded-xl bg-hero-cell-bg animate-skeleton-pulse" />
+              )}
             </div>
             <div
               className="rounded-xl bg-hero-cell-bg px-4 py-3 text-[12.5px] text-hero-muted flex flex-wrap items-center justify-between gap-x-4 gap-y-1"
@@ -148,7 +162,10 @@ export function NewRequestModal({
                   m.modal.pickDates
                 ) : (
                   <>
-                    <strong className="text-hero-foreground tabular-nums">{pluralDays(days, locale)}</strong> {m.modal.weekends}
+                    <span className="text-hero-foreground">
+                      {fmtDate(startDate, locale)} – {fmtDate(endDate, locale)}
+                    </span>{" "}
+                    · <strong className="text-hero-foreground tabular-nums">{pluralDays(days, locale)}</strong> {m.modal.weekends}
                   </>
                 )}
               </span>
@@ -163,19 +180,26 @@ export function NewRequestModal({
           </>
         ) : (
           <>
-            <Input
-              label={m.modal.amount}
-              type="number"
-              inputMode="numeric"
-              min={info?.advance.minAmount}
-              max={info?.advance.limit}
-              step={1000}
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              error={f.amount}
-              hint={info ? tx(m.modal.amountHint, { limit: fmtKzt(info.advance.limit) }) : undefined}
-              fullWidth
-            />
+            {info ? (
+              <NumberField
+                label={m.modal.amount}
+                value={amount}
+                onChange={setAmount}
+                min={info.advance.minAmount}
+                max={info.advance.limit}
+                step={5000}
+                suffix="₸"
+                rangeText={tx(m.modal.range, { min: fmtKzt(info.advance.minAmount), max: fmtKzt(info.advance.limit) })}
+                overText={tx(m.modal.tooMuch, { max: fmtKzt(info.advance.limit) })}
+                underText={tx(m.modal.tooLittle, { min: fmtKzt(info.advance.minAmount) })}
+                decLabel={m.modal.less}
+                incLabel={m.modal.more}
+                hint={tx(m.modal.amountHint, { limit: fmtKzt(info.advance.limit) })}
+                error={f.amount}
+              />
+            ) : (
+              <div className="h-[118px] rounded-xl bg-hero-cell-bg animate-skeleton-pulse" />
+            )}
             {info?.advance.alreadyRequestedThisMonth && (
               <p className="text-[12.5px] text-hero-foreground bg-hero-cell-bg border border-hero-border rounded-xl px-4 py-2.5">
                 {m.modal.already}

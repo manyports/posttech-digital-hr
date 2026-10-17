@@ -19,6 +19,7 @@ npm run dev
 
 ```bash
 npm test
+npm run test:mongo   # тот же набор тестов на настоящей MongoDB (бинарник скачивается один раз)
 npm run typecheck
 npm run build && npm start
 ```

@@ -42,6 +42,34 @@ class MongoBackedCollection<T extends { _id: string }> implements Collection<T> 
   async deleteMany(filter: Filter = {}): Promise<number> {
     return (await this.c.deleteMany(filter)).deletedCount;
   }
+
+  async upsertOne(doc: T): Promise<void> {
+    await this.c.replaceOne({ _id: doc._id } as never, doc as never, { upsert: true });
+  }
+}
+
+/**
+ * Indexes for the queries the services actually run. `createIndexes` is a
+ * no-op for indexes that already exist, so this is safe on every cold start.
+ */
+async function ensureIndexes(handle: MongoDbHandle) {
+  await Promise.all([
+    handle.collection("employees").createIndexes([
+      { key: { email: 1 }, unique: true },
+      { key: { managerId: 1, active: 1 } },
+      { key: { role: 1, active: 1 } },
+    ]),
+    handle.collection("requests").createIndexes([
+      { key: { employeeId: 1, createdAt: -1 } },
+      { key: { approverId: 1, status: 1 } },
+      { key: { status: 1 } },
+    ]),
+    handle.collection("notifications").createIndexes([{ key: { userId: 1, createdAt: -1 } }]),
+    handle.collection("assignments").createIndexes([{ key: { userId: 1, courseId: 1 } }]),
+    handle.collection("escalations").createIndexes([{ key: { userId: 1, status: 1 } }, { key: { status: 1 } }]),
+    handle.collection("assistantLog").createIndexes([{ key: { outcome: 1 } }]),
+    handle.collection("sessions").createIndexes([{ key: { expiresAt: 1 } }]),
+  ]);
 }
 
 export async function createMongoDb(uri: string, dbName: string): Promise<Db> {
@@ -51,12 +79,12 @@ export async function createMongoDb(uri: string, dbName: string): Promise<Db> {
   g.__hrMongoClient ??= new MongoClient(uri, { maxPoolSize: 5 }).connect();
   const client = await g.__hrMongoClient;
   const handle: MongoDbHandle = client.db(dbName);
+  await ensureIndexes(handle);
 
   const col = <K extends keyof Db>(name: K): Db[K] =>
     new MongoBackedCollection(handle.collection(name as string)) as unknown as Db[K];
 
   const counters = handle.collection<{ _id: string; seq: number }>("counters");
-
 
   return {
     kind: "mongodb",
@@ -75,6 +103,9 @@ export async function createMongoDb(uri: string, dbName: string): Promise<Db> {
         { upsert: true, returnDocument: "after" },
       );
       return res?.seq ?? 1;
+    },
+    async resetSeqs() {
+      await counters.deleteMany({});
     },
   };
 }

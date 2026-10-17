@@ -42,6 +42,8 @@ export async function login(email: string, password?: string) {
   }
 
   const now = Date.now();
+  // Housekeeping: drop sessions that have already expired (ISO strings sort by time).
+  await db.sessions.deleteMany({ expiresAt: { $lt: new Date(now).toISOString() } });
   const session: SessionDoc = {
     _id: randomBytes(32).toString("base64url"),
     userId: user._id,

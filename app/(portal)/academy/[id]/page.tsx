@@ -17,6 +17,7 @@ import { AccessDenied, ErrorBlock, LoadingBlock, Panel } from "../../../componen
 import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, ClockIcon, LockIcon, XIcon } from "../../../components/portal/icons";
 import { CourseStatusBadge, Pill } from "../../../components/portal/StatusBadge";
 import { useUser } from "../../../components/portal/UserContext";
+import { SectionSidebar } from "../../../components/portal/PortalShell";
 
 type View = { kind: "lesson"; id: string } | { kind: "test" };
 
@@ -120,75 +121,73 @@ export default function CoursePlayerPage({ params }: { params: Promise<{ id: str
         )}
       </Panel>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] gap-6 items-start">
-        <Panel padding="p-1.5" as="div">
-          <ol className="flex flex-col gap-0.5" aria-label={m.lesson.contents}>
-            {a.lessons.map((l, i) => {
-              const active = view.kind === "lesson" && view.id === l.id;
-              return (
-                <li key={l.id}>
-                  <button
-                    onClick={() => setView({ kind: "lesson", id: l.id })}
-                    aria-current={active ? "step" : undefined}
-                    className={[
-                      "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors cursor-pointer",
-                      active ? "bg-hero-foreground text-hero-on-foreground" : "hover-wipe text-hero-foreground",
-                    ].join(" ")}
-                  >
-                    <StepDot done={l.completed} active={active} n={i + 1} />
-                    <span className="flex-1 min-w-0">
-                      <span className="block text-[13px] font-medium leading-snug">{l.title}</span>
-                      <span className={["block text-[11px] mt-0.5", active ? "text-hero-on-foreground/60" : "text-tertiary"].join(" ")}>{l.durationMin} мин.</span>
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-            <li>
-              <button
-                onClick={() => setView({ kind: "test" })}
-                aria-current={view.kind === "test" ? "step" : undefined}
-                className={[
-                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors cursor-pointer",
-                  view.kind === "test" ? "bg-hero-foreground text-hero-on-foreground" : "hover-wipe text-hero-foreground",
-                ].join(" ")}
-              >
-                <span
+      <SectionSidebar title={m.lesson.contents}>
+        <ol className="flex flex-col gap-0.5" aria-label={m.lesson.contents}>
+          {a.lessons.map((l, i) => {
+            const active = view.kind === "lesson" && view.id === l.id;
+            return (
+              <li key={l.id}>
+                <button
+                  onClick={() => setView({ kind: "lesson", id: l.id })}
+                  aria-current={active ? "step" : undefined}
                   className={[
-                    "w-6 h-6 rounded-full flex items-center justify-center shrink-0",
-                    a.status === "completed" ? "bg-primary text-hero-on-foreground" : view.kind === "test" ? "bg-hero-on-foreground/15" : "bg-hero-cell-bg text-hero-muted",
+                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors cursor-pointer",
+                    active ? "bg-hero-cell-bg text-hero-foreground" : "text-hero-foreground hover:bg-hero-cell-bg/60",
                   ].join(" ")}
                 >
-                  {a.status === "completed" ? <CheckIcon size={12} /> : a.testUnlocked ? <span className="text-[11px] font-semibold">?</span> : <LockIcon size={12} />}
-                </span>
-                <span className="flex-1">
-                  <span className="block text-[13px] font-medium">{m.lesson.quiz}</span>
-                  <span className={["block text-[11px] mt-0.5", view.kind === "test" ? "text-hero-on-foreground/60" : "text-tertiary"].join(" ")}>
-                    {tx(m.lesson.questionsN, { n: a.course.questionCount })}
+                  <StepDot done={l.completed} active={active} n={i + 1} />
+                  <span className="flex-1 min-w-0">
+                    <span className="block text-[13px] font-medium leading-snug">{l.title}</span>
+                    <span className={["block text-[11px] mt-0.5", active ? "text-hero-muted" : "text-tertiary"].join(" ")}>{l.durationMin} мин.</span>
                   </span>
+                </button>
+              </li>
+            );
+          })}
+          <li>
+            <button
+              onClick={() => setView({ kind: "test" })}
+              aria-current={view.kind === "test" ? "step" : undefined}
+              className={[
+                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors cursor-pointer",
+                view.kind === "test" ? "bg-hero-cell-bg text-hero-foreground" : "text-hero-foreground hover:bg-hero-cell-bg/60",
+              ].join(" ")}
+            >
+              <span
+                className={[
+                  "w-6 h-6 rounded-full flex items-center justify-center shrink-0",
+                  a.status === "completed" ? "bg-primary text-hero-on-foreground" : view.kind === "test" ? "bg-hero-foreground text-hero-on-foreground" : "bg-hero-cell-bg text-hero-muted",
+                ].join(" ")}
+              >
+                {a.status === "completed" ? <CheckIcon size={12} /> : a.testUnlocked ? <span className="text-[11px] font-semibold">?</span> : <LockIcon size={12} />}
+              </span>
+              <span className="flex-1">
+                <span className="block text-[13px] font-medium">{m.lesson.quiz}</span>
+                <span className={["block text-[11px] mt-0.5", view.kind === "test" ? "text-hero-muted" : "text-tertiary"].join(" ")}>
+                  {tx(m.lesson.questionsN, { n: a.course.questionCount })}
                 </span>
-              </button>
-            </li>
-          </ol>
-        </Panel>
+              </span>
+            </button>
+          </li>
+        </ol>
+      </SectionSidebar>
 
-        <div className="min-w-0 flex flex-col gap-6">
-          {lesson && (
-            <LessonPanel
-              lesson={lesson}
-              index={lessonIndex}
-              total={a.lessons.length}
-              canProgress={isLearner && a.status !== "completed"}
-              busy={busy}
-              onComplete={() => void complete(lesson)}
-              onNext={() => {
-                const next = a.lessons[lessonIndex + 1];
-                setView(next ? { kind: "lesson", id: next.id } : { kind: "test" });
-              }}
-            />
-          )}
-          {view.kind === "test" && <TestPanel a={a} isLearner={isLearner} onChange={reload} />}
-        </div>
+      <div className="min-w-0 flex flex-col gap-6">
+        {lesson && (
+          <LessonPanel
+            lesson={lesson}
+            index={lessonIndex}
+            total={a.lessons.length}
+            canProgress={isLearner && a.status !== "completed"}
+            busy={busy}
+            onComplete={() => void complete(lesson)}
+            onNext={() => {
+              const next = a.lessons[lessonIndex + 1];
+              setView(next ? { kind: "lesson", id: next.id } : { kind: "test" });
+            }}
+          />
+        )}
+        {view.kind === "test" && <TestPanel a={a} isLearner={isLearner} onChange={reload} />}
       </div>
     </>
   );
@@ -208,7 +207,7 @@ function StepDot({ done, active, n }: { done: boolean; active: boolean; n: numbe
     <span
       className={[
         "w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[11px] font-semibold",
-        done ? "bg-primary text-hero-on-foreground" : active ? "bg-hero-on-foreground/15 text-hero-on-foreground" : "bg-hero-cell-bg text-hero-muted",
+        done ? "bg-primary text-hero-on-foreground" : active ? "bg-hero-foreground text-hero-on-foreground" : "bg-hero-cell-bg text-hero-muted",
       ].join(" ")}
     >
       {done ? <CheckIcon size={12} /> : n}

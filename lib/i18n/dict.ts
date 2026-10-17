@@ -24,6 +24,8 @@ export interface Dict {
     account: string;
     signOut: string;
     openMenu: string;
+    collapse: string;
+    expand: string;
     unread: string;
   };
   roles: { employee: string; manager: string; hr: string };
@@ -46,6 +48,7 @@ export interface Dict {
     deniedBody: string;
     deniedNote: string;
     cancel: string;
+    close: string;
     back: string;
     working: string;
     failed: string;
@@ -114,6 +117,15 @@ export interface Dict {
     start: string;
     continue: string;
     allDone: string;
+    attention: string;
+    allClear: string;
+    todoCourse: string;
+    todoCourseStart: string;
+    todoOverdue: string;
+    todoApprove: string;
+    todoEsc: string;
+    todoUnread: string;
+    open: string;
   };
   requests: {
     title: string;
@@ -190,6 +202,18 @@ export interface Dict {
     amount: string;
     amountHint: string;
     already: string;
+    dates: string;
+    pickStart: string;
+    pickEnd: string;
+    capHint: string;
+    noDays: string;
+    prevMonth: string;
+    nextMonth: string;
+    range: string;
+    tooMuch: string;
+    tooLittle: string;
+    less: string;
+    more: string;
     reason: string;
   };
   profile: {
@@ -412,6 +436,20 @@ export interface Dict {
     escalatedHint: string;
     escalateFail: string;
     thinking: string;
+    you: string;
+    send: string;
+    newline: string;
+    greet: string;
+    botNotice: string;
+    bot: string;
+    helpful: string;
+    yes: string;
+    no: string;
+    thanks: string;
+    sorry: string;
+    canHelp: string;
+    toHuman: string;
+    restart: string;
     starters: string[];
   };
 }
@@ -440,6 +478,8 @@ const ru: Dict = {
     account: "Меню аккаунта",
     signOut: "Выйти",
     openMenu: "Открыть меню",
+    collapse: "Свернуть меню",
+    expand: "Развернуть меню",
     unread: "Уведомления ({n} непрочитанных)",
   },
   roles: { employee: "Сотрудник", manager: "Руководитель", hr: "HR / Админ" },
@@ -462,6 +502,7 @@ const ru: Dict = {
     deniedBody: "У вас нет доступа к этой странице.",
     deniedNote: "Ограничение действует на уровне сервера, а не только скрыто в интерфейсе.",
     cancel: "Отмена",
+    close: "Закрыть",
     back: "Назад",
     working: "Обработка…",
     failed: "Что-то пошло не так.",
@@ -542,6 +583,15 @@ const ru: Dict = {
     start: "Начать курс",
     continue: "Продолжить",
     allDone: "Все курсы пройдены. Отличная работа!",
+    attention: "Требует внимания",
+    allClear: "Всё в порядке, новых задач нет.",
+    todoCourse: "Продолжите курс «{title}»",
+    todoCourseStart: "Начните курс «{title}»",
+    todoOverdue: "Курс «{title}» просрочен",
+    todoApprove: "Заявки ждут вашего решения: {n}",
+    todoEsc: "Вопросы сотрудников без ответа: {n}",
+    todoUnread: "Непрочитанные уведомления: {n}",
+    open: "Открыть",
   },
   requests: {
     title: "Мои заявки",
@@ -618,6 +668,18 @@ const ru: Dict = {
     amount: "Сумма (тенге)",
     amountHint: "До {limit} (50% от месячного оклада). Не более одного аванса в месяц.",
     already: "В этом месяце вы уже запрашивали аванс, повторный запрос недоступен.",
+    dates: "Даты отпуска",
+    pickStart: "Выберите первый день отпуска",
+    pickEnd: "Теперь выберите последний день",
+    capHint: "Можно выбрать до {n}",
+    noDays: "Нет доступных дней отпуска.",
+    prevMonth: "Предыдущий месяц",
+    nextMonth: "Следующий месяц",
+    range: "От {min} до {max}",
+    tooMuch: "Не больше {max}",
+    tooLittle: "Не меньше {min}",
+    less: "Уменьшить",
+    more: "Увеличить",
     reason: "Причина",
   },
   profile: {
@@ -840,6 +902,20 @@ const ru: Dict = {
     escalatedHint: "Обращение {id}. Вы получите уведомление, когда HR ответит.",
     escalateFail: "Не удалось связаться с HR",
     thinking: "Al Jana ищет ответ в базе знаний",
+    you: "Вы",
+    send: "отправить",
+    newline: "новая строка",
+    greet: "Здравствуйте, {name}! Чем помочь?",
+    botNotice: "Я бот HR. Отвечаю только по базе знаний и всегда показываю источник.",
+    bot: "БОТ",
+    helpful: "Ответ помог?",
+    yes: "Да",
+    no: "Нет",
+    thanks: "Спасибо за оценку.",
+    sorry: "Жаль. Могу передать вопрос специалисту HR.",
+    canHelp: "Я могу помочь с этим:",
+    toHuman: "Спросить специалиста HR",
+    restart: "Новый диалог",
     starters: [
       "Сколько дней отпуска мне положено?",
       "Как запросить аванс по зарплате?",
@@ -874,6 +950,8 @@ const kk: Dict = {
     account: "Аккаунт мәзірі",
     signOut: "Шығу",
     openMenu: "Мәзірді ашу",
+    collapse: "Мәзірді жию",
+    expand: "Мәзірді ашу",
     unread: "Хабарламалар ({n} оқылмаған)",
   },
   roles: { employee: "Қызметкер", manager: "Басшы", hr: "HR / Әкімші" },
@@ -894,6 +972,7 @@ const kk: Dict = {
     loading: "Жүктелуде",
     deniedTitle: "Қол жеткізу жабық",
     deniedBody: "Бұл бетке рұқсатыңыз жоқ.",
+    close: "Жабу",
     deniedNote: "Шектеу серверде қолданылады, тек интерфейсте жасырылмайды.",
     cancel: "Болдырмау",
     back: "Артқа",
@@ -976,6 +1055,15 @@ const kk: Dict = {
     start: "Курсты бастау",
     continue: "Жалғастыру",
     allDone: "Барлық курс аяқталды.",
+    attention: "Назар аударыңыз",
+    allClear: "Бәрі жақсы, жаңа тапсырма жоқ.",
+    todoCourse: "«{title}» курсын жалғастырыңыз",
+    todoCourseStart: "«{title}» курсын бастаңыз",
+    todoOverdue: "«{title}» курсының мерзімі өтті",
+    todoApprove: "Шешіміңізді күтетін өтінімдер: {n}",
+    todoEsc: "Жауапсыз сұрақтар: {n}",
+    todoUnread: "Оқылмаған хабарламалар: {n}",
+    open: "Ашу",
   },
   requests: {
     title: "Менің өтінімдерім",
@@ -1052,6 +1140,18 @@ const kk: Dict = {
     amount: "Сома (теңге)",
     amountHint: "{limit} дейін (айлықтың 50%). Айына бір аванс.",
     already: "Осы айда аванс сұралған, қайта сұрауға болмайды.",
+    dates: "Демалыс күндері",
+    pickStart: "Демалыстың бірінші күнін таңдаңыз",
+    pickEnd: "Енді соңғы күнді таңдаңыз",
+    capHint: "{n} дейін таңдауға болады",
+    noDays: "Қолжетімді демалыс күні жоқ.",
+    prevMonth: "Алдыңғы ай",
+    nextMonth: "Келесі ай",
+    range: "{min} – {max}",
+    tooMuch: "{max} аспауы керек",
+    tooLittle: "{min} кем болмауы керек",
+    less: "Азайту",
+    more: "Көбейту",
     reason: "Себебі",
   },
   profile: {
@@ -1274,6 +1374,20 @@ const kk: Dict = {
     escalatedHint: "Өтініш {id}. HR жауап бергенде хабарлама аласыз.",
     escalateFail: "HR-мен байланысу мүмкін болмады",
     thinking: "Al Jana білім базасынан жауап іздеп жатыр",
+    you: "Сіз",
+    send: "жіберу",
+    newline: "жаңа жол",
+    greet: "Сәлеметсіз бе, {name}! Қалай көмектесейін?",
+    botNotice: "Мен HR ботымын. Тек білім базасы бойынша жауап беремін және дереккөзді көрсетемін.",
+    bot: "БОТ",
+    helpful: "Жауап көмектесті ме?",
+    yes: "Иә",
+    no: "Жоқ",
+    thanks: "Бағалағаныңызға рахмет.",
+    sorry: "Өкінішті. Сұрақты HR маманына жібере аламын.",
+    canHelp: "Мен мына тақырыптар бойынша көмектесемін:",
+    toHuman: "HR маманынан сұрау",
+    restart: "Жаңа диалог",
     starters: [
       "Сколько дней отпуска мне положено?",
       "Как запросить аванс по зарплате?",

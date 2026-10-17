@@ -45,6 +45,26 @@ export function workingDays(start: string, end: string): number {
   return n;
 }
 
+/**
+ * Last day a range starting on `start` may end on and still hold at most `cap`
+ * working days (trailing weekend days are free). Null when even `start` alone
+ * would go over.
+ */
+export function lastAllowedEnd(start: string, cap: number): string | null {
+  let used = isWeekend(start) ? 0 : 1;
+  if (used > cap) return null;
+  let end = start;
+  for (let i = 0; i < 400; i++) {
+    const next = addDays(end, 1);
+    if (!isWeekend(next)) {
+      if (used + 1 > cap) break;
+      used++;
+    }
+    end = next;
+  }
+  return end;
+}
+
 /** Do the inclusive ranges [aStart,aEnd] and [bStart,bEnd] share any day? */
 export function rangesOverlap(aStart: string, aEnd: string, bStart: string, bEnd: string): boolean {
   return aStart <= bEnd && bStart <= aEnd;

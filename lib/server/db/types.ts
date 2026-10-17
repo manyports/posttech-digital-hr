@@ -18,7 +18,7 @@ import type {
  *
  * Supported filter syntax (a strict subset of MongoDB's):
  *   { field: value }  { field: { $in: [...] } }  { field: { $ne: value } }
- *   { field: { $gte: number } }
+ *   { field: { $gte: number } }  { field: { $lt: string | number } }
  * Supported update operators: $set, $push, $inc.
  */
 export type Filter = Record<string, unknown>;
@@ -48,6 +48,8 @@ export interface Collection<T extends { _id: string }> {
    */
   updateOne(filter: Filter, update: UpdateOps): Promise<boolean>;
   deleteMany(filter?: Filter): Promise<number>;
+  /** Insert `doc`, or replace the stored document with the same `_id` in one step. */
+  upsertOne(doc: T): Promise<void>;
 }
 
 export interface Db {
@@ -62,6 +64,8 @@ export interface Db {
   sessions: Collection<SessionDoc>;
   /** Monotonic counters for human-friendly ids (REQ-0001, ESC-0001, ...). */
   nextSeq(name: string): Promise<number>;
+  /** Restart every counter, so ids after a demo reset begin again from the first. */
+  resetSeqs(): Promise<void>;
 }
 
 /** Collections wiped (and re-seeded) by the demo reset. Sessions survive. */

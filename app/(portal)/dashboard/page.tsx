@@ -2,17 +2,15 @@
 
 import Link from "next/link";
 import type { DashboardView } from "@/lib/server/services/dashboard";
-import { fmtDate } from "@/lib/client/format";
+import { fmtDate, payloadSummary } from "@/lib/client/format";
 import { useApi } from "@/lib/client/hooks";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import { tx } from "@/lib/i18n/locale";
 import { Button } from "../../components/ui/Button";
 import { Progress } from "../../components/ui/Progress";
-import { ArrowRightIcon, PlusIcon, SparkleIcon } from "../../components/portal/icons";
+import { ArrowRightIcon, PlusIcon, ChatIcon } from "../../components/portal/icons";
 import { ErrorBlock, LoadingBlock, PageHeader, Panel } from "../../components/portal/Panel";
-import { RequestCard } from "../../components/portal/RequestCard";
-import { StatTile } from "../../components/portal/StatTile";
-import { CourseStatusBadge } from "../../components/portal/StatusBadge";
+import { CourseStatusBadge, StatusBadge } from "../../components/portal/StatusBadge";
 import { useUser } from "../../components/portal/UserContext";
 
 export default function DashboardPage() {
@@ -20,6 +18,26 @@ export default function DashboardPage() {
   const { m, locale } = useI18n();
   const { data, error, loading, reload } = useApi<DashboardView>("/api/dashboard", { interval: 8000 });
   const first = user.fullName.split(" ")[0];
+
+  // Only things the user can act on, most urgent first.
+  const todos: { key: string; text: string; meta?: string; href: string; warn?: boolean }[] = [];
+  if (data) {
+    const awaiting = data.manager?.awaitingDecision ?? data.hr?.awaitingDecision ?? 0;
+    if (awaiting) todos.push({ key: "approve", text: tx(m.dashboard.todoApprove, { n: awaiting }), href: "/approvals", warn: true });
+    if (data.hr?.openEscalations) todos.push({ key: "esc", text: tx(m.dashboard.todoEsc, { n: data.hr.openEscalations }), href: "/hr", warn: true });
+    const next = data.training.next;
+    if (next) {
+      const copy = next.overdue ? m.dashboard.todoOverdue : next.status === "assigned" ? m.dashboard.todoCourseStart : m.dashboard.todoCourse;
+      todos.push({
+        key: "course",
+        text: tx(copy, { title: next.course.title }),
+        meta: tx(m.dashboard.due, { date: fmtDate(next.dueDate, locale) }),
+        href: `/academy/${next.id}`,
+        warn: next.overdue,
+      });
+    }
+    if (data.unread) todos.push({ key: "unread", text: tx(m.dashboard.todoUnread, { n: data.unread }), href: "/notifications" });
+  }
 
   return (
     <>
@@ -30,7 +48,7 @@ export default function DashboardPage() {
           <>
             <Link href="/assistant">
               <Button variant="secondary" size="sm">
-                <SparkleIcon size={14} /> {m.dashboard.ask}
+                <ChatIcon size={14} /> {m.dashboard.ask}
               </Button>
             </Link>
             <Link href="/requests?new=vacation">
@@ -47,38 +65,53 @@ export default function DashboardPage() {
 
       {data && (
         <>
-          <section aria-label={m.dashboard.summary} className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <StatTile
-              tone="dark"
-              label={m.dashboard.vacationDays}
-              value={data.vacation.available}
-              hint={
-                <>
-                  {tx(m.dashboard.availableOf, { n: data.vacation.remaining })}
-                  {data.vacation.pending > 0 && tx(m.dashboard.pendingBit, { n: data.vacation.pending })}
-                </>
-              }
-              href="/profile"
-            />
-            <StatTile
-              label={m.dashboard.openRequests}
-              value={data.openRequests}
-              hint={data.openRequests ? m.dashboard.waiting : m.dashboard.noOpen}
-              href="/requests"
-            />
-            <StatTile
-              label={m.dashboard.training}
-              value={`${data.training.completed}/${data.training.total}`}
-              hint={data.training.overdue ? tx(m.dashboard.overdueN, { n: data.training.overdue }) : m.dashboard.coursesDone}
-              href="/academy"
-            />
-            <StatTile
-              label={m.dashboard.unread}
-              value={data.unread}
-              hint={data.unread ? m.dashboard.needsAttention : m.dashboard.allRead}
-              href="/notifications"
-            />
-          </section>
+          <Panel title={m.dashboard.attention} padding="p-0">
+            {todos.length === 0 ? (
+              <p className="px-5 py-4 text-[13px] text-hero-muted">{m.dashboard.allClear}</p>
+            ) : (
+              <ul className="divide-y divide-hero-border">
+                {todos.map((t) => (
+                  <li key={t.key}>
+                    <Link href={t.href} className="group/td flex items-center gap-3 px-5 py-3.5 hover:bg-hero-cell-bg/60 transition-colors">
+                      <span aria-hidden className={["w-1.5 h-1.5 rounded-full shrink-0", t.warn ? "bg-warning" : "bg-hero-foreground/25"].join(" ")} />
+                      <span className="flex-1 min-w-0">
+                        <span className="block text-[13.5px] font-medium text-hero-foreground truncate">{t.text}</span>
+                        {t.meta && <span className="block text-[12px] text-tertiary mt-0.5">{t.meta}</span>}
+                      </span>
+                      <span className="shrink-0 flex items-center gap-1 text-[12px] font-medium text-hero-muted group-hover/td:text-hero-foreground transition-colors">
+                        {m.dashboard.open}
+                        <ArrowRightIcon size={12} className="transition-transform group-hover/td:translate-x-0.5" />
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
+
+          <Panel padding="p-0" as="div">
+            <dl aria-label={m.dashboard.summary} className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-hero-border">
+              <Stat
+                label={m.dashboard.vacationDays}
+                value={data.vacation.available}
+                hint={
+                  <>
+                    {tx(m.dashboard.availableOf, { n: data.vacation.remaining })}
+                    {data.vacation.pending > 0 && tx(m.dashboard.pendingBit, { n: data.vacation.pending })}
+                  </>
+                }
+                href="/profile"
+              />
+              <Stat label={m.dashboard.openRequests} value={data.openRequests} hint={data.openRequests ? m.dashboard.waiting : m.dashboard.noOpen} href="/requests" />
+              <Stat
+                label={m.dashboard.training}
+                value={`${data.training.completed}/${data.training.total}`}
+                hint={data.training.overdue ? tx(m.dashboard.overdueN, { n: data.training.overdue }) : m.dashboard.coursesDone}
+                href="/academy"
+              />
+              <Stat label={m.dashboard.unread} value={data.unread} hint={data.unread ? m.dashboard.needsAttention : m.dashboard.allRead} href="/notifications" />
+            </dl>
+          </Panel>
 
           {data.manager && (
             <Panel
@@ -121,30 +154,44 @@ export default function DashboardPage() {
             </Panel>
           )}
 
-          <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_340px] gap-6 items-start">
-            <section aria-labelledby="recent" className="flex flex-col gap-3">
-              <div className="flex items-center justify-between">
-                <h2 id="recent" className="text-[14px] font-semibold">
-                  {m.dashboard.recent}
-                </h2>
-                <Link href="/requests" className="text-[12.5px] text-hero-muted hover:text-hero-foreground link-slide">
+          <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-6 items-start">
+            <Panel
+              title={m.dashboard.recent}
+              padding="p-0"
+              actions={
+                <Link href="/requests" className="text-[12px] text-hero-muted hover:text-hero-foreground link-slide">
                   {m.dashboard.allRequests}
                 </Link>
-              </div>
+              }
+            >
               {data.recentRequests.length === 0 ? (
-                <Panel padding="p-8">
-                  <p className="text-[13px] text-hero-muted text-center">
-                    {m.dashboard.empty}{" "}
-                    <Link href="/requests?new=vacation" className="font-medium text-hero-foreground underline underline-offset-2">
-                      {m.dashboard.first}
-                    </Link>
-                    .
-                  </p>
-                </Panel>
+                <p className="px-5 py-4 text-[13px] text-hero-muted">
+                  {m.dashboard.empty}{" "}
+                  <Link href="/requests?new=vacation" className="font-medium text-hero-foreground underline underline-offset-2">
+                    {m.dashboard.first}
+                  </Link>
+                  .
+                </p>
               ) : (
-                data.recentRequests.map((r) => <RequestCard key={r.id} request={r} />)
+                <ul className="divide-y divide-hero-border">
+                  {data.recentRequests.map((r) => (
+                    <li key={r.id}>
+                      <Link href={`/requests/${r.id}`} className="flex items-center gap-4 px-5 py-3.5 hover:bg-hero-cell-bg/60 transition-colors">
+                        <span className="flex-1 min-w-0">
+                          <span className="flex items-baseline gap-2">
+                            <span className="text-[13.5px] font-medium text-hero-foreground">{m.requestType[r.type]}</span>
+                            <span className="text-[11.5px] text-tertiary tabular-nums">{r.id}</span>
+                          </span>
+                          <span className="block text-[12.5px] text-hero-muted truncate mt-0.5">{payloadSummary(r.payload, locale)}</span>
+                        </span>
+                        <span className="hidden sm:block text-[11.5px] text-tertiary whitespace-nowrap">{fmtDate(r.createdAt, locale)}</span>
+                        <StatusBadge status={r.status} />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
               )}
-            </section>
+            </Panel>
 
             <Panel title={m.dashboard.academy} description={data.training.next ? undefined : m.dashboard.noCourse}>
               {data.training.next ? (
@@ -157,8 +204,8 @@ export default function DashboardPage() {
                     <CourseStatusBadge status={data.training.next.status} overdue={data.training.next.overdue} />
                   </div>
                   <Progress value={data.training.next.progress} showValue label={m.dashboard.progress} />
-                  <Link href={`/academy/${data.training.next.id}`}>
-                    <Button variant="primary" size="sm" fullWidth>
+                  <Link href={`/academy/${data.training.next.id}`} className="self-start">
+                    <Button variant="secondary" size="sm">
                       {data.training.next.status === "assigned" ? m.dashboard.start : m.dashboard.continue} <ArrowRightIcon size={13} />
                     </Button>
                   </Link>
@@ -187,5 +234,15 @@ function Kpi({ label, value, href, warn }: { label: string; value: React.ReactNo
     </Link>
   ) : (
     <div>{inner}</div>
+  );
+}
+
+function Stat({ label, value, hint, href }: { label: string; value: React.ReactNode; hint: React.ReactNode; href: string }) {
+  return (
+    <Link href={href} className="block bg-hero-elevated px-5 py-4 hover:bg-hero-cell-bg/60 transition-colors">
+      <dt className="app-tab">{label}</dt>
+      <dd className="mt-1.5 text-[24px] leading-none font-semibold tabular-nums tracking-[-0.03em] text-hero-foreground">{value}</dd>
+      <dd className="mt-1.5 text-[12px] text-tertiary truncate">{hint}</dd>
+    </Link>
   );
 }

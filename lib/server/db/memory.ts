@@ -11,6 +11,7 @@ function matches(doc: Record<string, unknown>, filter: Filter): boolean {
       if ("$in" in ops && !(ops.$in as unknown[]).includes(value)) return false;
       if ("$ne" in ops && value === ops.$ne) return false;
       if ("$gte" in ops && !((value as number) >= (ops.$gte as number))) return false;
+      if ("$lt" in ops && !((value as number) < (ops.$lt as number))) return false;
       continue;
     }
     if (value !== cond) return false;
@@ -106,6 +107,10 @@ class MemoryCollection<T extends { _id: string }> implements Collection<T> {
     }
     return n;
   }
+
+  async upsertOne(doc: T): Promise<void> {
+    this.docs.set(doc._id, clone(doc));
+  }
 }
 
 type DocOf<K extends keyof Db> = Db[K] extends Collection<infer T> ? T : never;
@@ -130,5 +135,9 @@ export class MemoryDb implements Db {
     const n = (this.seqs.get(name) ?? 0) + 1;
     this.seqs.set(name, n);
     return n;
+  }
+
+  async resetSeqs(): Promise<void> {
+    this.seqs.clear();
   }
 }

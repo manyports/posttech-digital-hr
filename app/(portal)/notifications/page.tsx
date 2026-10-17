@@ -7,7 +7,7 @@ import { useI18n } from "@/lib/i18n/I18nProvider";
 import { localizeBody, localizeTitle } from "@/lib/i18n/notices";
 import { Button } from "../../components/ui/Button";
 import { EmptyState } from "../../components/ui/EmptyState";
-import { BellIcon, BookIcon, DocIcon, InboxIcon, SparkleIcon } from "../../components/portal/icons";
+import { BellIcon, BookIcon, DocIcon, InboxIcon, ChatIcon } from "../../components/portal/icons";
 import { useNotifications } from "../../components/portal/NotificationsProvider";
 import { LoadingBlock, PageHeader, Panel } from "../../components/portal/Panel";
 
@@ -18,7 +18,7 @@ export default function NotificationsPage() {
   const KIND: Record<NotificationKind, { icon: React.ReactNode; label: string }> = {
     request: { icon: <DocIcon size={15} />, label: m.notices.request },
     course: { icon: <BookIcon size={15} />, label: m.notices.course },
-    escalation: { icon: <SparkleIcon size={15} />, label: m.notices.assistant },
+    escalation: { icon: <ChatIcon size={15} />, label: m.notices.assistant },
     system: { icon: <InboxIcon size={15} />, label: m.notices.system },
   };
 

@@ -61,11 +61,9 @@ async function seedIfEmpty(db: Db) {
   if ((await db.employees.count()) === 0) {
     await insertSeed(db);
   } else {
-    const seed = buildSeed();
-    for (const c of seed.courses) {
-      await db.courses.deleteMany({ _id: c._id });
-      await db.courses.insertOne(structuredClone(c));
-    }
+    // Course content ships with the code: refresh it in place, never leaving
+    // a moment where another instance would find a course missing.
+    for (const c of buildSeed().courses) await db.courses.upsertOne(c);
   }
 }
 
@@ -73,6 +71,7 @@ async function seedIfEmpty(db: Db) {
 export async function resetDemoData(): Promise<void> {
   const db = await getDb();
   for (const name of RESETTABLE) await db[name].deleteMany({});
+  await db.resetSeqs();
   await insertSeed(db);
 }
 

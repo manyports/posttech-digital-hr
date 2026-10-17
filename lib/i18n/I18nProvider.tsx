@@ -40,7 +40,7 @@ export function useI18n(): I18nValue {
 export function LocaleSwitch() {
   const { locale, setLocale, m } = useI18n();
   return (
-    <div role="group" aria-label={m.switchLabel} className="flex items-center rounded-lg border border-hero-border p-0.5 bg-hero-cell-bg">
+    <div role="group" aria-label={m.switchLabel} className="flex items-center">
       {(["ru", "kk"] as const).map((code) => {
         const on = locale === code;
         return (
@@ -50,8 +50,8 @@ export function LocaleSwitch() {
             aria-pressed={on}
             onClick={() => setLocale(code)}
             className={[
-              "px-2 h-7 rounded-md text-[11px] font-semibold tracking-wide cursor-pointer",
-              on ? "bg-hero-foreground text-hero-on-foreground" : "text-hero-muted hover-wipe",
+              "px-1.5 h-7 rounded-md text-[11px] font-semibold tracking-wide cursor-pointer transition-colors",
+              on ? "text-hero-foreground" : "text-tertiary hover:text-hero-muted",
             ].join(" ")}
           >
             {code === "ru" ? m.ru : m.kz}

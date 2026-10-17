@@ -5,11 +5,9 @@ import { useRouter } from "next/navigation";
 import { ApiError, post } from "@/lib/client/api";
 import { LocaleSwitch, useI18n } from "@/lib/i18n/I18nProvider";
 import { Avatar } from "../components/ui/Avatar";
-import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { ArrowRightIcon, LogoMark } from "../components/portal/icons";
-import { Panel } from "../components/portal/Panel";
 
 interface Persona {
   email: string;
@@ -49,24 +47,19 @@ export function LoginForm({
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center px-4 py-10 sm:py-16">
-      <div className="w-full max-w-md flex flex-col gap-6">
-        <div className="flex flex-col items-center text-center gap-3">
-          <div className="self-end">
-            <LocaleSwitch />
-          </div>
-          <span className="w-11 h-11 rounded-xl bg-logo text-hero-on-foreground flex items-center justify-center shadow-md">
-            <LogoMark size={22} />
-          </span>
-          <div>
-            <h1 className="text-[28px] font-semibold tracking-[-0.03em] leading-tight">{m.login.title}</h1>
-            <p className="text-[14px] text-hero-muted mt-1 leading-relaxed whitespace-pre-line">{m.login.lead}</p>
-          </div>
-        </div>
+    <div className="min-h-screen flex flex-col">
+      <header className="app-container h-14 flex items-center justify-end">
+        <LocaleSwitch />
+      </header>
 
-        <Panel padding="p-5">
+      <main className="flex-1 flex justify-center px-4 pt-6 pb-16 sm:pt-[8vh]">
+        <div className="w-full max-w-[380px]">
+          <LogoMark size={28} className="text-logo" />
+          <h1 className="mt-5 text-[26px] font-semibold tracking-[-0.035em] leading-tight text-hero-foreground">{m.login.title}</h1>
+          <p className="mt-2 text-[14px] text-hero-muted leading-relaxed whitespace-pre-line">{m.login.lead}</p>
+
           <form
-            className="flex flex-col gap-4"
+            className="mt-8 flex flex-col gap-3"
             onSubmit={(e) => {
               e.preventDefault();
               void signIn(email, passwordRequired ? password : undefined);
@@ -100,57 +93,49 @@ export function LoginForm({
             )}
             <Button type="submit" variant="primary" fullWidth disabled={busy !== null || !email}>
               {busy === email ? m.login.entering : m.login.enter}
-              <ArrowRightIcon size={13} />
             </Button>
-            <p className="text-[11.5px] text-tertiary leading-relaxed text-center">
-              {passwordRequired ? m.login.ssoPassword : m.login.sso}
-            </p>
           </form>
-        </Panel>
+          <p className="mt-3 text-[11.5px] text-tertiary leading-relaxed">{passwordRequired ? m.login.ssoPassword : m.login.sso}</p>
 
-        <section aria-labelledby="demo-accounts" className="flex flex-col gap-2.5">
-          <div className="flex items-center justify-between px-1">
-            <h2 id="demo-accounts" className="text-[12px] font-semibold uppercase tracking-widest text-tertiary">
-              {m.login.demos}
-            </h2>
-            <span className="text-[11.5px] text-tertiary">{m.login.demoHint}</span>
-          </div>
-          <ul className="flex flex-col gap-2">
-            {personas.map((p) => (
-              <li key={p.email}>
-                <button
-                  type="button"
-                  disabled={busy !== null}
-                  onClick={() => void signIn(p.email, passwordRequired ? password : undefined)}
-                  className="group/p w-full flex items-center gap-3 text-left bg-hero-elevated rounded-2xl px-4 py-3 cursor-pointer transition-all duration-200 hover:shadow-md active:scale-[0.99] disabled:opacity-50"
-                  style={{
-                    boxShadow:
-                      "0 1px 2px rgba(17,17,17,0.04), 0 2px 8px -2px rgba(17,17,17,0.04), 0 0 0 1px rgba(17,17,17,0.05), inset 0 1px 0 rgba(255,255,255,0.9)",
-                  }}
-                >
-                  <Avatar name={p.name} size="md" />
-                  <span className="flex-1 min-w-0">
-                    <span className="flex items-center gap-2">
-                      <span className="text-[13.5px] font-semibold text-hero-foreground truncate">{p.name}</span>
-                      <Badge variant={p.label.startsWith("Employee") ? "muted" : p.label.startsWith("Manager") ? "accent" : "default"}>
-                        {PERSONA_LABELS[p.label] ?? p.label}
-                      </Badge>
+          <section aria-labelledby="demo-accounts" className="mt-10">
+            <div className="flex items-center gap-3">
+              <span aria-hidden className="flex-1 h-px bg-hero-border" />
+              <h2 id="demo-accounts" className="text-[10px] font-semibold uppercase tracking-widest text-tertiary">
+                {m.login.demos}
+              </h2>
+              <span aria-hidden className="flex-1 h-px bg-hero-border" />
+            </div>
+            <ul className="mt-4 rounded-xl border border-hero-border bg-hero-elevated divide-y divide-hero-border overflow-hidden">
+              {personas.map((p) => (
+                <li key={p.email}>
+                  <button
+                    type="button"
+                    disabled={busy !== null}
+                    onClick={() => void signIn(p.email, passwordRequired ? password : undefined)}
+                    className="group/p w-full flex items-center gap-3 text-left px-3.5 py-3 cursor-pointer transition-colors hover:bg-hero-cell-bg/70 disabled:opacity-50 disabled:cursor-default"
+                  >
+                    <Avatar name={p.name} size="sm" />
+                    <span className="flex-1 min-w-0">
+                      <span className="flex items-baseline justify-between gap-2">
+                        <span className="text-[13px] font-medium text-hero-foreground truncate">{p.name}</span>
+                        <span className="shrink-0 text-[11px] text-tertiary">{PERSONA_LABELS[p.label] ?? p.label}</span>
+                      </span>
+                      <span className="block text-[11.5px] text-tertiary truncate mt-0.5">
+                        {busy === p.email ? m.login.entering : (PERSONA_HINTS[p.email] ?? p.hint)}
+                      </span>
                     </span>
-                    <span className="block text-[12px] text-tertiary truncate mt-0.5">{PERSONA_HINTS[p.email] ?? p.hint}</span>
-                  </span>
-                  <ArrowRightIcon
-                    size={14}
-                    className="text-tertiary transition-all duration-200 group-hover/p:text-hero-foreground group-hover/p:translate-x-0.5"
-                  />
-                </button>
-              </li>
-            ))}
-          </ul>
-          {passwordRequired && (
-            <p className="text-[11.5px] text-tertiary px-1">{m.login.passwordFirst}</p>
-          )}
-        </section>
-      </div>
+                    <ArrowRightIcon
+                      size={12}
+                      className="shrink-0 text-tertiary opacity-0 -translate-x-1 transition-all duration-200 group-hover/p:opacity-100 group-hover/p:translate-x-0"
+                    />
+                  </button>
+                </li>
+              ))}
+            </ul>
+            {passwordRequired && <p className="mt-2.5 text-[11.5px] text-tertiary">{m.login.passwordFirst}</p>}
+          </section>
+        </div>
+      </main>
     </div>
   );
 }

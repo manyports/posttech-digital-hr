@@ -8,229 +8,320 @@ import { fmtRelative } from "@/lib/client/format";
 import { useApi } from "@/lib/client/hooks";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import { tx } from "@/lib/i18n/locale";
+import { Avatar } from "../../components/ui/Avatar";
 import { Button } from "../../components/ui/Button";
-import { Input } from "../../components/ui/Input";
+import { Kbd } from "../../components/ui/Kbd";
 import { useToast } from "../../components/ui/Toast";
-import { ArrowRightIcon, BookIcon, CheckIcon, SendIcon, SparkleIcon } from "../../components/portal/icons";
-import { PageHeader, Panel } from "../../components/portal/Panel";
+import { ArrowRightIcon, DocIcon, InboxIcon, RefreshIcon, SendIcon } from "../../components/portal/icons";
+import { SectionSidebar } from "../../components/portal/PortalShell";
 import { Pill } from "../../components/portal/StatusBadge";
+import { useUser } from "../../components/portal/UserContext";
 import { KB_ANSWERS_RU, RU_QUESTIONS, MESSAGES_RU } from "@/lib/assistant/translations";
 
-type Msg =
-  | { id: number; role: "user"; text: string }
-  | { id: number; role: "bot"; reply: AssistantReply; escalation?: EscalationView; escalating?: boolean };
+type BotMsg = {
+  id: number;
+  at: number;
+  role: "bot";
+  reply: AssistantReply;
+  escalation?: EscalationView;
+  escalating?: boolean;
+  feedback?: "up" | "down";
+};
+type Msg = { id: number; at: number; role: "user"; text: string } | BotMsg;
 
-const OUTSIDE_KB = ["Есть ли у нас опционы на акции?"];
+type Copy = ReturnType<typeof useI18n>["m"];
+
+const clock = (at: number) => {
+  const d = new Date(at);
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+};
 
 export default function AssistantPage() {
   const { toast } = useToast();
   const { m, locale } = useI18n();
+  const user = useUser();
+  const agent = m.nav.assistant;
   const starters = m.assistant.starters;
   const [messages, setMessages] = useState<Msg[]>([]);
   const [draft, setDraft] = useState("");
   const [thinking, setThinking] = useState(false);
+  const [escOpen, setEscOpen] = useState(false);
   const nextId = useRef(1);
   const endRef = useRef<HTMLDivElement>(null);
+  const fieldRef = useRef<HTMLTextAreaElement>(null);
   const { data: esc, reload: reloadEsc } = useApi<{ escalations: EscalationView[] }>("/api/assistant/escalations", { interval: 8000 });
 
   useEffect(() => {
+    if (messages.length === 0 && !thinking) return;
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages, thinking]);
+
+  // Grow the composer with its content, up to the CSS max-height.
+  useEffect(() => {
+    const el = fieldRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, [draft]);
+
+  const patchBot = (id: number, patch: Partial<BotMsg>) =>
+    setMessages((prev) => prev.map((x) => (x.id === id && x.role === "bot" ? { ...x, ...patch } : x)));
 
   async function ask(question: string) {
     const q = question.trim();
     if (!q || thinking) return;
     setDraft("");
-    setMessages((m) => [...m, { id: nextId.current++, role: "user", text: q }]);
+    setMessages((prev) => [...prev, { id: nextId.current++, at: Date.now(), role: "user", text: q }]);
     setThinking(true);
     try {
       const { reply } = await post<{ reply: AssistantReply }>("/api/assistant/ask", { question: q });
       // A short beat so the reply doesn't feel like a page jump.
       await new Promise((r) => setTimeout(r, 350));
-      setMessages((m) => [...m, { id: nextId.current++, role: "bot", reply }]);
+      setMessages((prev) => [...prev, { id: nextId.current++, at: Date.now(), role: "bot", reply }]);
     } catch (e) {
       toast({ title: m.assistant.fail, description: e instanceof ApiError ? e.message : undefined, variant: "error" });
     } finally {
       setThinking(false);
+      fieldRef.current?.focus();
     }
   }
 
-  async function escalate(msgId: number, question: string) {
-    setMessages((m) => m.map((x) => (x.id === msgId && x.role === "bot" ? { ...x, escalating: true } : x)));
+  async function escalate(msg: BotMsg) {
+    patchBot(msg.id, { escalating: true });
     try {
-      const { escalation } = await post<{ escalation: EscalationView }>("/api/assistant/escalate", { question });
-      setMessages((m) => m.map((x) => (x.id === msgId && x.role === "bot" ? { ...x, escalating: false, escalation } : x)));
+      const { escalation } = await post<{ escalation: EscalationView }>("/api/assistant/escalate", { question: msg.reply.question });
+      patchBot(msg.id, { escalating: false, escalation });
       toast({ title: m.assistant.escalated, description: tx(m.assistant.escalatedHint, { id: escalation.id }), variant: "success" });
       reloadEsc();
     } catch (e) {
-      setMessages((m) => m.map((x) => (x.id === msgId && x.role === "bot" ? { ...x, escalating: false } : x)));
+      patchBot(msg.id, { escalating: false });
       toast({ title: m.assistant.escalateFail, description: e instanceof ApiError ? e.message : undefined, variant: "error" });
     }
   }
 
+  function restart() {
+    setMessages([]);
+    setDraft("");
+    fieldRef.current?.focus();
+  }
+
+  const empty = messages.length === 0;
+  const escalations = esc?.escalations ?? [];
+  const lastBot = [...messages].reverse().find((x): x is BotMsg => x.role === "bot");
+  const relative = (iso: string) => fmtRelative(iso, Date.now(), locale);
+
   return (
     <>
-      <PageHeader
-        title="Al Jana"
-        description={m.assistant.description}
-      />
+      <SectionSidebar
+        mobile="none"
+        title={m.assistant.mine}
+        actions={<span className="pr-1.5 text-[11px] text-tertiary tabular-nums">{escalations.length}</span>}
+      >
+        <Escalations items={escalations} copy={m} relative={relative} />
+      </SectionSidebar>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-6 items-start">
-        <Panel padding="p-0" as="div" className="min-w-0">
-          <div className="flex items-center gap-3 px-5 py-3.5 border-b border-hero-border">
-            <span className="w-9 h-9 rounded-xl bg-hero-foreground text-hero-on-foreground flex items-center justify-center shrink-0">
-              <SparkleIcon size={17} />
-            </span>
-            <div className="min-w-0">
-              <p className="text-[14px] font-semibold tracking-[-0.01em] leading-tight">Al Jana</p>
-              <p className="text-[12px] text-tertiary">{m.assistant.kbOnly}</p>
+      <div className="surface-matte rounded-2xl p-1.5 h-[calc(100dvh-104px)] min-h-[520px]">
+        <section className="h-full bg-hero-elevated rounded-xl overflow-hidden flex flex-col">
+          {/* Channel bar */}
+          <div className="h-12 shrink-0 flex items-center gap-2.5 px-5 border-b border-hero-border">
+            <JanaMark size="sm" />
+            <span className="text-[13px] font-semibold tracking-[-0.01em] text-hero-foreground">{agent}</span>
+            <BotTag label={m.assistant.bot} />
+            <span className="hidden sm:block w-px h-4 bg-hero-border mx-0.5" />
+            <span className="hidden sm:block text-[12px] text-tertiary truncate">{m.assistant.kbOnly}</span>
+            <div className="ml-auto flex items-center gap-1 -mr-2">
+              <button
+                onClick={() => setEscOpen((v) => !v)}
+                aria-pressed={escOpen}
+                aria-label={m.assistant.mine}
+                className={[
+                  "lg:hidden h-8 flex items-center gap-1.5 px-2 rounded-lg text-[12px] font-medium transition-colors cursor-pointer",
+                  escOpen ? "bg-hero-cell-bg text-hero-foreground" : "text-hero-muted hover:text-hero-foreground hover:bg-hero-cell-bg",
+                ].join(" ")}
+              >
+                <InboxIcon size={14} />
+                {escalations.length > 0 && <span className="tabular-nums">{escalations.length}</span>}
+              </button>
+              {!empty && (
+                <button
+                  onClick={restart}
+                  className="h-8 flex items-center gap-1.5 px-2 rounded-lg text-[12px] font-medium text-hero-muted hover:text-hero-foreground hover:bg-hero-cell-bg transition-colors cursor-pointer"
+                >
+                  <RefreshIcon size={13} />
+                  <span className="hidden sm:inline">{m.assistant.restart}</span>
+                </button>
+              )}
             </div>
           </div>
 
-          <div role="log" aria-live="polite" aria-label={m.assistant.dialog} className="px-4 sm:px-5 py-5 flex flex-col gap-5 min-h-[380px] max-h-[62vh] overflow-y-auto">
-            <BotBubble>
-              <p className="text-[14px] leading-relaxed text-hero-foreground">{m.assistant.hello}</p>
-              <Chips label={m.assistant.try} items={starters} onPick={ask} disabled={thinking} />
-              <Chips label={m.assistant.outside} items={[m.assistant.outsideQ]} onPick={ask} disabled={thinking} subtle />
-            </BotBubble>
+          {escOpen && (
+            <div className="lg:hidden max-h-[40%] overflow-y-auto border-b border-hero-border px-3 py-2 animate-chat-in">
+              <Escalations items={escalations} copy={m} relative={relative} />
+            </div>
+          )}
 
-            {messages.map((item) =>
-              item.role === "user" ? (
-                <UserBubble key={item.id} text={item.text} />
-              ) : (
-                <BotMessage key={item.id} msg={item} onAsk={ask} onEscalate={() => void escalate(item.id, item.reply.question)} disabled={thinking} copy={m} starters={starters} />
-              ),
-            )}
+          {/* Log */}
+          <div role="log" aria-live="polite" aria-label={m.assistant.dialog} className="chat-scrollbar flex-1 overflow-y-auto flex flex-col">
+            <div className="mt-auto pt-6 pb-3">
+              <Row avatar={<JanaMark size="md" />} name={agent} tag={m.assistant.bot}>
+                <p className="text-[14px] leading-relaxed text-hero-foreground">{tx(m.assistant.greet, { name: user.fullName.split(" ")[0] })}</p>
+                <p className="-mt-2 text-[12.5px] text-tertiary">{m.assistant.botNotice}</p>
+                {empty && <QuickReplies items={starters} onPick={ask} disabled={thinking} />}
+              </Row>
 
-            {thinking && (
-              <BotBubble>
-                <span className="inline-flex gap-1 py-1" aria-label={m.assistant.thinking}>
-                  {[0, 1, 2].map((i) => (
-                    <span key={i} className="w-1.5 h-1.5 rounded-full bg-additional animate-bounce" style={{ animationDelay: `${i * 120}ms` }} />
-                  ))}
-                </span>
-              </BotBubble>
-            )}
+              {messages.map((item) =>
+                item.role === "user" ? (
+                  <Row key={item.id} avatar={<Avatar name={user.fullName} size="md" />} name={m.assistant.you} at={item.at}>
+                    <p className="text-[14px] leading-relaxed text-hero-foreground whitespace-pre-wrap break-words">{item.text}</p>
+                  </Row>
+                ) : (
+                  <Row key={item.id} avatar={<JanaMark size="md" />} name={agent} tag={m.assistant.bot} at={item.at}>
+                    <BotBody
+                      msg={item}
+                      onAsk={ask}
+                      onEscalate={() => void escalate(item)}
+                      onFeedback={(f) => patchBot(item.id, { feedback: f })}
+                      disabled={thinking}
+                      copy={m}
+                      starters={starters}
+                    />
+                  </Row>
+                ),
+              )}
+            </div>
             <div ref={endRef} />
           </div>
 
+          {/* Composer */}
           <form
-            className="flex items-start gap-2 px-4 sm:px-5 py-4 border-t border-hero-border bg-hero-cell-bg/60"
+            className="shrink-0 px-5 pb-2"
             onSubmit={(e) => {
               e.preventDefault();
               void ask(draft);
             }}
           >
-            <div className="flex-1">
-              <Input
+            <div className="flex items-end gap-2 rounded-xl bg-hero-cell-bg pl-3.5 pr-1.5 py-1.5 transition-shadow [box-shadow:var(--field-rest-shadow)] hover:[box-shadow:var(--field-hover-shadow)] focus-within:[box-shadow:var(--field-focus-shadow)] focus-within:hover:[box-shadow:var(--field-focus-shadow)]">
+              <textarea
+                ref={fieldRef}
+                rows={1}
                 aria-label={m.assistant.askLabel}
                 placeholder={m.assistant.placeholder}
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+                    e.preventDefault();
+                    void ask(draft);
+                  }
+                }}
                 maxLength={500}
-                fullWidth
                 autoComplete="off"
+                className="flex-1 min-w-0 resize-none bg-transparent py-1.5 max-h-40 text-[14px] leading-[1.45] text-hero-foreground placeholder:text-tertiary outline-none"
               />
+              <button
+                type="submit"
+                aria-label={m.assistant.ask}
+                disabled={thinking || !draft.trim()}
+                className="shrink-0 w-8 h-8 rounded-lg bg-hero-foreground text-hero-on-foreground flex items-center justify-center transition-[opacity,transform] active:scale-95 disabled:opacity-15 disabled:active:scale-100 cursor-pointer disabled:cursor-default"
+              >
+                <SendIcon size={15} />
+              </button>
             </div>
-            <Button type="submit" variant="primary" size="md" disabled={thinking || !draft.trim()}>
-              <SendIcon size={15} /> {m.assistant.ask}
-            </Button>
+            <div className="h-8 flex items-center justify-between gap-3 text-[11.5px] text-tertiary">
+              <span aria-live="polite" className="flex items-center gap-2 min-w-0">
+                {thinking ? (
+                  <>
+                    <span className="flex gap-[3px]" aria-hidden>
+                      {[0, 1, 2].map((i) => (
+                        <span key={i} className="w-1 h-1 rounded-full bg-hero-muted animate-typing" style={{ animationDelay: `${i * 160}ms` }} />
+                      ))}
+                    </span>
+                    <span className="truncate">{m.assistant.thinking}…</span>
+                  </>
+                ) : (
+                  lastBot && !lastBot.escalation && (
+                    <button
+                      type="button"
+                      onClick={() => void escalate(lastBot)}
+                      disabled={lastBot.escalating}
+                      className="font-medium text-hero-muted hover:text-hero-foreground underline decoration-hero-border underline-offset-[3px] hover:decoration-hero-foreground transition-colors cursor-pointer disabled:opacity-40"
+                    >
+                      {lastBot.escalating ? m.assistant.escalating : m.assistant.toHuman}
+                    </button>
+                  )
+                )}
+              </span>
+              <span className="hidden sm:flex items-center gap-1.5 shrink-0">
+                <Kbd className="!h-[18px] !min-w-0 !text-[10px] !px-1">Enter</Kbd> {m.assistant.send}
+                <span className="mx-1">·</span>
+                <Kbd className="!h-[18px] !min-w-0 !text-[10px] !px-1">Shift + Enter</Kbd> {m.assistant.newline}
+              </span>
+            </div>
           </form>
-        </Panel>
-
-        <div className="flex flex-col gap-6 min-w-0">
-          <Panel title={m.assistant.how} padding="p-5">
-            <ul className="flex flex-col gap-3 text-[13px] text-hero-muted leading-snug">
-              <Point>{m.assistant.point1}</Point>
-              <Point>{m.assistant.point2}</Point>
-              <Point>{m.assistant.point3}</Point>
-            </ul>
-          </Panel>
-
-          <Panel title={m.assistant.mine} description={m.assistant.mineHint} padding="p-0">
-            {!esc || esc.escalations.length === 0 ? (
-              <p className="p-5 text-[13px] text-hero-muted">{m.assistant.none}</p>
-            ) : (
-              <ul className="divide-y divide-hero-border">
-                {esc.escalations.map((e) => (
-                  <li key={e.id} className="px-5 py-3.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-[11.5px] text-tertiary tabular-nums">{e.id} · {fmtRelative(e.createdAt, Date.now(), locale)}</span>
-                      <Pill tone={e.status === "answered" ? "good" : "warn"}>{e.status === "answered" ? m.assistant.answered : m.assistant.waiting}</Pill>
-                    </div>
-                    <p className="text-[13px] font-medium text-hero-foreground mt-1.5 leading-snug">{e.question}</p>
-                    {e.answer && (
-                      <p className="mt-2 text-[13px] text-hero-muted leading-relaxed bg-hero-cell-bg rounded-lg px-3 py-2.5">
-                        <span className="block text-[10.5px] font-semibold uppercase tracking-widest text-tertiary mb-1">{m.assistant.hrSaid}</span>
-                        {e.answer}
-                      </p>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Panel>
-        </div>
+        </section>
       </div>
     </>
   );
 }
 
-function Point({ children }: { children: React.ReactNode }) {
+/* ── Pieces ─────────────────────────────────────────────────────── */
+
+/** The assistant's identity mark: a monogram with a presence dot. */
+function JanaMark({ size }: { size: "sm" | "md" }) {
+  const box = { sm: "w-6 h-6 text-[11px]", md: "w-9 h-9 text-[14px]" }[size];
+  const dot = { sm: "w-2 h-2 -right-px -bottom-px", md: "w-2.5 h-2.5 right-0 bottom-0" }[size];
   return (
-    <li className="flex items-start gap-2.5">
-      <span className="mt-0.5 w-4 h-4 rounded-full bg-hero-foreground text-hero-on-foreground flex items-center justify-center shrink-0">
-        <CheckIcon size={10} />
+    <span className="relative shrink-0 inline-flex">
+      <span
+        className={["rounded-full bg-hero-foreground text-hero-on-foreground font-semibold tracking-[-0.04em] flex items-center justify-center select-none", box].join(" ")}
+        style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.2)" }}
+        aria-hidden
+      >
+        J
       </span>
-      <span>{children}</span>
-    </li>
+      <span className={["absolute rounded-full bg-primary ring-2 ring-hero-elevated", dot].join(" ")} aria-hidden />
+    </span>
   );
 }
 
-function UserBubble({ text }: { text: string }) {
+/** Says plainly that this is a bot, next to its name, on every turn. */
+function BotTag({ label }: { label: string }) {
   return (
-    <div className="flex justify-end">
-      <p
-        className="max-w-[85%] bg-hero-foreground text-hero-on-foreground rounded-2xl rounded-br-md px-4 py-2.5 text-[14px] leading-relaxed"
-        style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.08)" }}
-      >
-        {text}
-      </p>
-    </div>
+    <span className="inline-flex items-center h-[15px] px-1 rounded-[4px] bg-hero-foreground text-hero-on-foreground text-[9px] font-semibold tracking-[0.06em] leading-none">
+      {label}
+    </span>
   );
 }
 
-function BotBubble({ children }: { children: React.ReactNode }) {
+function Row({ avatar, name, tag, at, children }: { avatar: React.ReactNode; name: string; tag?: string; at?: number; children: React.ReactNode }) {
   return (
-    <div className="flex items-start gap-2.5">
-      <span className="w-7 h-7 rounded-lg bg-hero-foreground text-hero-on-foreground flex items-center justify-center shrink-0 mt-0.5">
-        <SparkleIcon size={14} />
-      </span>
-      <div
-        className="max-w-[92%] min-w-0 flex flex-col gap-3 bg-hero-elevated rounded-2xl rounded-tl-md px-4 py-3"
-        style={{ boxShadow: "0 1px 2px rgba(17,17,17,0.04), 0 0 0 1px rgba(17,17,17,0.07), inset 0 1px 0 rgba(255,255,255,0.9)" }}
-      >
-        {children}
+    <article className="animate-chat-in flex gap-3.5 px-5 py-2.5 hover:bg-hero-cell-bg/50 transition-colors">
+      <div className="pt-0.5">{avatar}</div>
+      <div className="min-w-0 flex-1">
+        <header className="flex items-center gap-2 h-5">
+          <span className="text-[13.5px] font-semibold tracking-[-0.01em] text-hero-foreground">{name}</span>
+          {tag && <BotTag label={tag} />}
+          {at !== undefined && <time className="text-[11px] text-tertiary tabular-nums">{clock(at)}</time>}
+        </header>
+        <div className="mt-1 flex flex-col gap-3">{children}</div>
       </div>
-    </div>
+    </article>
   );
 }
 
-function Chips({ label, items, onPick, disabled, subtle }: { label: string; items: string[]; onPick: (q: string) => void; disabled?: boolean; subtle?: boolean }) {
+/** Reply buttons: the low-effort way into a conversation. */
+function QuickReplies({ label, items, onPick, disabled }: { label?: string; items: string[]; onPick: (q: string) => void; disabled: boolean }) {
   if (items.length === 0) return null;
   return (
     <div>
-      <p className="text-[10.5px] font-semibold uppercase tracking-widest text-tertiary mb-1.5">{label}</p>
+      {label && <p className="mb-1.5 text-[12px] text-hero-muted">{label}</p>}
       <div className="flex flex-wrap gap-1.5">
         {items.map((q) => (
           <button
             key={q}
             disabled={disabled}
             onClick={() => onPick(q)}
-            className={[
-              "text-left text-[12.5px] font-medium rounded-lg px-2.5 py-1.5 cursor-pointer transition-colors disabled:opacity-40",
-              subtle ? "bg-hero-elevated text-hero-muted hover:text-hero-foreground border border-dashed border-neutral-300" : "bg-hero-cell-bg text-hero-foreground hover:bg-hero-border",
-            ].join(" ")}
+            className="text-left text-[12.5px] rounded-full px-3 py-1.5 text-hero-foreground bg-hero-elevated border border-hero-border hover:border-hero-foreground/30 hover:bg-hero-cell-bg transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-default"
           >
             {q}
           </button>
@@ -240,19 +331,61 @@ function Chips({ label, items, onPick, disabled, subtle }: { label: string; item
   );
 }
 
-function BotMessage({
+function Handoff({ msg, onEscalate, copy, quiet }: { msg: BotMsg; onEscalate: () => void; copy: Copy; quiet?: boolean }) {
+  if (msg.escalation) {
+    return (
+      <div className="rounded-lg border border-hero-border px-3 py-2.5 text-[12.5px] leading-snug">
+        <p className="font-semibold text-hero-foreground">{tx(copy.assistant.sent, { id: msg.escalation.id })}</p>
+        <p className="mt-0.5 text-hero-muted">{copy.assistant.sentHint}</p>
+      </div>
+    );
+  }
+  return (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+      <Button variant={quiet ? "secondary" : "primary"} size="sm" disabled={msg.escalating} onClick={onEscalate}>
+        {msg.escalating ? copy.assistant.escalating : copy.assistant.escalate}
+      </Button>
+      <span className="text-[12px] text-tertiary">{copy.assistant.hrWill}</span>
+    </div>
+  );
+}
+
+function Feedback({ msg, onFeedback, onEscalate, copy }: { msg: BotMsg; onFeedback: (f: "up" | "down") => void; onEscalate: () => void; copy: Copy }) {
+  if (msg.feedback === "up") return <p className="text-[12px] text-tertiary">{copy.assistant.thanks}</p>;
+  if (msg.feedback === "down") {
+    return (
+      <div className="flex flex-col gap-2">
+        <p className="text-[13px] text-hero-muted">{copy.assistant.sorry}</p>
+        <Handoff msg={msg} onEscalate={onEscalate} copy={copy} quiet />
+      </div>
+    );
+  }
+  const btn =
+    "h-6 px-2 rounded-md text-[12px] font-medium text-hero-muted border border-hero-border hover:text-hero-foreground hover:border-hero-foreground/30 transition-colors cursor-pointer";
+  return (
+    <div className="flex items-center gap-1.5 text-[12px] text-tertiary">
+      <span className="mr-1">{copy.assistant.helpful}</span>
+      <button className={btn} onClick={() => onFeedback("up")}>{copy.assistant.yes}</button>
+      <button className={btn} onClick={() => onFeedback("down")}>{copy.assistant.no}</button>
+    </div>
+  );
+}
+
+function BotBody({
   msg,
   onAsk,
   onEscalate,
+  onFeedback,
   disabled,
   copy,
   starters,
 }: {
-  msg: Extract<Msg, { role: "bot" }>;
+  msg: BotMsg;
   onAsk: (q: string) => void;
   onEscalate: () => void;
+  onFeedback: (f: "up" | "down") => void;
   disabled: boolean;
-  copy: ReturnType<typeof useI18n>["m"];
+  copy: Copy;
   starters: string[];
 }) {
   const r = msg.reply;
@@ -261,22 +394,16 @@ function BotMessage({
     const text = KB_ANSWERS_RU[r.entryId] ?? r.answer;
     const relatedItems = r.related.map((x) => RU_QUESTIONS[x.entryId] ?? x.question);
     return (
-      <BotBubble>
-        <p className="text-[14.5px] leading-[1.7] text-hero-foreground">{text}</p>
+      <>
+        <p className="text-[14px] leading-[1.7] text-hero-foreground">{text}</p>
 
-        <aside
-          aria-label={copy.assistant.source}
-          className="rounded-xl bg-hero-cell-bg px-3.5 py-3 flex items-start gap-3 ring-1 ring-inset ring-hero-foreground/5"
-        >
-          <span className="w-7 h-7 rounded-lg bg-hero-elevated text-hero-foreground flex items-center justify-center shrink-0 ring-1 ring-inset ring-hero-foreground/8">
-            <BookIcon size={14} />
-          </span>
+        <aside aria-label={copy.assistant.source} className="self-start max-w-full flex items-start gap-2.5 rounded-lg border border-hero-border px-3 py-2">
+          <DocIcon size={14} className="mt-0.5 shrink-0 text-tertiary" />
           <div className="min-w-0">
-            <p className="text-[10.5px] font-semibold uppercase tracking-widest text-tertiary">{copy.assistant.source}</p>
-            <p className="text-[13px] font-semibold text-hero-foreground leading-snug mt-0.5">
-              {r.source.docTitle} <span className="text-tertiary font-medium">· {r.source.docId}</span>
+            <p className="text-[12.5px] font-semibold text-hero-foreground leading-snug">
+              {r.source.docTitle} <span className="font-normal text-tertiary">· {r.source.docId}</span>
             </p>
-            <p className="text-[12px] text-hero-muted leading-snug mt-0.5">
+            <p className="text-[11.5px] text-tertiary leading-snug mt-0.5">
               {r.source.section} · {r.source.revision} · {r.source.owner}
             </p>
           </div>
@@ -292,47 +419,55 @@ function BotMessage({
           </div>
         )}
 
-        <Chips label={copy.assistant.related} items={relatedItems} onPick={onAsk} disabled={disabled} />
-      </BotBubble>
+        <Feedback msg={msg} onFeedback={onFeedback} onEscalate={onEscalate} copy={copy} />
+        <QuickReplies label={copy.assistant.related} items={relatedItems} onPick={onAsk} disabled={disabled} />
+      </>
     );
   }
 
   if (r.kind === "no_answer") {
-    const message = MESSAGES_RU.noAnswer;
     return (
-      <BotBubble>
-        <div className="flex items-start gap-3">
-          <span className="w-6 h-6 rounded-md bg-warning text-hero-foreground flex items-center justify-center shrink-0 text-[13px] font-semibold mt-0.5">?</span>
-          <div>
-            <p className="text-[14px] font-semibold text-hero-foreground leading-snug">{copy.assistant.noAnswer}</p>
-            <p className="text-[13.5px] leading-relaxed text-hero-muted mt-1">{message}</p>
-          </div>
+      <>
+        <div>
+          <p className="text-[14px] font-semibold text-hero-foreground">{copy.assistant.noAnswer}</p>
+          <p className="mt-0.5 text-[14px] leading-relaxed text-hero-muted">{MESSAGES_RU.noAnswer}</p>
         </div>
-
-        {msg.escalation ? (
-          <div className="rounded-xl bg-pr-bg text-hero-foreground px-3.5 py-3 text-[13px] leading-snug border border-hero-border">
-            <p className="font-semibold">{tx(copy.assistant.sent, { id: msg.escalation.id })}</p>
-            <p className="mt-0.5 text-hero-muted">{copy.assistant.sentHint}</p>
-          </div>
-        ) : (
-          <div className="flex flex-wrap items-center gap-2">
-            <Button variant="primary" size="sm" disabled={msg.escalating} onClick={onEscalate}>
-              {msg.escalating ? copy.assistant.escalating : copy.assistant.escalate}
-            </Button>
-            <span className="text-[12px] text-tertiary">{copy.assistant.hrWill}</span>
-          </div>
-        )}
-
-        <Chips label={copy.assistant.orTry} items={OUTSIDE_KB.length ? starters.slice(0, 4) : starters} onPick={onAsk} disabled={disabled} />
-      </BotBubble>
+        <Handoff msg={msg} onEscalate={onEscalate} copy={copy} />
+        <QuickReplies label={copy.assistant.canHelp} items={starters} onPick={onAsk} disabled={disabled} />
+      </>
     );
   }
 
-  const smalltalkMessage = MESSAGES_RU[r.kind as keyof typeof MESSAGES_RU] ?? MESSAGES_RU.greeting;
+  const smalltalk = MESSAGES_RU[r.kind as keyof typeof MESSAGES_RU] ?? MESSAGES_RU.greeting;
   return (
-    <BotBubble>
-      <p className="text-[14px] leading-relaxed text-hero-foreground">{smalltalkMessage}</p>
-      <Chips label={copy.assistant.try} items={starters.slice(0, 4)} onPick={onAsk} disabled={disabled} />
-    </BotBubble>
+    <>
+      <p className="text-[14px] leading-relaxed text-hero-foreground">{smalltalk}</p>
+      <QuickReplies label={copy.assistant.canHelp} items={starters} onPick={onAsk} disabled={disabled} />
+    </>
+  );
+}
+
+function Escalations({ items, copy, relative }: { items: EscalationView[]; copy: Copy; relative: (iso: string) => string }) {
+  if (items.length === 0) {
+    return <p className="px-2.5 pt-1 pb-2 text-[12.5px] leading-relaxed text-tertiary">{copy.assistant.none}</p>;
+  }
+  return (
+    <ul className="flex flex-col gap-0.5">
+      {items.map((e) => (
+        <li key={e.id} className="rounded-xl px-2.5 py-2.5 hover:bg-hero-cell-bg/60 transition-colors">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[11px] text-tertiary tabular-nums truncate">{e.id} · {relative(e.createdAt)}</span>
+            <Pill tone={e.status === "answered" ? "good" : "warn"}>{e.status === "answered" ? copy.assistant.answered : copy.assistant.waiting}</Pill>
+          </div>
+          <p className="mt-1.5 text-[13px] font-medium leading-snug text-hero-foreground">{e.question}</p>
+          {e.answer && (
+            <div className="mt-2 rounded-lg bg-hero-cell-bg px-2.5 py-2">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-tertiary">{copy.assistant.hrSaid}</p>
+              <p className="mt-0.5 text-[12.5px] leading-relaxed text-hero-muted">{e.answer}</p>
+            </div>
+          )}
+        </li>
+      ))}
+    </ul>
   );
 }
