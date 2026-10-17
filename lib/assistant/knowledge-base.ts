@@ -750,4 +750,19 @@ export const KB: KbEntry[] = [
     action: { label: "Open my profile", href: "/profile" },
     related: ["how-to-request-vacation", "salary-advance-how", "academy-results"],
   },
+  {
+    id: "december-branch-coverage",
+    title: "December coverage in a branch",
+    questions: [
+      "Can the whole branch take December off together?",
+      "Can everyone in the branch go on vacation in December?",
+      "What if the whole team wants leave in December?",
+      "Is there a December rule about the branch all being away?",
+    ],
+    keywords: ["december", "branch", "coverage", "whole team", "peak", "everyone", "at once"],
+    answer:
+      "In December a whole branch must not be away at the same time. If a request would leave nobody on site, the portal shows a warning. It does not reject the request: the manager still decides.",
+    source: LEAVE("§3.6 December coverage"),
+    related: ["how-to-request-vacation", "vacation-request-rules"],
+  },
 ];

@@ -128,6 +128,7 @@ export interface RequestView {
   integration: IntegrationRefs;
   /** Actions the *current caller* may perform right now (server-computed). */
   allowedActions: RequestAction[];
+  coverage?: { remainingOnSite: number; december: boolean };
 }
 
 /* ── Notifications ──────────────────────────────────────────────────── */
@@ -295,6 +296,7 @@ export type AssistantReply =
       action?: { label: string; href: string };
       related: { entryId: string; question: string }[];
       confidence: number; // 0-1
+      personalBalance?: { available: number };
     }
   | {
       kind: "no_answer";

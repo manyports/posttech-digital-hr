@@ -394,6 +394,9 @@ function BotBody({
     return (
       <>
         <p className="text-[14px] leading-[1.7] text-hero-foreground">{text}</p>
+        {r.personalBalance && (
+          <p className="text-[13px] text-hero-muted">{tx(copy.assistant.balanceLine, { n: r.personalBalance.available })}</p>
+        )}
 
         <aside aria-label={copy.assistant.source} className="self-start max-w-full flex items-start gap-2.5 rounded-lg border border-hero-border px-3 py-2">
           <DocIcon size={14} className="mt-0.5 shrink-0 text-tertiary" />
@@ -411,7 +414,7 @@ function BotBody({
           <div>
             <Link href={r.action.href}>
               <Button variant="secondary" size="sm">
-                {r.action.label} <ArrowRightIcon size={13} />
+                {r.action.label === "draft" ? copy.assistant.openDraft : r.action.label} <ArrowRightIcon size={13} />
               </Button>
             </Link>
           </div>
