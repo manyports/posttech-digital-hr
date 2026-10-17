@@ -5,7 +5,7 @@ import type { ProfileBundle } from "@/lib/server/services/dashboard";
 import { fmtDate, fmtRelative } from "@/lib/client/format";
 import { useApi } from "@/lib/client/hooks";
 import { useI18n } from "@/lib/i18n/I18nProvider";
-import { localizeTitle } from "@/lib/i18n/notices";
+import { localizeBody, localizeTitle } from "@/lib/i18n/notices";
 import { tx } from "@/lib/i18n/locale";
 import { Avatar } from "../../components/ui/Avatar";
 import { Badge } from "../../components/ui/Badge";
@@ -155,7 +155,7 @@ function ProfileBody({ bundle }: { bundle: ProfileBundle }) {
                   <span className={["mt-1.5 w-2 h-2 rounded-full shrink-0", n.readAt ? "bg-hero-border" : "bg-hero-foreground"].join(" ")} aria-label={n.readAt ? m.common.read : m.common.unread} />
                   <div className="min-w-0 flex-1">
                     <p className="text-[13px] font-semibold text-hero-foreground">{localizeTitle(n.title, locale)}</p>
-                    <p className="text-[12.5px] text-hero-muted mt-0.5 line-clamp-2">{n.body}</p>
+                    <p className="text-[12.5px] text-hero-muted mt-0.5 line-clamp-2">{localizeBody(n.body, locale)}</p>
                   </div>
                   <span className="text-[11px] text-tertiary shrink-0 mt-0.5">{fmtRelative(n.createdAt, Date.now(), locale)}</span>
                 </Link>

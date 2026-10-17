@@ -265,6 +265,21 @@ export interface Dict {
     checking: string;
     submit: string;
     completedAt: string;
+    back: string;
+    countLine: string;
+    thenTest: string;
+    testDone: string;
+    viewer: string;
+    points: string;
+    markDone: string;
+    questionsN: string;
+    locked: string;
+    lockedHint: string;
+    resultLine: string;
+    retry: string;
+    backAcademy: string;
+    passedScore: string;
+    attempt: string;
   };
   team: {
     title: string;
@@ -678,6 +693,21 @@ const ru: Dict = {
     checking: "Проверка…",
     submit: "Сдать тест",
     completedAt: "Завершено {date}.",
+    back: "Jana Academy",
+    countLine: "{done} из {total} уроков",
+    thenTest: " · затем тест",
+    testDone: " · тест сдан",
+    viewer: "Вы просматриваете этот курс как руководитель/HR. Проходить уроки может только назначенный сотрудник.",
+    points: "Ключевые моменты",
+    markDone: "Отметьте урок завершенным, чтобы сохранить прогресс.",
+    questionsN: "{n} вопросов",
+    locked: "Тест заблокирован",
+    lockedHint: "Пройдите все {total} уроков, чтобы открыть тест. Пройдено: {done}.",
+    resultLine: "{correct} из {total} верно · проходной балл {pass}%. Ваш результат сохранен.",
+    retry: "Пройти тест повторно",
+    backAcademy: "Вернуться в Академию",
+    passedScore: "Тест сдан с результатом {n}%",
+    attempt: "Попытка {n} · {date}",
   },
   team: {
     title: "Команда",
@@ -1097,6 +1127,21 @@ const kk: Dict = {
     checking: "Тексерілуде…",
     submit: "Тестті тапсыру",
     completedAt: "Аяқталды {date}.",
+    back: "Jana Academy",
+    countLine: "{done} / {total} сабақ",
+    thenTest: " · содан кейін тест",
+    testDone: " · тест тапсырылды",
+    viewer: "Бұл курсты басшы/HR ретінде қарап отырсыз. Сабақты тек тағайындалған қызметкер өтеді.",
+    points: "Негізгі тұстар",
+    markDone: "Прогресті сақтау үшін сабақты аяқталды деп белгілеңіз.",
+    questionsN: "{n} сұрақ",
+    locked: "Тест жабық",
+    lockedHint: "Тестті ашу үшін барлық {total} сабақты өтіңіз. Өтілді: {done}.",
+    resultLine: "{correct} / {total} дұрыс · өту балы {pass}%. Нәтиже сақталды.",
+    retry: "Тестті қайта тапсыру",
+    backAcademy: "Академияға оралу",
+    passedScore: "Тест {n}% нәтижемен тапсырылды",
+    attempt: "Әрекет {n} · {date}",
   },
   team: {
     title: "Команда",

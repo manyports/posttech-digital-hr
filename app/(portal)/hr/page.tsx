@@ -5,6 +5,8 @@ import type { EscalationView } from "@/lib/domain/types";
 import { ApiError, post } from "@/lib/client/api";
 import { fmtRelative } from "@/lib/client/format";
 import { useApi } from "@/lib/client/hooks";
+import { useI18n } from "@/lib/i18n/I18nProvider";
+import { tx } from "@/lib/i18n/locale";
 import { Button } from "../../components/ui/Button";
 import { Modal } from "../../components/ui/Modal";
 import { Tabs } from "../../components/ui/Tabs";
@@ -24,6 +26,7 @@ interface Insights {
 export default function HrPage() {
   const user = useUser();
   const { toast } = useToast();
+  const { m, locale } = useI18n();
   const esc = useApi<{ escalations: EscalationView[] }>("/api/assistant/escalations", { interval: 6000 });
   const insights = useApi<Insights>("/api/hr/assistant-insights", { interval: 10000 });
   const [tab, setTab] = useState<"open" | "answered">("open");
@@ -36,8 +39,8 @@ export default function HrPage() {
   if (user.role !== "hr" || insights.error?.status === 403) {
     return (
       <>
-        <PageHeader title="Входящие HR" />
-        <AccessDenied message="Только HR / Администратор может открывать входящие HR." />
+        <PageHeader title={m.hr.title} />
+        <AccessDenied message={m.hr.denied} />
       </>
     );
   }
@@ -54,12 +57,12 @@ export default function HrPage() {
     setError(null);
     try {
       await post(`/api/assistant/escalations/${replyFor.id}/reply`, { answer: reply });
-      toast({ title: "Ответ отправлен", description: `${replyFor.employee.fullName} получил(а) уведомление.`, variant: "success" });
+      toast({ title: m.hr.sent, description: tx(m.hr.sentHint, { name: replyFor.employee.fullName }), variant: "success" });
       setReplyFor(null);
       setReply("");
       esc.reload();
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "Не удалось отправить ответ.");
+      setError(e instanceof ApiError ? e.message : m.hr.sendFail);
     } finally {
       setBusy(false);
     }
@@ -69,12 +72,12 @@ export default function HrPage() {
     setBusy(true);
     try {
       await post("/api/admin/reset");
-      toast({ title: "Демо-данные восстановлены", description: "Все демонстрационные данные возвращены к исходному состоянию.", variant: "success" });
+      toast({ title: m.hr.resetOk, description: m.hr.resetOkHint, variant: "success" });
       setResetOpen(false);
       esc.reload();
       insights.reload();
     } catch (e) {
-      toast({ title: "Сброс не удался", description: e instanceof ApiError ? e.message : undefined, variant: "error" });
+      toast({ title: m.hr.resetFail, description: e instanceof ApiError ? e.message : undefined, variant: "error" });
     } finally {
       setBusy(false);
     }
@@ -82,18 +85,18 @@ export default function HrPage() {
 
   return (
     <>
-      <PageHeader title="Входящие HR" description="Вопросы, на которые не смогла ответить Al Jana, пробелы в базе знаний и управление демо-данными." />
+      <PageHeader title={m.hr.title} description={m.hr.description} />
 
       {esc.loading && !esc.data && <LoadingBlock rows={2} />}
       {esc.error && !esc.data && <ErrorBlock message={esc.error.message} onRetry={esc.reload} />}
 
       <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_340px] gap-6 items-start">
         <section className="flex flex-col gap-4 min-w-0" aria-labelledby="esc-h">
-          <h2 id="esc-h" className="sr-only">Переданные вопросы</h2>
+          <h2 id="esc-h" className="sr-only">{m.hr.queue}</h2>
           <Tabs
             tabs={[
-              { key: "open", label: `Открытые · ${open.length}` },
-              { key: "answered", label: `С ответом · ${answered.length}` },
+              { key: "open", label: tx(m.hr.open, { n: open.length }) },
+              { key: "answered", label: tx(m.hr.answered, { n: answered.length }) },
             ]}
             onChange={(k) => setTab(k as "open" | "answered")}
           />
@@ -104,9 +107,9 @@ export default function HrPage() {
                 <div className="w-11 h-11 rounded-xl bg-hero-cell-bg text-hero-muted flex items-center justify-center mx-auto mb-3">
                   <InboxIcon size={20} />
                 </div>
-                <p className="text-[14px] font-semibold">{tab === "open" ? "Нет открытых вопросов" : "Ответов пока нет"}</p>
+                <p className="text-[14px] font-semibold">{tab === "open" ? m.hr.noneOpen : m.hr.noneDone}</p>
                 <p className="text-[13px] text-hero-muted mt-1">
-                  {tab === "open" ? "Когда Al Jana не может найти ответ и сотрудник передает вопрос в HR, он появляется здесь." : "Отправленные вами ответы отображаются здесь."}
+                  {tab === "open" ? m.hr.noneOpenHint : m.hr.noneDoneHint}
                 </p>
               </div>
             </Panel>
@@ -116,21 +119,21 @@ export default function HrPage() {
             <Panel key={e.id} padding="p-5" as="div">
               <div className="flex items-center justify-between gap-3">
                 <span className="text-[12px] text-tertiary tabular-nums">
-                  {e.id} · {e.employee.fullName} · {fmtRelative(e.createdAt)}
+                  {e.id} · {e.employee.fullName} · {fmtRelative(e.createdAt, Date.now(), locale)}
                 </span>
-                <Pill tone={e.status === "answered" ? "good" : "warn"}>{e.status === "answered" ? "Отвечено" : "Ожидает ответа"}</Pill>
+                <Pill tone={e.status === "answered" ? "good" : "warn"}>{e.status === "answered" ? m.hr.replied : m.hr.waiting}</Pill>
               </div>
               <p className="text-[15px] font-semibold tracking-[-0.01em] mt-2 leading-snug">{e.question}</p>
               {e.answer && (
                 <p className="mt-3 text-[13.5px] text-hero-muted leading-relaxed bg-hero-cell-bg rounded-xl px-4 py-3">
-                  <span className="block text-[10.5px] font-semibold uppercase tracking-widest text-tertiary mb-1">Ваш ответ</span>
+                  <span className="block text-[10.5px] font-semibold uppercase tracking-widest text-tertiary mb-1">{m.hr.yourReply}</span>
                   {e.answer}
                 </p>
               )}
               {e.status === "open" && (
                 <div className="mt-4">
                   <Button variant="primary" size="sm" onClick={() => { setReplyFor(e); setReply(""); setError(null); }}>
-                    Ответить
+                    {m.hr.reply}
                   </Button>
                 </div>
               )}
@@ -139,21 +142,21 @@ export default function HrPage() {
         </section>
 
         <div className="flex flex-col gap-6 min-w-0">
-          <Panel title="Аналитика Al Jana" description="Помогает улучшать базу знаний" padding="p-0">
+          <Panel title={m.hr.insights} description={m.hr.insightsHint} padding="p-0">
             <dl className="grid grid-cols-2 border-b border-hero-border [&>div+div]:border-l [&>div]:border-hero-border">
               <div className="px-5 py-4">
-                <dt className="text-[10.5px] font-semibold uppercase tracking-widest text-tertiary">Вопросов задано</dt>
+                <dt className="text-[10.5px] font-semibold uppercase tracking-widest text-tertiary">{m.hr.asked}</dt>
                 <dd className="mt-1 text-[22px] font-semibold tabular-nums tracking-[-0.03em]">{insights.data?.total ?? "-"}</dd>
               </div>
               <div className="px-5 py-4">
-                <dt className="text-[10.5px] font-semibold uppercase tracking-widest text-tertiary">Ответов из базы</dt>
+                <dt className="text-[10.5px] font-semibold uppercase tracking-widest text-tertiary">{m.hr.fromKb}</dt>
                 <dd className="mt-1 text-[22px] font-semibold tabular-nums tracking-[-0.03em]">{rate === null ? "-" : `${rate}%`}</dd>
               </div>
             </dl>
             <div className="px-5 py-3">
-              <p className="text-[11px] font-semibold uppercase tracking-widest text-tertiary mb-2">Без ответа, последние</p>
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-tertiary mb-2">{m.hr.gaps}</p>
               {insights.data && insights.data.unanswered.length === 0 && (
-                <p className="text-[13px] text-hero-muted py-1">Нет. База знаний покрыла все заданные вопросы.</p>
+                <p className="text-[13px] text-hero-muted py-1">{m.hr.noGaps}</p>
               )}
               <ul className="flex flex-col gap-2">
                 {insights.data?.unanswered.slice(0, 8).map((u) => (
@@ -166,13 +169,11 @@ export default function HrPage() {
             </div>
           </Panel>
 
-          <Panel title="Управление демо" description="Только для прототипа">
-            <p className="text-[13px] text-hero-muted leading-relaxed">
-              Сбросьте все заявки, курсы, уведомления и вопросы до исходного состояния демо-данных, чтобы пройти сценарии заново.
-            </p>
+          <Panel title={m.hr.demo} description={m.hr.demoHint}>
+            <p className="text-[13px] text-hero-muted leading-relaxed">{m.hr.demoBody}</p>
             <div className="mt-3">
               <Button variant="outline" size="sm" onClick={() => setResetOpen(true)}>
-                <RefreshIcon size={14} /> Сбросить демо-данные
+                <RefreshIcon size={14} /> {m.hr.reset}
               </Button>
             </div>
           </Panel>
@@ -182,31 +183,31 @@ export default function HrPage() {
       <Modal
         open={replyFor !== null}
         onClose={() => !busy && setReplyFor(null)}
-        title="Ответить сотруднику"
-        description={replyFor ? `${replyFor.employee.fullName} спросил(а): «${replyFor.question}»` : undefined}
+        title={m.hr.replyTitle}
+        description={replyFor ? tx(m.hr.askedBy, { name: replyFor.employee.fullName, question: replyFor.question }) : undefined}
         actions={
           <>
-            <Button variant="ghost" size="sm" onClick={() => setReplyFor(null)} disabled={busy}>Отмена</Button>
+            <Button variant="ghost" size="sm" onClick={() => setReplyFor(null)} disabled={busy}>{m.common.cancel}</Button>
             <Button variant="primary" size="sm" disabled={busy || reply.trim().length < 3} onClick={() => void sendReply()}>
-              {busy ? "Отправка…" : "Отправить ответ"}
+              {busy ? m.hr.sending : m.hr.send}
             </Button>
           </>
         }
       >
-        <Textarea label="Ваш ответ" value={reply} onChange={(e) => setReply(e.target.value)} rows={4} maxLength={1000} fullWidth />
+        <Textarea label={m.hr.yourAnswer} value={reply} onChange={(e) => setReply(e.target.value)} rows={4} maxLength={1000} fullWidth />
         {error && <p role="alert" className="text-[12.5px] text-error font-medium mt-2">{error}</p>}
       </Modal>
 
       <Modal
         open={resetOpen}
         onClose={() => !busy && setResetOpen(false)}
-        title="Сбросить демо-данные?"
-        description="Это удалит все созданные во время демонстрации данные (новые заявки, назначения, уведомления, вопросы в HR) и восстановит исходные данные. Текущие сессии останутся активными."
+        title={m.hr.resetTitle}
+        description={m.hr.resetBody}
         actions={
           <>
-            <Button variant="ghost" size="sm" onClick={() => setResetOpen(false)} disabled={busy}>Отмена</Button>
+            <Button variant="ghost" size="sm" onClick={() => setResetOpen(false)} disabled={busy}>{m.common.cancel}</Button>
             <Button variant="primary" size="sm" disabled={busy} onClick={() => void resetDemo()}>
-              {busy ? "Сброс…" : "Сбросить"}
+              {busy ? m.hr.resetting : m.hr.reset}
             </Button>
           </>
         }

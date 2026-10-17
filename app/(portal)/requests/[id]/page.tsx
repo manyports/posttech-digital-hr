@@ -3,8 +3,11 @@
 import { use } from "react";
 import Link from "next/link";
 import type { RequestEvent, RequestView } from "@/lib/domain/types";
-import { fmtDate, fmtDateTime, fmtKzt, TYPE_LABEL } from "@/lib/client/format";
+import { fmtDate, fmtDateTime, fmtKzt } from "@/lib/client/format";
 import { useApi } from "@/lib/client/hooks";
+import { useI18n } from "@/lib/i18n/I18nProvider";
+import { tx } from "@/lib/i18n/locale";
+import { localizeHistoryNote } from "@/lib/i18n/notices";
 import { Timeline } from "../../../components/ui/Timeline";
 import { AccessDenied, ErrorBlock, LoadingBlock, Panel } from "../../../components/portal/Panel";
 import { ArrowLeftIcon, LinkIcon } from "../../../components/portal/icons";
@@ -28,13 +31,14 @@ const variantFor = (s: RequestEvent["status"]) =>
 export default function RequestDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const user = useUser();
+  const { m, locale } = useI18n();
   // Live status: poll every 4s (works on serverless; no websockets needed).
   const { data, error, loading, reload } = useApi<{ request: RequestView }>(`/api/requests/${id}`, { interval: 4000 });
 
   if (error && !data) {
     return (
       <>
-        <BackLink to="/requests" label="Мои заявки" />
+        <BackLink to="/requests" label={m.request.mine} />
         {error.status === 403 ? <AccessDenied message={error.message} /> : <ErrorBlock message={error.message} onRetry={reload} />}
       </>
     );
@@ -47,21 +51,21 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
 
   return (
     <>
-      <BackLink to={mine ? "/requests" : "/approvals"} label={mine ? "Мои заявки" : "Согласования"} />
+      <BackLink to={mine ? "/requests" : "/approvals"} label={mine ? m.request.mine : m.request.approvals} />
 
       <Panel padding="p-0">
         <div className="p-5 sm:p-6 flex flex-wrap items-start justify-between gap-4 border-b border-hero-border">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2.5">
-              <h1 className="text-[22px] font-semibold tracking-[-0.025em]">Заявка: {TYPE_LABEL[r.type]}</h1>
+              <h1 className="text-[22px] font-semibold tracking-[-0.025em]">{tx(m.request.heading, { type: m.requestType[r.type] })}</h1>
               <StatusBadge status={r.status} />
             </div>
             <p className="text-[13px] text-hero-muted mt-1">
-              {r.id} · {mine ? "Подана вами" : r.employee.fullName} · {fmtDateTime(r.createdAt)}
+              {r.id} · {mine ? m.request.byYou : r.employee.fullName} · {fmtDateTime(r.createdAt, locale)}
             </p>
           </div>
           <Pill tone="dark" pulse>
-            В реальном времени
+            {m.request.live}
           </Pill>
         </div>
 
@@ -72,7 +76,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
         {r.allowedActions.length > 0 && (
           <div className="px-5 sm:px-6 py-4 border-t border-hero-border bg-hero-cell-bg/60 flex flex-wrap items-center justify-between gap-3">
             <p className="text-[12.5px] text-hero-muted">
-              {mine ? "Вы можете отозвать эту заявку, пока она открыта." : "Эта заявка ожидает вашего решения."}
+              {mine ? m.request.canCancel : m.request.awaitsYou}
             </p>
             <RequestActions request={r} onDone={reload} />
           </div>
@@ -80,31 +84,31 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
       </Panel>
 
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-6 items-start">
-        <Panel title="Детали заявки" padding="p-0">
+        <Panel title={m.request.details} padding="p-0">
           <dl>
-            <Row label="Сотрудник">{r.employee.fullName}</Row>
-            <Row label="Согласующий">{r.approver.fullName}</Row>
+            <Row label={m.request.employee}>{r.employee.fullName}</Row>
+            <Row label={m.request.approver}>{r.approver.fullName}</Row>
             {p.kind === "vacation" ? (
               <>
-                <Row label="Даты">
-                  {fmtDate(p.startDate)} – {fmtDate(p.endDate)}
+                <Row label={m.request.dates}>
+                  {fmtDate(p.startDate, locale)} – {fmtDate(p.endDate, locale)}
                 </Row>
-                <Row label="Рабочих дней">{p.days}</Row>
-                {p.comment && <Row label="Комментарий">{p.comment}</Row>}
+                <Row label={m.request.workDays}>{p.days}</Row>
+                {p.comment && <Row label={m.request.comment}>{p.comment}</Row>}
               </>
             ) : (
               <>
-                <Row label="Сумма">{fmtKzt(p.amount)}</Row>
-                <Row label="Причина">{p.reason}</Row>
+                <Row label={m.request.amount}>{fmtKzt(p.amount)}</Row>
+                <Row label={m.request.reason}>{p.reason}</Row>
               </>
             )}
-            <Row label="Обновлено">{fmtDateTime(r.updatedAt)}</Row>
+            <Row label={m.request.updated}>{fmtDateTime(r.updatedAt, locale)}</Row>
           </dl>
         </Panel>
 
         <Panel
-          title="Интегрированные системы"
-          description="Тестовые адаптеры (см. архитектурные заметки)"
+          title={m.request.systems}
+          description={m.request.systemsHint}
           padding="p-0"
         >
           <dl>
@@ -115,7 +119,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
                   <span className="text-[11.5px] font-normal text-tertiary">{r.integration.documentolog.state}</span>
                 </span>
               ) : (
-                <span className="text-tertiary font-normal">Не запущено</span>
+                <span className="text-tertiary font-normal">{m.request.notStarted}</span>
               )}
             </Row>
             <Row label="1C:ЗУП">
@@ -125,20 +129,20 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
                   <span className="text-[11.5px] font-normal text-tertiary">{r.integration.zup.state}</span>
                 </span>
               ) : (
-                <span className="text-tertiary font-normal">{r.status === "approved" ? "-" : "Регистрация после одобрения"}</span>
+                <span className="text-tertiary font-normal">{r.status === "approved" ? "-" : m.request.afterApprove}</span>
               )}
             </Row>
           </dl>
         </Panel>
       </div>
 
-      <Panel title="История" description="Каждое изменение статуса, кто изменил и когда">
+      <Panel title={m.request.history} description={m.request.historyHint}>
         <Timeline
           items={[...r.history].reverse().map((h, i) => ({
             key: `${h.at}-${i}`,
-            title: h.note,
+            title: localizeHistoryNote(h.note, locale),
             description: h.comment ? `“${h.comment}”` : undefined,
-            date: fmtDateTime(h.at),
+            date: fmtDateTime(h.at, locale),
             variant: variantFor(h.status),
           }))}
         />

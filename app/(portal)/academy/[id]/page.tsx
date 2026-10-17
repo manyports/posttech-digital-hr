@@ -6,6 +6,8 @@ import type { AssignmentDetailView, LessonView, TestResultView } from "@/lib/dom
 import { ApiError, post } from "@/lib/client/api";
 import { fmtDate, fmtDateTime } from "@/lib/client/format";
 import { useApi } from "@/lib/client/hooks";
+import { useI18n } from "@/lib/i18n/I18nProvider";
+import { tx } from "@/lib/i18n/locale";
 import { Badge } from "../../../components/ui/Badge";
 import { Button } from "../../../components/ui/Button";
 import { Progress } from "../../../components/ui/Progress";
@@ -22,6 +24,7 @@ export default function CoursePlayerPage({ params }: { params: Promise<{ id: str
   const { id } = use(params);
   const user = useUser();
   const { toast } = useToast();
+  const { m, locale } = useI18n();
   const { data, error, loading, reload } = useApi<{ assignment: AssignmentDetailView }>(`/api/academy/${id}`);
   const [picked, setView] = useState<View | null>(null);
   const [busy, setBusy] = useState(false);
@@ -76,9 +79,9 @@ export default function CoursePlayerPage({ params }: { params: Promise<{ id: str
       const next = a.lessons[lessonIndex + 1];
       if (next) setView({ kind: "lesson", id: next.id });
       else setView({ kind: "test" });
-      toast({ title: "Урок завершен", description: l.title, variant: "success", duration: 2500 });
+      toast({ title: m.lesson.saved, description: l.title, variant: "success", duration: 2500 });
     } catch (e) {
-      toast({ title: "Не удалось сохранить прогресс", description: e instanceof ApiError ? e.message : undefined, variant: "error" });
+      toast({ title: m.lesson.saveFail, description: e instanceof ApiError ? e.message : undefined, variant: "error" });
     } finally {
       setBusy(false);
     }
@@ -93,32 +96,33 @@ export default function CoursePlayerPage({ params }: { params: Promise<{ id: str
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2 mb-2">
               <Badge variant="muted">{a.course.category}</Badge>
-              {a.course.mandatory && <Badge variant="accent">Обязательный</Badge>}
+              {a.course.mandatory && <Badge variant="accent">{m.common.mandatory}</Badge>}
               <CourseStatusBadge status={a.status} overdue={a.overdue} />
             </div>
             <h1 className="text-[24px] font-semibold tracking-[-0.025em] leading-tight">{a.course.title}</h1>
             <p className="text-[13.5px] text-hero-muted mt-1.5 max-w-2xl leading-relaxed">{a.course.description}</p>
             <p className="text-[12px] text-tertiary mt-2">
-              Назначил(а) {a.assignedBy.fullName} · срок до {fmtDate(a.dueDate)} · проходной балл {a.course.passScore}%
+              {tx(m.lesson.assignedBy, { name: a.assignedBy.fullName, date: fmtDate(a.dueDate, locale), score: a.course.passScore })}
             </p>
           </div>
           <div className="w-full sm:w-60">
-            <Progress value={a.progress} showValue label="Общий прогресс" />
+            <Progress value={a.progress} showValue label={m.lesson.overall} />
             <p className="text-[11.5px] text-tertiary mt-1.5">
-              {a.completedLessons} из {a.course.lessonCount} уроков{a.status === "completed" ? " · тест сдан" : " · затем тест"}
+              {tx(m.lesson.countLine, { done: a.completedLessons, total: a.course.lessonCount })}
+              {a.status === "completed" ? m.lesson.testDone : m.lesson.thenTest}
             </p>
           </div>
         </div>
         {!isLearner && (
           <p className="px-5 sm:px-6 py-2.5 text-[12.5px] bg-hero-cell-bg border-t border-hero-border text-hero-muted">
-            Вы просматриваете этот курс как руководитель/HR. Проходить уроки может только назначенный сотрудник.
+            {m.lesson.viewer}
           </p>
         )}
       </Panel>
 
       <div className="grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] gap-6 items-start">
         <Panel padding="p-1.5" as="div">
-          <ol className="flex flex-col gap-0.5" aria-label="Содержание курса">
+          <ol className="flex flex-col gap-0.5" aria-label={m.lesson.contents}>
             {a.lessons.map((l, i) => {
               const active = view.kind === "lesson" && view.id === l.id;
               return (
@@ -158,9 +162,9 @@ export default function CoursePlayerPage({ params }: { params: Promise<{ id: str
                   {a.status === "completed" ? <CheckIcon size={12} /> : a.testUnlocked ? <span className="text-[11px] font-semibold">?</span> : <LockIcon size={12} />}
                 </span>
                 <span className="flex-1">
-                  <span className="block text-[13px] font-medium">Итоговый тест</span>
+                  <span className="block text-[13px] font-medium">{m.lesson.quiz}</span>
                   <span className={["block text-[11px] mt-0.5", view.kind === "test" ? "text-hero-on-foreground/60" : "text-tertiary"].join(" ")}>
-                    {a.course.questionCount} вопросов
+                    {tx(m.lesson.questionsN, { n: a.course.questionCount })}
                   </span>
                 </span>
               </button>
@@ -191,9 +195,10 @@ export default function CoursePlayerPage({ params }: { params: Promise<{ id: str
 }
 
 function Back() {
+  const { m } = useI18n();
   return (
     <Link href="/academy" className="inline-flex items-center gap-1.5 text-[13px] text-hero-muted hover:text-hero-foreground transition-colors w-fit">
-      <ArrowLeftIcon size={13} /> Jana Academy
+      <ArrowLeftIcon size={13} /> {m.lesson.back}
     </Link>
   );
 }
@@ -228,12 +233,13 @@ function LessonPanel({
   onComplete: () => void;
   onNext: () => void;
 }) {
+  const { m } = useI18n();
   return (
     <Panel padding="p-0" as="div">
       <article>
         <header className="px-6 pt-6 pb-4 border-b border-hero-border">
           <p className="text-[11px] font-semibold uppercase tracking-widest text-tertiary">
-            Урок {index + 1} из {total} · <ClockIcon size={11} className="inline -mt-0.5" /> {lesson.durationMin} мин.
+            {tx(m.lesson.countLine, { done: index + 1, total })} · <ClockIcon size={11} className="inline -mt-0.5" /> {tx(m.academy.minutes, { n: lesson.durationMin })}
           </p>
           <h2 className="text-[20px] font-semibold tracking-[-0.02em] mt-1.5">{lesson.title}</h2>
           <p className="text-[14px] text-hero-muted mt-1.5 leading-relaxed">{lesson.summary}</p>
@@ -248,7 +254,7 @@ function LessonPanel({
         </div>
 
         <div className="mx-6 mb-6 rounded-xl bg-hero-cell-bg p-4 ring-1 ring-inset ring-hero-foreground/5">
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-tertiary mb-2">Ключевые моменты</p>
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-tertiary mb-2">{m.lesson.points}</p>
           <ul className="flex flex-col gap-1.5">
             {lesson.keyPoints.map((k) => (
               <li key={k} className="flex items-start gap-2.5 text-[13.5px] text-hero-foreground leading-snug">
@@ -260,16 +266,16 @@ function LessonPanel({
         </div>
 
         <footer className="px-6 py-4 border-t border-hero-border flex flex-wrap items-center justify-between gap-3">
-          {lesson.completed ? <Pill tone="good">Завершено</Pill> : <span className="text-[12.5px] text-tertiary">Отметьте урок завершенным, чтобы сохранить прогресс.</span>}
+          {lesson.completed ? <Pill tone="good">{m.courseStatus.completed}</Pill> : <span className="text-[12.5px] text-tertiary">{m.lesson.markDone}</span>}
           <div className="flex items-center gap-2">
             {canProgress && !lesson.completed && (
               <Button variant="primary" size="sm" disabled={busy} onClick={onComplete}>
-                {index + 1 < total ? "Завершить и продолжить" : "Завершить и перейти к тесту"} <ArrowRightIcon size={13} />
+                {index + 1 < total ? m.lesson.finishNext : m.lesson.finishTest} <ArrowRightIcon size={13} />
               </Button>
             )}
             {(lesson.completed || !canProgress) && (
               <Button variant="secondary" size="sm" onClick={onNext}>
-                {index + 1 < total ? "Следующий урок" : "Перейти к тесту"} <ArrowRightIcon size={13} />
+                {index + 1 < total ? m.lesson.next : m.lesson.toTest} <ArrowRightIcon size={13} />
               </Button>
             )}
           </div>
@@ -281,6 +287,7 @@ function LessonPanel({
 
 function TestPanel({ a, isLearner, onChange }: { a: AssignmentDetailView; isLearner: boolean; onChange: () => void }) {
   const { toast } = useToast();
+  const { m, locale } = useI18n();
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [result, setResult] = useState<TestResultView | null>(null);
   const [busy, setBusy] = useState(false);
@@ -300,29 +307,29 @@ function TestPanel({ a, isLearner, onChange }: { a: AssignmentDetailView; isLear
       onChange();
       toast(
         r.passed
-          ? { title: "Курс завершен 🎉", description: `Вы набрали ${r.score}%.`, variant: "success" }
-          : { title: "Тест пока не сдан", description: `Вы набрали ${r.score}%; проходной балл: ${r.passScore}%.`, variant: "warning" },
+          ? { title: m.lesson.passedTitle, description: tx(m.lesson.passedBody, { n: r.score }), variant: "success" }
+          : { title: m.lesson.failedTitle, description: tx(m.lesson.failedBody, { n: r.score, pass: r.passScore }), variant: "warning" },
       );
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "Не удалось отправить тест.");
+      setError(e instanceof ApiError ? e.message : m.lesson.submitFail);
     } finally {
       setBusy(false);
     }
   }
 
   const history = a.attempts.length > 0 && (
-    <Panel title="Попытки" description="История всех попыток сохраняется" padding="p-0" as="div">
+    <Panel title={m.lesson.attempts} description={m.lesson.attemptsHint} padding="p-0" as="div">
       <ul className="divide-y divide-hero-border">
         {[...a.attempts].reverse().map((t, i) => (
           <li key={t.at} className="flex items-center justify-between gap-3 px-5 py-3 text-[13px]">
             <span className="text-hero-muted">
-              Попытка {a.attempts.length - i} · {fmtDateTime(t.at)}
+              {tx(m.lesson.attempt, { n: a.attempts.length - i, date: fmtDateTime(t.at, locale) })}
             </span>
             <span className="flex items-center gap-3">
               <span className="tabular-nums font-medium">
                 {t.correct}/{t.total} · {t.score}%
               </span>
-              <Pill tone={t.passed ? "good" : "bad"}>{t.passed ? "Сдано" : "Не сдано"}</Pill>
+              <Pill tone={t.passed ? "good" : "bad"}>{t.passed ? m.lesson.passed : m.lesson.failed}</Pill>
             </span>
           </li>
         ))}
@@ -337,9 +344,9 @@ function TestPanel({ a, isLearner, onChange }: { a: AssignmentDetailView; isLear
           <div className="w-11 h-11 rounded-xl bg-hero-cell-bg text-hero-muted flex items-center justify-center mx-auto mb-4">
             <LockIcon size={20} />
           </div>
-          <p className="text-[15px] font-semibold">Тест заблокирован</p>
+          <p className="text-[15px] font-semibold">{m.lesson.locked}</p>
           <p className="text-[13px] text-hero-muted mt-1.5 leading-relaxed">
-            Пройдите все {a.course.lessonCount} уроков, чтобы открыть тест. Пройдено: {a.completedLessons}.
+            {tx(m.lesson.lockedHint, { total: a.course.lessonCount, done: a.completedLessons })}
           </p>
         </div>
       </Panel>
@@ -360,9 +367,9 @@ function TestPanel({ a, isLearner, onChange }: { a: AssignmentDetailView; isLear
               <span className="text-[26px] font-semibold tabular-nums leading-none">{result.score}%</span>
             </div>
             <div className="min-w-0">
-              <h2 className="text-[20px] font-semibold tracking-[-0.02em]">{result.passed ? "Вы сдали тест! Курс завершен." : "В этот раз тест не сдан"}</h2>
+              <h2 className="text-[20px] font-semibold tracking-[-0.02em]">{result.passed ? m.lesson.youPassed : m.lesson.youFailed}</h2>
               <p className="text-[13.5px] text-hero-muted mt-1">
-                {result.correct} из {result.total} верно · проходной балл {result.passScore}%. Ваш результат сохранен.
+                {tx(m.lesson.resultLine, { correct: result.correct, total: result.total, pass: result.passScore })}
               </p>
             </div>
           </div>
@@ -385,12 +392,12 @@ function TestPanel({ a, isLearner, onChange }: { a: AssignmentDetailView; isLear
           <div className="px-6 py-4 border-t border-hero-border flex justify-end gap-2">
             {!result.passed && (
               <Button variant="primary" size="sm" onClick={() => { setResult(null); setAnswers({}); }}>
-                Пройти тест повторно
+                {m.lesson.retry}
               </Button>
             )}
             <Link href="/academy">
               <Button variant={result.passed ? "primary" : "secondary"} size="sm">
-                Вернуться в Академию
+                {m.lesson.backAcademy}
               </Button>
             </Link>
           </div>
@@ -408,8 +415,8 @@ function TestPanel({ a, isLearner, onChange }: { a: AssignmentDetailView; isLear
             <div className="w-11 h-11 rounded-xl bg-primary text-hero-on-foreground flex items-center justify-center mx-auto mb-4">
               <CheckIcon size={20} />
             </div>
-            <p className="text-[15px] font-semibold">Тест сдан с результатом {a.bestScore}%</p>
-            <p className="text-[13px] text-hero-muted mt-1.5">Завершено {a.completedAt ? fmtDateTime(a.completedAt) : ""}.</p>
+            <p className="text-[15px] font-semibold">{tx(m.lesson.passedScore, { n: a.bestScore ?? 0 })}</p>
+            <p className="text-[13px] text-hero-muted mt-1.5">{tx(m.lesson.completedAt, { date: a.completedAt ? fmtDateTime(a.completedAt, locale) : "" })}</p>
           </div>
         </Panel>
         {history}
@@ -419,7 +426,7 @@ function TestPanel({ a, isLearner, onChange }: { a: AssignmentDetailView; isLear
 
   return (
     <>
-      <Panel title="Итоговый тест" description={`${a.questions.length} вопросов · проходной балл ${a.course.passScore}% · количество попыток не ограничено`} padding="p-0" as="div">
+      <Panel title={m.lesson.quiz} description={tx(m.lesson.quizHint, { n: a.questions.length, score: a.course.passScore })} padding="p-0" as="div">
         <ol className="divide-y divide-hero-border">
           {a.questions.map((q, i) => (
             <li key={q.id} className="px-6 py-5">
@@ -440,12 +447,12 @@ function TestPanel({ a, isLearner, onChange }: { a: AssignmentDetailView; isLear
         </ol>
         <div className="px-6 py-4 border-t border-hero-border flex flex-wrap items-center justify-between gap-3">
           <span className="text-[12.5px] text-hero-muted">
-            {isLearner ? `Отвечено на ${answered} из ${a.questions.length}` : "Проходить тест может только назначенный сотрудник."}
+            {isLearner ? tx(m.lesson.answered, { done: answered, total: a.questions.length }) : m.lesson.learnerOnly}
           </span>
           <div className="flex items-center gap-3">
             {error && <span role="alert" className="text-[12.5px] text-error font-medium">{error}</span>}
             <Button variant="primary" size="sm" disabled={!isLearner || busy || answered < a.questions.length} onClick={() => void submit()}>
-              {busy ? "Проверка…" : "Сдать тест"}
+              {busy ? m.lesson.checking : m.lesson.submit}
             </Button>
           </div>
         </div>

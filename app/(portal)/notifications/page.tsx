@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import type { NotificationKind, NotificationView } from "@/lib/domain/types";
 import { fmtRelative } from "@/lib/client/format";
 import { useI18n } from "@/lib/i18n/I18nProvider";
-import { localizeTitle } from "@/lib/i18n/notices";
+import { localizeBody, localizeTitle } from "@/lib/i18n/notices";
 import { Button } from "../../components/ui/Button";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { BellIcon, BookIcon, DocIcon, InboxIcon, SparkleIcon } from "../../components/portal/icons";
@@ -69,7 +69,7 @@ export default function NotificationsPage() {
                         <span className={["text-[13.5px] leading-snug", n.readAt ? "font-medium text-hero-foreground" : "font-semibold text-hero-foreground"].join(" ")}>{localizeTitle(n.title, locale)}</span>
                         {!n.readAt && <span className="w-1.5 h-1.5 rounded-full bg-hero-foreground" aria-label={m.common.unread} />}
                       </span>
-                      <span className="block text-[13px] text-hero-muted mt-0.5 leading-relaxed">{n.body}</span>
+                      <span className="block text-[13px] text-hero-muted mt-0.5 leading-relaxed">{localizeBody(n.body, locale)}</span>
                       <span className="block text-[11.5px] text-tertiary mt-1.5">
                         {k.label} · {fmtRelative(n.createdAt, Date.now(), locale)}
                       </span>
