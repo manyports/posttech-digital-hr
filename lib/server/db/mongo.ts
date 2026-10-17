@@ -79,7 +79,9 @@ export async function createMongoDb(uri: string, dbName: string): Promise<Db> {
   g.__hrMongoClient ??= new MongoClient(uri, { maxPoolSize: 5 }).connect();
   const client = await g.__hrMongoClient;
   const handle: MongoDbHandle = client.db(dbName);
-  await ensureIndexes(handle);
+  // Indexes speed queries up but nothing depends on them existing yet, so a
+  // cold start doesn't wait for this.
+  void ensureIndexes(handle).catch((err) => console.error("Index setup failed", err));
 
   const col = <K extends keyof Db>(name: K): Db[K] =>
     new MongoBackedCollection(handle.collection(name as string)) as unknown as Db[K];

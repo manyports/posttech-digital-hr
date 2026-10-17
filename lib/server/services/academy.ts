@@ -76,10 +76,13 @@ async function assignmentViews(db: Db, docs: AssignmentDoc[]): Promise<Assignmen
 /** Training assigned to `userId`. Owner, their direct manager or HR only. */
 export async function listAssignmentsFor(actor: Actor, userId: string = actor.id): Promise<AssignmentView[]> {
   const db = await getDb();
-  const target = await db.employees.findOne({ _id: userId });
+  // Fetched together; nothing leaves this function until the check below passes.
+  const [target, docs] = await Promise.all([
+    db.employees.findOne({ _id: userId }),
+    db.assignments.find({ userId }, { sort: { assignedAt: -1 } }),
+  ]);
   if (!target) throw notFound("Employee not found.");
   if (!canViewEmployee(actor, target)) throw forbidden("You can't view this employee's training.");
-  const docs = await db.assignments.find({ userId }, { sort: { assignedAt: -1 } });
   return assignmentViews(db, docs);
 }
 

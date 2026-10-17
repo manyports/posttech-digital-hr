@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { EscalationView } from "@/lib/domain/types";
 import { ApiError, post } from "@/lib/client/api";
 import { fmtRelative } from "@/lib/client/format";
-import { useApi } from "@/lib/client/hooks";
+import { clearApiCache, useApi } from "@/lib/client/hooks";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import { tx } from "@/lib/i18n/locale";
 import { Button } from "../../components/ui/Button";
@@ -72,6 +72,7 @@ export default function HrPage() {
     setBusy(true);
     try {
       await post("/api/admin/reset");
+      clearApiCache();
       toast({ title: m.hr.resetOk, description: m.hr.resetOkHint, variant: "success" });
       setResetOpen(false);
       esc.reload();

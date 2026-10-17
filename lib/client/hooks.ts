@@ -3,6 +3,14 @@
 import { useCallback, useEffect, useState } from "react";
 import { api, ApiError } from "./api";
 
+/**
+ * Last good response per path, shared across pages. Coming back to a page
+ * shows it instantly while a fresh copy loads. Cleared on sign-in/out so one
+ * person's data never flashes up for the next.
+ */
+const cache = new Map<string, unknown>();
+export const clearApiCache = () => cache.clear();
+
 interface State<T> {
   data: T | null;
   error: ApiError | null;
@@ -15,9 +23,13 @@ interface State<T> {
  *    without WebSockets (works on serverless). Polling pauses in hidden tabs.
  *  - Keeps the last good data if a later poll fails.
  *  - `reload()` forces an immediate refetch (e.g. after a mutation).
+ *  - Starts from the cached copy of `path` when there is one.
  */
 export function useApi<T>(path: string | null, { interval = 0 }: { interval?: number } = {}) {
-  const [state, setState] = useState<State<T>>({ data: null, error: null, loading: path !== null });
+  const [state, setState] = useState<State<T>>(() => {
+    const hit = path === null ? undefined : (cache.get(path) as T | undefined);
+    return { data: hit ?? null, error: null, loading: path !== null && hit === undefined };
+  });
   const [tick, setTick] = useState(0);
   const reload = useCallback(() => setTick((t) => t + 1), []);
 
@@ -28,7 +40,9 @@ export function useApi<T>(path: string | null, { interval = 0 }: { interval?: nu
     const run = async () => {
       try {
         const data = await api<T>(path, { signal: ctrl.signal });
-        if (!ctrl.signal.aborted) setState({ data, error: null, loading: false });
+        if (ctrl.signal.aborted) return;
+        cache.set(path, data);
+        setState({ data, error: null, loading: false });
       } catch (e) {
         if (ctrl.signal.aborted) return;
         setState((s) => ({ ...s, error: e instanceof ApiError ? e : new ApiError(0, "network", "Network error."), loading: false }));

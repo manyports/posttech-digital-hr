@@ -145,15 +145,13 @@ export async function listApprovals(actor: Actor): Promise<RequestView[]> {
 /** Numbers the "new request" form needs (balance, limits). Caller's own only. */
 export async function getRequestFormInfo(actor: Actor) {
   const db = await getDb();
-  const me = await db.employees.findOne({ _id: actor.id });
+  const [me, pending, advances] = await Promise.all([
+    db.employees.findOne({ _id: actor.id }),
+    pendingVacationDays(db, actor.id),
+    db.requests.find({ employeeId: actor.id, type: "salary_advance", status: { $in: LIVE } }),
+  ]);
   if (!me) throw notFound();
-  const pending = await pendingVacationDays(db, me._id);
   const monthStart = todayISO().slice(0, 7);
-  const advances = await db.requests.find({
-    employeeId: me._id,
-    type: "salary_advance",
-    status: { $in: LIVE },
-  });
   return {
     today: todayISO(),
     vacation: {

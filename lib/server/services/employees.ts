@@ -34,8 +34,10 @@ export async function pendingVacationDays(db: Db, employeeId: string): Promise<n
 }
 
 export async function buildProfile(db: Db, e: EmployeeDoc): Promise<ProfileView> {
-  const manager = e.managerId ? await db.employees.findOne({ _id: e.managerId }) : null;
-  const pending = await pendingVacationDays(db, e._id);
+  const [manager, pending] = await Promise.all([
+    e.managerId ? db.employees.findOne({ _id: e.managerId }) : null,
+    pendingVacationDays(db, e._id),
+  ]);
   return {
     ...toSummary(e, manager),
     company: e.company,

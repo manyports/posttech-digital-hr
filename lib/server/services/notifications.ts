@@ -46,11 +46,10 @@ const toView = (n: NotificationDoc): NotificationView => ({
 /** The caller's own notifications, newest first. Nobody can read others'. */
 export async function listNotifications(actor: Actor, limit = 50) {
   const db = await getDb();
-  const docs = await db.notifications.find(
-    { userId: actor.id },
-    { sort: { createdAt: -1 }, limit },
-  );
-  const unread = await db.notifications.count({ userId: actor.id, readAt: null });
+  const [docs, unread] = await Promise.all([
+    db.notifications.find({ userId: actor.id }, { sort: { createdAt: -1 }, limit }),
+    db.notifications.count({ userId: actor.id, readAt: null }),
+  ]);
   return { notifications: docs.map(toView), unread };
 }
 

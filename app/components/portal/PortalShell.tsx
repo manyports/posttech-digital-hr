@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { SessionUser } from "@/lib/domain/types";
 import { post } from "@/lib/client/api";
+import { clearApiCache } from "@/lib/client/hooks";
 import { LocaleSwitch, useI18n } from "@/lib/i18n/I18nProvider";
 import { tx } from "@/lib/i18n/locale";
 import { Avatar } from "../ui/Avatar";
@@ -232,6 +233,7 @@ function Shell({ user, children }: { user: SessionUser; children: React.ReactNod
   const current = activeItem(navFor(user, unread, m), pathname);
 
   async function signOut() {
+    clearApiCache();
     try {
       await post("/api/auth/logout");
     } finally {

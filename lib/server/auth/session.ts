@@ -19,6 +19,18 @@ import type { Role } from "../../domain/types";
 export const SESSION_COOKIE = "hr_session";
 const SESSION_TTL_MS = 8 * 60 * 60 * 1000;
 
+/**
+ * Cookie value is "<userId>.<token>". Carrying the user id lets getActor load
+ * the session and the employee in parallel (one DB round-trip instead of two);
+ * the session is still the authority, and must belong to that same user.
+ * Tokens are base64url, so they never contain ".".
+ */
+function readCookie(value: string | undefined): { userId: string | null; token: string } | null {
+  if (!value) return null;
+  const dot = value.lastIndexOf(".");
+  return dot === -1 ? { userId: null, token: value } : { userId: value.slice(0, dot), token: value.slice(dot + 1) };
+}
+
 export type { Actor };
 
 function safeEqual(a: string, b: string): boolean {
@@ -42,18 +54,20 @@ export async function login(email: string, password?: string) {
   }
 
   const now = Date.now();
-  // Housekeeping: drop sessions that have already expired (ISO strings sort by time).
-  await db.sessions.deleteMany({ expiresAt: { $lt: new Date(now).toISOString() } });
   const session: SessionDoc = {
     _id: randomBytes(32).toString("base64url"),
     userId: user._id,
     createdAt: new Date(now).toISOString(),
     expiresAt: new Date(now + SESSION_TTL_MS).toISOString(),
   };
-  await db.sessions.insertOne(session);
+  await Promise.all([
+    db.sessions.insertOne(session),
+    // Housekeeping: drop sessions that have already expired (ISO strings sort by time).
+    db.sessions.deleteMany({ expiresAt: { $lt: new Date(now).toISOString() } }),
+  ]);
 
   const store = await cookies();
-  store.set(SESSION_COOKIE, session._id, {
+  store.set(SESSION_COOKIE, `${user._id}.${session._id}`, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
@@ -65,10 +79,10 @@ export async function login(email: string, password?: string) {
 
 export async function logout() {
   const store = await cookies();
-  const token = store.get(SESSION_COOKIE)?.value;
-  if (token) {
+  const parsed = readCookie(store.get(SESSION_COOKIE)?.value);
+  if (parsed) {
     const db = await getDb();
-    await db.sessions.deleteMany({ _id: token });
+    await db.sessions.deleteMany({ _id: parsed.token });
   }
   store.delete(SESSION_COOKIE);
 }
@@ -97,16 +111,20 @@ function toActor(u: {
  */
 export async function getActor(): Promise<Actor | null> {
   const store = await cookies();
-  const token = store.get(SESSION_COOKIE)?.value;
-  if (!token) return null;
+  const parsed = readCookie(store.get(SESSION_COOKIE)?.value);
+  if (!parsed) return null;
   const db = await getDb();
-  const session = await db.sessions.findOne({ _id: token });
+  const [session, prefetched] = await Promise.all([
+    db.sessions.findOne({ _id: parsed.token }),
+    parsed.userId ? db.employees.findOne({ _id: parsed.userId }) : null,
+  ]);
   if (!session) return null;
   if (session.expiresAt < new Date().toISOString()) {
-    await db.sessions.deleteMany({ _id: token });
+    await db.sessions.deleteMany({ _id: parsed.token });
     return null;
   }
-  const user = await db.employees.findOne({ _id: session.userId });
+  // Old cookies (token only) fall back to a second lookup.
+  const user = parsed.userId === session.userId ? prefetched : await db.employees.findOne({ _id: session.userId });
   return user && user.active ? toActor(user) : null;
 }
 

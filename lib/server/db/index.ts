@@ -61,9 +61,12 @@ async function seedIfEmpty(db: Db) {
   if ((await db.employees.count()) === 0) {
     await insertSeed(db);
   } else {
-    // Course content ships with the code: refresh it in place, never leaving
-    // a moment where another instance would find a course missing.
-    for (const c of buildSeed().courses) await db.courses.upsertOne(c);
+    // Course content ships with the code: refresh it in place (the stored copy
+    // stays readable throughout). Off the critical path: a cold start doesn't
+    // wait for it.
+    void Promise.all(buildSeed().courses.map((c) => db.courses.upsertOne(c))).catch((err) =>
+      console.error("Course refresh failed", err),
+    );
   }
 }
 

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ApiError, post } from "@/lib/client/api";
+import { clearApiCache } from "@/lib/client/hooks";
 import { LocaleSwitch, useI18n } from "@/lib/i18n/I18nProvider";
 import { Avatar } from "../components/ui/Avatar";
 import { Button } from "../components/ui/Button";
@@ -38,6 +39,7 @@ export function LoginForm({
     setError(null);
     try {
       await post("/api/auth/login", { email: address, password: pwd });
+      clearApiCache();
       router.replace("/dashboard");
       router.refresh();
     } catch (e) {

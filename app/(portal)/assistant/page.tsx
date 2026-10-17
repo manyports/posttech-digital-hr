@@ -75,8 +75,6 @@ export default function AssistantPage() {
     setThinking(true);
     try {
       const { reply } = await post<{ reply: AssistantReply }>("/api/assistant/ask", { question: q });
-      // A short beat so the reply doesn't feel like a page jump.
-      await new Promise((r) => setTimeout(r, 350));
       setMessages((prev) => [...prev, { id: nextId.current++, at: Date.now(), role: "bot", reply }]);
     } catch (e) {
       toast({ title: m.assistant.fail, description: e instanceof ApiError ? e.message : undefined, variant: "error" });

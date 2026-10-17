@@ -4,7 +4,7 @@ import type {
   ProfileView,
   RequestView,
 } from "../../domain/types";
-import { getDb } from "../db";
+import { getDb, type Db } from "../db";
 import { isHr, isManager, type Actor } from "../policy";
 import { listAssignmentsFor } from "./academy";
 import { buildProfile, visibleEmployees } from "./employees";
@@ -42,12 +42,13 @@ export interface DashboardView {
 
 export async function getDashboard(actor: Actor): Promise<DashboardView> {
   const db = await getDb();
-  const me = (await db.employees.findOne({ _id: actor.id }))!;
-  const [profile, requests, training, n] = await Promise.all([
-    buildProfile(db, me),
+  // The personal part and the team/company part don't depend on each other.
+  const [profile, requests, training, n, team] = await Promise.all([
+    db.employees.findOne({ _id: actor.id }).then((me) => buildProfile(db, me!)),
     listMyRequests(actor),
     listAssignmentsFor(actor),
     listNotifications(actor, 1),
+    isManager(actor) || isHr(actor) ? teamOverview(db, actor) : undefined,
   ]);
 
   const pending = training.filter((a) => a.status !== "completed");
@@ -65,32 +66,34 @@ export async function getDashboard(actor: Actor): Promise<DashboardView> {
       next,
     },
     unread: n.unread,
+    ...team,
   };
-
-  if (isManager(actor) || isHr(actor)) {
-    const scope = await visibleEmployees(db, actor);
-    const ids = scope.map((e) => e._id);
-    const awaiting = await db.requests.count({
-      employeeId: { $in: ids },
-      status: { $in: ["submitted", "in_review"] },
-    });
-    const teamAssignments = await db.assignments.find({ userId: { $in: ids } });
-    const today = new Date().toISOString().slice(0, 10);
-    const overdue = teamAssignments.filter((a) => a.status !== "completed" && a.dueDate < today).length;
-
-    if (isManager(actor)) {
-      view.manager = { teamSize: scope.length, awaitingDecision: awaiting, teamOverdueTraining: overdue };
-    } else {
-      const courses = new Map((await db.courses.find({})).map((c) => [c._id, c]));
-      const mandatory = teamAssignments.filter((a) => courses.get(a.courseId)?.mandatory);
-      const done = mandatory.filter((a) => a.status === "completed").length;
-      view.hr = {
-        employees: scope.length + 1,
-        awaitingDecision: awaiting,
-        openEscalations: await db.escalations.count({ status: "open" }),
-        mandatoryCompletionPct: mandatory.length ? Math.round((done / mandatory.length) * 100) : 100,
-      };
-    }
-  }
   return view;
+}
+
+async function teamOverview(db: Db, actor: Actor): Promise<Pick<DashboardView, "manager" | "hr">> {
+  const scope = await visibleEmployees(db, actor);
+  const ids = scope.map((e) => e._id);
+  const hr = isHr(actor);
+  const [awaiting, teamAssignments, courses, openEscalations] = await Promise.all([
+    db.requests.count({ employeeId: { $in: ids }, status: { $in: ["submitted", "in_review"] } }),
+    db.assignments.find({ userId: { $in: ids } }),
+    hr ? db.courses.find({}) : [],
+    hr ? db.escalations.count({ status: "open" }) : 0,
+  ]);
+  const today = new Date().toISOString().slice(0, 10);
+  const overdue = teamAssignments.filter((a) => a.status !== "completed" && a.dueDate < today).length;
+
+  if (!hr) return { manager: { teamSize: scope.length, awaitingDecision: awaiting, teamOverdueTraining: overdue } };
+  const byId = new Map(courses.map((c) => [c._id, c]));
+  const mandatory = teamAssignments.filter((a) => byId.get(a.courseId)?.mandatory);
+  const done = mandatory.filter((a) => a.status === "completed").length;
+  return {
+    hr: {
+      employees: scope.length + 1,
+      awaitingDecision: awaiting,
+      openEscalations,
+      mandatoryCompletionPct: mandatory.length ? Math.round((done / mandatory.length) * 100) : 100,
+    },
+  };
 }
