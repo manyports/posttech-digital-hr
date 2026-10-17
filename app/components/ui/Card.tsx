@@ -55,7 +55,7 @@ function SplitImagePlaceholder({ dark }: { dark?: boolean }) {
     <div
       className={[
         "relative w-full h-full overflow-hidden",
-        dark ? "bg-neutral-900" : "bg-neutral-50",
+        dark ? "bg-hero-foreground" : "bg-hero-cell-bg",
       ].join(" ")}
     >
       <div
@@ -69,7 +69,7 @@ function SplitImagePlaceholder({ dark }: { dark?: boolean }) {
       />
       <div className="relative w-full h-full flex items-center justify-center">
         <svg
-          className={["w-8 h-8", dark ? "text-white/25" : "text-neutral-300"].join(" ")}
+          className={["w-8 h-8", dark ? "text-hero-on-foreground/25" : "text-tertiary"].join(" ")}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -91,7 +91,7 @@ function StackImagePlaceholder({ bg }: { bg?: string }) {
     <div
       className={[
         "relative w-full h-full overflow-hidden flex items-center justify-center",
-        bg ?? "bg-neutral-200",
+        bg ?? "bg-hero-border",
       ].join(" ")}
     >
       <div
@@ -103,7 +103,7 @@ function StackImagePlaceholder({ bg }: { bg?: string }) {
         }}
       />
       <svg
-        className="relative w-12 h-12 text-white/40"
+        className="relative w-12 h-12 text-hero-on-foreground/40"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -177,7 +177,7 @@ export function Card(props: CardProps) {
           {(title || badge) && (
             <div className="flex items-center justify-center gap-2.5">
               {title && (
-                <p className="text-[17px] font-semibold text-neutral-900 tracking-[-0.015em]">
+                <p className="text-[17px] font-semibold text-hero-foreground tracking-[-0.015em]">
                   {title}
                 </p>
               )}
@@ -185,7 +185,7 @@ export function Card(props: CardProps) {
             </div>
           )}
           {subtitle && (
-            <p className="text-[14px] text-neutral-600 leading-[1.6] max-w-[280px] whitespace-pre-line">
+            <p className="text-[14px] text-hero-muted leading-[1.6] max-w-[280px] whitespace-pre-line">
               {subtitle}
             </p>
           )}
@@ -196,7 +196,7 @@ export function Card(props: CardProps) {
             </div>
           )}
           {note && (
-            <p className="text-[11.5px] text-neutral-400 leading-relaxed max-w-xs mt-2">
+            <p className="text-[11.5px] text-tertiary leading-relaxed max-w-xs mt-2">
               {note}
             </p>
           )}
@@ -268,8 +268,8 @@ export function Card(props: CardProps) {
             className={[
               "w-9 h-9 rounded-[11px] flex items-center justify-center",
               dark
-                ? "bg-white/8 text-neutral-100 ring-1 ring-inset ring-white/10"
-                : "bg-neutral-900/5 text-neutral-700 ring-1 ring-inset ring-neutral-900/8",
+                ? "bg-hero-elevated/8 text-neutral-100 ring-1 ring-inset ring-hero-elevated/10"
+                : "bg-hero-foreground/5 text-hero-foreground ring-1 ring-inset ring-hero-foreground/8",
             ].join(" ")}
             style={{
               boxShadow: dark
@@ -285,7 +285,7 @@ export function Card(props: CardProps) {
             <p
               className={[
                 "text-[16px] font-semibold leading-snug tracking-[-0.015em]",
-                dark ? "text-white" : "text-neutral-900",
+                dark ? "text-hero-on-foreground" : "text-hero-foreground",
               ].join(" ")}
             >
               {title}
@@ -295,7 +295,7 @@ export function Card(props: CardProps) {
             <p
               className={[
                 "text-[13.5px] leading-[1.5]",
-                dark ? "text-neutral-400" : "text-neutral-600",
+                dark ? "text-tertiary" : "text-hero-muted",
               ].join(" ")}
             >
               {subtitle}

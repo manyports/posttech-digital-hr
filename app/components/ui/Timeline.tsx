@@ -17,17 +17,17 @@ interface TimelineProps {
 }
 
 const dotColors: Record<TimelineVariant, { bg: string; ring: string }> = {
-  default: { bg: "bg-neutral-900", ring: "ring-neutral-900/20" },
-  success: { bg: "bg-emerald-600", ring: "ring-emerald-600/20" },
-  warning: { bg: "bg-amber-500", ring: "ring-amber-500/20" },
-  accent: { bg: "bg-neutral-900", ring: "ring-neutral-900/20" },
+  default: { bg: "bg-hero-foreground", ring: "ring-hero-foreground/20" },
+  success: { bg: "bg-primary", ring: "ring-primary/20" },
+  warning: { bg: "bg-warning", ring: "ring-warning/30" },
+  accent: { bg: "bg-primary", ring: "ring-primary/20" },
 };
 
 const iconBgColors: Record<TimelineVariant, { bg: string; text: string }> = {
-  default: { bg: "bg-neutral-100", text: "text-neutral-600" },
-  success: { bg: "bg-emerald-50", text: "text-emerald-600" },
-  warning: { bg: "bg-amber-50", text: "text-amber-600" },
-  accent: { bg: "bg-neutral-100", text: "text-neutral-900" },
+  default: { bg: "bg-hero-cell-bg", text: "text-hero-muted" },
+  success: { bg: "bg-pr-bg", text: "text-primary" },
+  warning: { bg: "bg-hero-cell-bg", text: "text-hero-foreground" },
+  accent: { bg: "bg-pr-bg", text: "text-primary" },
 };
 
 export function Timeline({ items, className = "" }: TimelineProps) {
@@ -74,24 +74,24 @@ export function Timeline({ items, className = "" }: TimelineProps) {
 
               {/* Vertical connector line */}
               {!isLast && (
-                <div className="w-px flex-1 bg-neutral-200 min-h-4 my-1" />
+                <div className="w-px flex-1 bg-hero-border min-h-4 my-1" />
               )}
             </div>
 
             {/* Right column: content */}
             <div className={["flex-1 min-w-0", isLast ? "" : "pb-6"].join(" ")}>
               <div className="flex items-start justify-between gap-3">
-                <p className="text-[13px] font-semibold text-neutral-900 leading-snug pt-0.5">
+                <p className="text-[13px] font-semibold text-hero-foreground leading-snug pt-0.5">
                   {item.title}
                 </p>
                 {item.date && (
-                  <span className="text-[11px] font-medium text-neutral-400 tabular-nums shrink-0 pt-1">
+                  <span className="text-[11px] font-medium text-tertiary tabular-nums shrink-0 pt-1">
                     {item.date}
                   </span>
                 )}
               </div>
               {item.description && (
-                <p className="text-[13px] text-neutral-500 leading-relaxed mt-1.5">
+                <p className="text-[13px] text-hero-muted leading-relaxed mt-1.5">
                   {item.description}
                 </p>
               )}

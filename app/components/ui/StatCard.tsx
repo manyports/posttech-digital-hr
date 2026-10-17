@@ -108,21 +108,21 @@ const deltaConfig: Record<
 > = {
   up: (dark) => ({
     arrow: "↑",
-    color: dark ? "text-emerald-400" : "text-emerald-600",
-    bg: dark ? "bg-emerald-400/12" : "bg-emerald-50",
-    ring: dark ? "ring-emerald-400/30" : "ring-emerald-600/20",
+    color: dark ? "text-primary" : "text-primary",
+    bg: dark ? "bg-primary/12" : "bg-pr-bg",
+    ring: dark ? "ring-primary/30" : "ring-primary/20",
   }),
   down: (dark) => ({
     arrow: "↓",
-    color: dark ? "text-red-400" : "text-red-600",
-    bg: dark ? "bg-red-400/12" : "bg-red-50",
-    ring: dark ? "ring-red-400/30" : "ring-red-600/20",
+    color: dark ? "text-error" : "text-error",
+    bg: dark ? "bg-error/12" : "bg-error/10",
+    ring: dark ? "ring-error/30" : "ring-error/20",
   }),
   neutral: (dark) => ({
     arrow: "→",
-    color: dark ? "text-neutral-400" : "text-neutral-600",
-    bg: dark ? "bg-white/8" : "bg-neutral-100",
-    ring: dark ? "ring-white/12" : "ring-neutral-900/8",
+    color: dark ? "text-tertiary" : "text-hero-muted",
+    bg: dark ? "bg-hero-elevated/8" : "bg-hero-cell-bg",
+    ring: dark ? "ring-hero-elevated/12" : "ring-hero-foreground/8",
   }),
 };
 
@@ -179,8 +179,8 @@ export function StatCard({
                 className={[
                   "w-8 h-8 rounded-[9px] flex items-center justify-center shrink-0",
                   dark
-                    ? "bg-white/8 text-neutral-100 ring-1 ring-inset ring-white/10"
-                    : "bg-neutral-900/5 text-neutral-700 ring-1 ring-inset ring-neutral-900/8",
+                    ? "bg-hero-elevated/8 text-neutral-100 ring-1 ring-inset ring-hero-elevated/10"
+                    : "bg-hero-foreground/5 text-hero-foreground ring-1 ring-inset ring-hero-foreground/8",
                 ].join(" ")}
                 style={{
                   boxShadow: dark
@@ -194,7 +194,7 @@ export function StatCard({
             <p
               className={[
                 "text-[12px] font-semibold uppercase tracking-[0.08em] truncate",
-                dark ? "text-neutral-400" : "text-neutral-600",
+                dark ? "text-tertiary" : "text-hero-muted",
               ].join(" ")}
             >
               {label}
@@ -219,7 +219,7 @@ export function StatCard({
         <p
           className={[
             "text-[52px] font-semibold tabular-nums tracking-[-0.04em] leading-none",
-            dark ? "text-white" : "text-neutral-900",
+            dark ? "text-hero-on-foreground" : "text-hero-foreground",
           ].join(" ")}
         >
           {formatted}
@@ -235,7 +235,7 @@ export function StatCard({
           <p
             className={[
               "text-[13px] leading-relaxed -mt-1.5",
-              dark ? "text-neutral-500" : "text-neutral-500",
+              dark ? "text-hero-muted" : "text-hero-muted",
             ].join(" ")}
           >
             {hint}

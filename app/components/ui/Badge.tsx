@@ -9,18 +9,15 @@ interface BadgeProps {
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
-  default: "bg-neutral-900 text-white",
-  muted: "bg-neutral-100 text-neutral-500",
-  accent: "bg-violet-100 text-violet-700",
+  default: "bg-hero-elevated text-hero-foreground border border-hero-border",
+  muted: "bg-hero-elevated text-hero-muted border border-hero-border",
+  accent: "bg-hero-elevated text-hero-foreground border border-hero-border",
 };
 
-const variantShadows: Record<BadgeVariant, string> = {
-  default:
-    "inset 0 0 0 1px rgba(255,255,255,0.08), 0 1px 2px rgba(0,0,0,0.18)",
-  muted:
-    "inset 0 0 0 1px rgba(17,17,17,0.10), 0 1px 2px -1px rgba(17,17,17,0.06)",
-  accent:
-    "inset 0 0 0 1px rgba(124,58,237,0.22), 0 1px 2px -1px rgba(124,58,237,0.10)",
+const dots: Record<BadgeVariant, string> = {
+  default: "bg-hero-foreground",
+  muted: "bg-additional",
+  accent: "bg-primary",
 };
 
 export function Badge({
@@ -31,14 +28,14 @@ export function Badge({
   return (
     <span
       className={[
-        "inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium tracking-wide",
+        "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium tracking-wide",
         variantStyles[variant],
         className,
       ]
         .filter(Boolean)
         .join(" ")}
-      style={{ boxShadow: variantShadows[variant] }}
     >
+      <span className={["w-1.5 h-1.5 rounded-full", dots[variant]].join(" ")} />
       {children}
     </span>
   );

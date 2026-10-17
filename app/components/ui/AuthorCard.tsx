@@ -42,7 +42,7 @@ export function AuthorCard({
         className="pointer-events-none absolute inset-0 rounded-[20px] opacity-0 transition-opacity duration-500 ease-out group-hover/card:opacity-100"
         style={{ boxShadow: hoverShadow }}
       />
-      <div className="relative bg-white rounded-[14px] overflow-hidden">
+      <div className="relative bg-hero-elevated rounded-[14px] overflow-hidden">
         <div
           className="h-20 rounded-t-[14px] relative overflow-hidden"
           style={{
@@ -56,14 +56,14 @@ export function AuthorCard({
               src={avatarSrc}
               name={name}
               size="lg"
-              className="ring-[3.5px] ring-white shadow-[0_3px_12px_-2px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.05)]"
+              className="ring-[3.5px] ring-hero-elevated shadow-[0_3px_12px_-2px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.05)]"
             />
           </div>
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <p className="text-[15px] font-bold text-neutral-900 leading-snug truncate tracking-[-0.01em]">{name}</p>
+              <p className="text-[15px] font-bold text-hero-foreground leading-snug truncate tracking-[-0.01em]">{name}</p>
               {bio && (
-                <p className="text-[13px] text-neutral-500 leading-relaxed mt-1 line-clamp-2">{bio}</p>
+                <p className="text-[13px] text-hero-muted leading-relaxed mt-1 line-clamp-2">{bio}</p>
               )}
             </div>
             {onFollow && (

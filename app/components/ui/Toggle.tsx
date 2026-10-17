@@ -40,12 +40,12 @@ export function Toggle({
       {(label || description) && (
         <div className="flex flex-col gap-0.5 min-w-0">
           {label && (
-            <span className="text-[13px] font-medium text-neutral-900 leading-snug">
+            <span className="text-[13px] font-medium text-hero-foreground leading-snug">
               {label}
             </span>
           )}
           {description && (
-            <span className="text-[12px] text-neutral-400 leading-relaxed">
+            <span className="text-[12px] text-tertiary leading-relaxed">
               {description}
             </span>
           )}
@@ -58,7 +58,7 @@ export function Toggle({
         className={[
           "relative shrink-0 w-[46px] h-[26px] rounded-xl",
           "transition-[background-color,box-shadow] duration-200 ease-out",
-          isOn ? "bg-neutral-900" : "bg-neutral-100",
+          isOn ? "bg-hero-foreground" : "bg-hero-cell-bg",
         ].join(" ")}
         style={{
           boxShadow: isOn
@@ -67,7 +67,7 @@ export function Toggle({
         }}
       >
         <span
-          className="absolute top-1/2 w-5 h-5 rounded-lg bg-white"
+          className="absolute top-1/2 w-5 h-5 rounded-lg bg-hero-elevated"
           style={{
             left: 3,
             boxShadow:

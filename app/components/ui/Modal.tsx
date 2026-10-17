@@ -100,7 +100,7 @@ export function Modal({
     <div className="fixed inset-0 z-90 flex items-center justify-center p-4">
       <div
         className={[
-          "absolute inset-0 bg-neutral-950/40 backdrop-blur-sm",
+          "absolute inset-0 bg-hero-foreground/40 backdrop-blur-sm",
           "transition-opacity ease-out",
           visible ? "opacity-100 duration-300" : "opacity-0 duration-200",
         ].join(" ")}
@@ -127,16 +127,16 @@ export function Modal({
             "0 8px 24px -8px rgba(17,17,17,0.18), 0 32px 80px -16px rgba(17,17,17,0.28), 0 0 0 1px rgba(17,17,17,0.08), inset 0 1px 0 rgba(255,255,255,0.95)",
         }}
       >
-        <div className="bg-white rounded-xl overflow-hidden">
+        <div className="bg-hero-elevated rounded-xl overflow-hidden">
           <div className="px-6 pt-6 pb-4 flex items-start gap-4">
             <div className="flex-1 min-w-0 flex flex-col gap-1.5">
               {title && (
-                <p className="text-[16px] font-semibold text-neutral-900 tracking-tight leading-snug">
+                <p className="text-[16px] font-semibold text-hero-foreground tracking-tight leading-snug">
                   {title}
                 </p>
               )}
               {description && (
-                <p className="text-[13px] text-neutral-400 leading-relaxed">
+                <p className="text-[13px] text-tertiary leading-relaxed">
                   {description}
                 </p>
               )}
@@ -144,7 +144,7 @@ export function Modal({
             <button
               onClick={onClose}
               aria-label="Закрыть диалог"
-              className="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-neutral-300 hover:text-neutral-600 hover:bg-neutral-100 cursor-pointer transition-colors duration-150"
+              className="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-tertiary hover:text-hero-muted hover-wipe cursor-pointer transition-colors duration-150"
             >
               <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -155,7 +155,7 @@ export function Modal({
           {children && <div className="px-6 pb-4">{children}</div>}
 
           {actions && (
-            <div className="px-6 py-4 border-t border-neutral-100 flex items-center justify-end gap-2">
+            <div className="px-6 py-4 border-t border-hero-border flex items-center justify-end gap-2">
               {actions}
             </div>
           )}

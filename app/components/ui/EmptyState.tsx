@@ -30,10 +30,10 @@ export function EmptyState({
           "0 1px 2px rgba(17,17,17,0.04), 0 2px 8px -2px rgba(17,17,17,0.04), 0 0 0 1px rgba(17,17,17,0.05), inset 0 1px 0 rgba(255,255,255,0.9)",
       }}
     >
-      <div className="bg-white rounded-xl flex flex-col items-center justify-center text-center py-14 px-6">
+      <div className="bg-hero-elevated rounded-xl flex flex-col items-center justify-center text-center py-14 px-6">
         {icon && (
           <div
-            className="w-11 h-11 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 mb-4 ring-1 ring-inset ring-neutral-900/5"
+            className="w-11 h-11 rounded-xl bg-hero-cell-bg flex items-center justify-center text-tertiary mb-4 ring-1 ring-inset ring-hero-foreground/5"
             style={{
               boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9)",
             }}
@@ -41,9 +41,9 @@ export function EmptyState({
             {icon}
           </div>
         )}
-        <p className="text-[14px] font-semibold text-neutral-900 tracking-[-0.01em]">{title}</p>
+        <p className="text-[14px] font-semibold text-hero-foreground tracking-[-0.01em]">{title}</p>
         {description && (
-          <p className="text-[13px] text-neutral-400 mt-1.5 max-w-xs leading-relaxed">{description}</p>
+          <p className="text-[13px] text-tertiary mt-1.5 max-w-xs leading-relaxed">{description}</p>
         )}
         {action && <div className="mt-5">{action}</div>}
       </div>

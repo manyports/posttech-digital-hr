@@ -39,16 +39,16 @@ export function Stat({ value, label, prefix = "", suffix = "", trend, className 
     <div className={["flex flex-col gap-0.5", className].join(" ")}>
       <div className="flex items-baseline gap-1.5">
         <span
-          className="text-[32px] font-semibold text-neutral-900 leading-none tabular-nums"
+          className="text-[32px] font-semibold text-hero-foreground leading-none tabular-nums"
           style={{ letterSpacing: "-0.03em" }}
         >
           {prefix}{displayed}{suffix}
         </span>
         {trend && (
-          <span className="text-[12px] text-neutral-400 font-medium">{trend}</span>
+          <span className="text-[12px] text-tertiary font-medium">{trend}</span>
         )}
       </div>
-      <span className="text-[12px] text-neutral-400">{label}</span>
+      <span className="text-[12px] text-tertiary">{label}</span>
     </div>
   );
 }

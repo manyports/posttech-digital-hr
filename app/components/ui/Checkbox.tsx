@@ -47,10 +47,10 @@ export function Checkbox({
       {(label || description) && (
         <div className="flex flex-col gap-0.5 min-w-0">
           {label && (
-            <span className="text-[13px] font-medium text-neutral-900 leading-snug">{label}</span>
+            <span className="text-[13px] font-medium text-hero-foreground leading-snug">{label}</span>
           )}
           {description && (
-            <span className="text-[12px] text-neutral-400 leading-relaxed">{description}</span>
+            <span className="text-[12px] text-tertiary leading-relaxed">{description}</span>
           )}
         </div>
       )}
@@ -61,7 +61,7 @@ export function Checkbox({
         className={[
           "shrink-0 w-6 h-6 rounded-[7px] flex items-center justify-center",
           "transition-[background-color,box-shadow] duration-150",
-          active ? "bg-neutral-900" : "bg-neutral-50",
+          active ? "bg-hero-foreground" : "bg-hero-cell-bg",
         ].join(" ")}
         style={{
           boxShadow: active

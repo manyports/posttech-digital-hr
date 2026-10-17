@@ -205,7 +205,7 @@ export function CommandPalette({
       {/* Backdrop */}
       <div
         className={[
-          "absolute inset-0 bg-neutral-950/40 backdrop-blur-sm",
+          "absolute inset-0 bg-hero-foreground/40 backdrop-blur-sm",
           "transition-opacity ease-out",
           visible ? "opacity-100 duration-300" : "opacity-0 duration-200",
         ].join(" ")}
@@ -234,11 +234,11 @@ export function CommandPalette({
             "0 8px 24px -8px rgba(17,17,17,0.18), 0 32px 80px -16px rgba(17,17,17,0.28), 0 0 0 1px rgba(17,17,17,0.08), inset 0 1px 0 rgba(255,255,255,0.95)",
         }}
       >
-        <div className="bg-white rounded-xl overflow-hidden">
+        <div className="bg-hero-elevated rounded-xl overflow-hidden">
           {/* Search input */}
           <div className="flex items-center gap-3 px-4 py-3">
             <svg
-              className="shrink-0 text-neutral-400"
+              className="shrink-0 text-tertiary"
               width="14"
               height="14"
               fill="none"
@@ -258,29 +258,29 @@ export function CommandPalette({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={placeholder}
-              className="flex-1 min-w-0 text-[14px] font-medium text-neutral-900 placeholder:text-neutral-400 bg-transparent border-none outline-none"
+              className="flex-1 min-w-0 text-[14px] font-medium text-hero-foreground placeholder:text-tertiary bg-transparent border-none outline-none"
             />
-            <kbd className="shrink-0 px-1.5 py-0.5 rounded-md bg-neutral-100 text-[11px] font-semibold text-neutral-400 border border-neutral-200 select-none">
+            <kbd className="shrink-0 px-1.5 py-0.5 rounded-md bg-hero-cell-bg text-[11px] font-semibold text-tertiary border border-hero-border select-none">
               esc
             </kbd>
           </div>
 
           {/* Separator */}
-          <div className="border-b border-neutral-100" />
+          <div className="border-b border-hero-border" />
 
           {/* Results */}
           <div
             ref={listRef}
-            className="max-h-[320px] overflow-y-auto py-2 px-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-neutral-200 [&::-webkit-scrollbar-thumb]:rounded-full"
+            className="max-h-[320px] overflow-y-auto py-2 px-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-hero-border [&::-webkit-scrollbar-thumb]:rounded-full"
           >
             {filtered.length === 0 ? (
-              <div className="py-8 text-center text-[13px] text-neutral-400">
+              <div className="py-8 text-center text-[13px] text-tertiary">
                 Ничего не найдено
               </div>
             ) : (
               filtered.map((section, si) => (
                 <div key={section.title} className={si > 0 ? "mt-3" : ""}>
-                  <div className="px-2 py-1.5 text-[11px] font-semibold text-neutral-400 uppercase tracking-widest select-none">
+                  <div className="px-2 py-1.5 text-[11px] font-semibold text-tertiary uppercase tracking-widest select-none">
                     {section.title}
                   </div>
                   <div className="flex flex-col gap-0.5">
@@ -296,26 +296,26 @@ export function CommandPalette({
                           onMouseEnter={() => setActiveIndex(currentIndex)}
                           className={[
                             "group/cmd flex items-center gap-3 w-full text-left px-3 py-2 rounded-lg transition-colors duration-100 cursor-pointer outline-none",
-                            isActive ? "bg-neutral-100" : "",
+                            isActive ? "bg-hero-cell-bg" : "",
                           ].join(" ")}
                         >
                           {item.icon && (
-                            <span className="shrink-0 w-5 h-5 flex items-center justify-center text-neutral-500">
+                            <span className="shrink-0 w-5 h-5 flex items-center justify-center text-hero-muted">
                               {item.icon}
                             </span>
                           )}
                           <div className="flex-1 min-w-0 flex flex-col">
-                            <span className="text-[13px] font-semibold text-neutral-900 truncate">
+                            <span className="text-[13px] font-semibold text-hero-foreground truncate">
                               {item.label}
                             </span>
                             {item.description && (
-                              <span className="text-[12px] text-neutral-500 truncate">
+                              <span className="text-[12px] text-hero-muted truncate">
                                 {item.description}
                               </span>
                             )}
                           </div>
                           {item.shortcut && (
-                            <kbd className="shrink-0 px-1.5 py-0.5 rounded-md bg-neutral-100 text-[11px] font-semibold text-neutral-400 border border-neutral-200 select-none">
+                            <kbd className="shrink-0 px-1.5 py-0.5 rounded-md bg-hero-cell-bg text-[11px] font-semibold text-tertiary border border-hero-border select-none">
                               {item.shortcut}
                             </kbd>
                           )}

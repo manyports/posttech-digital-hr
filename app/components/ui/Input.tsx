@@ -9,21 +9,15 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   iconRight?: React.ReactNode;
 }
 
-const REST_SHADOW =
-  "inset 0 0 0 1px rgba(17,17,17,0.12), inset 0 1px 2px rgba(17,17,17,0.03), 0 1px 2px -1px rgba(17,17,17,0.04)";
-const FOCUS_SHADOW =
-  "inset 0 0 0 1px rgba(17,17,17,0.92), 0 0 0 4px rgba(17,17,17,0.08), 0 2px 6px -2px rgba(17,17,17,0.08)";
-const ERROR_SHADOW =
-  "inset 0 0 0 1px rgba(239,68,68,0.5), inset 0 1px 2px rgba(239,68,68,0.06), 0 1px 2px -1px rgba(239,68,68,0.08)";
-const ERROR_FOCUS_SHADOW =
-  "inset 0 0 0 1px rgb(239,68,68), 0 0 0 4px rgba(239,68,68,0.12), 0 2px 6px -2px rgba(239,68,68,0.10)";
-const HOVER_SHADOW =
-  "inset 0 0 0 1px rgba(17,17,17,0.20), inset 0 1px 2px rgba(17,17,17,0.04), 0 1px 3px -1px rgba(17,17,17,0.06)";
-const ERROR_HOVER_SHADOW =
-  "inset 0 0 0 1px rgba(239,68,68,0.65), inset 0 1px 2px rgba(239,68,68,0.08), 0 1px 3px -1px rgba(239,68,68,0.10)";
+const REST_SHADOW = "var(--field-rest-shadow)";
+const FOCUS_SHADOW = "var(--field-focus-shadow)";
+const ERROR_SHADOW = "var(--field-error-shadow)";
+const ERROR_FOCUS_SHADOW = "var(--field-error-focus-shadow)";
+const HOVER_SHADOW = "var(--field-hover-shadow)";
+const ERROR_HOVER_SHADOW = "var(--field-error-hover-shadow)";
 
-const REST_BG = "linear-gradient(180deg, #f7f7f7 0%, #fbfbfb 100%)";
-const HOVER_BG = "linear-gradient(180deg, #f2f2f2 0%, #f7f7f7 100%)";
+const REST_BG = "var(--field-rest-bg)";
+const HOVER_BG = "var(--field-hover-bg)";
 
 export function Input({
   label,
@@ -43,7 +37,7 @@ export function Input({
       {label && (
         <label
           htmlFor={inputId}
-          className="text-[12.5px] font-medium text-neutral-700 tracking-[-0.005em]"
+          className="app-form-label"
         >
           {label}
         </label>
@@ -51,7 +45,7 @@ export function Input({
       <div className="relative group/input isolate">
         {iconLeft && (
           <span
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 transition-all duration-300 ease-[cubic-bezier(0.34,1.4,0.64,1)] group-focus-within/input:text-neutral-800 group-focus-within/input:scale-110 pointer-events-none z-20 flex items-center justify-center"
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-hero-muted transition-all duration-300 ease-[cubic-bezier(0.34,1.4,0.64,1)] group-focus-within/input:text-primary group-focus-within/input:scale-110 pointer-events-none z-20 flex items-center justify-center"
           >
             {iconLeft}
           </span>
@@ -59,10 +53,10 @@ export function Input({
         <input
           id={inputId}
           className={[
-            "relative z-10 w-full rounded-xl py-3 text-[13.5px] text-neutral-900 caret-neutral-900 placeholder:text-neutral-400",
+            "relative z-10 w-full rounded-xl py-3 text-[13.5px] text-hero-foreground caret-primary placeholder:text-tertiary",
             "transition-[box-shadow,background] duration-200 ease-out",
             "hover:[background:var(--hover-bg)] hover:[box-shadow:var(--hover-shadow)]",
-            "focus:outline-none focus:[background:#ffffff] focus:[box-shadow:var(--shadow-focus)]",
+            "focus:outline-none focus:[background:var(--color-hero-elevated)] focus:[box-shadow:var(--shadow-focus)]",
             "disabled:opacity-40 disabled:cursor-not-allowed",
             iconLeft ? "pl-10" : "pl-4",
             iconRight ? "pr-10" : "pr-4",
@@ -93,14 +87,14 @@ export function Input({
         </span>
         {iconRight && (
           <span
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 transition-all duration-300 ease-[cubic-bezier(0.34,1.4,0.64,1)] group-focus-within/input:text-neutral-800 group-focus-within/input:scale-110 pointer-events-none z-20 flex items-center justify-center"
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-hero-muted transition-all duration-300 ease-[cubic-bezier(0.34,1.4,0.64,1)] group-focus-within/input:text-primary group-focus-within/input:scale-110 pointer-events-none z-20 flex items-center justify-center"
           >
             {iconRight}
           </span>
         )}
       </div>
       {error && (
-        <p className="text-[11.5px] text-red-500 font-medium flex items-center gap-1 mt-0.5">
+        <p className="text-[11.5px] text-error font-medium flex items-center gap-1 mt-0.5">
           <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="10" />
             <path strokeLinecap="round" d="M12 8v4m0 4h.01" />
@@ -109,7 +103,7 @@ export function Input({
         </p>
       )}
       {hint && !error && (
-        <p className="text-[11.5px] text-neutral-400 mt-0.5">{hint}</p>
+        <p className="text-[11.5px] text-tertiary mt-0.5">{hint}</p>
       )}
     </div>
   );

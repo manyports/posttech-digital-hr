@@ -37,7 +37,7 @@ export function Avatar({
   return (
     <div
       className={[
-        "relative shrink-0 rounded-full overflow-hidden flex items-center justify-center bg-neutral-100 font-medium text-neutral-500 select-none",
+        "relative shrink-0 rounded-full overflow-hidden flex items-center justify-center bg-hero-cell-bg font-medium text-hero-muted select-none",
         sizeStyles[size],
         className,
       ]
@@ -89,7 +89,7 @@ export function AvatarGroup({
         <div
           key={i}
           className={[
-            "ring-2 ring-white rounded-full",
+            "ring-2 ring-hero-elevated rounded-full",
             i > 0 ? overlapStyles[size] : "",
           ].join(" ")}
         >
@@ -99,7 +99,7 @@ export function AvatarGroup({
       {overflow > 0 && (
         <div
           className={[
-            "ring-2 ring-white rounded-full flex items-center justify-center bg-neutral-200 font-medium text-neutral-500 select-none",
+            "ring-2 ring-hero-elevated rounded-full flex items-center justify-center bg-hero-border font-medium text-hero-muted select-none",
             overlapStyles[size],
             sizeStyles[size],
           ].join(" ")}

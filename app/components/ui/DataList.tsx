@@ -26,7 +26,7 @@ export function DataList({ items, columns = 1, className = "" }: DataListProps) 
         boxShadow: lightShadow,
       }}
     >
-      <div className="bg-white rounded-xl overflow-hidden">
+      <div className="bg-hero-elevated rounded-xl overflow-hidden">
         <div
           className={[
             "grid",
@@ -44,14 +44,14 @@ export function DataList({ items, columns = 1, className = "" }: DataListProps) 
                 key={i}
                 className={[
                   "flex flex-col gap-1 px-4 py-3",
-                  !isLastRow ? "border-b border-neutral-100" : "",
-                  columns === 2 && i % 2 === 0 ? "border-r border-neutral-100" : "",
+                  !isLastRow ? "border-b border-hero-border" : "",
+                  columns === 2 && i % 2 === 0 ? "border-r border-hero-border" : "",
                 ].join(" ")}
               >
-                <dt className="text-[11px] font-semibold text-neutral-400 uppercase tracking-widest">
+                <dt className="text-[11px] font-semibold text-tertiary uppercase tracking-widest">
                   {item.label}
                 </dt>
-                <dd className="text-[13px] font-medium text-neutral-900">
+                <dd className="text-[13px] font-medium text-hero-foreground">
                   {item.value}
                 </dd>
               </div>

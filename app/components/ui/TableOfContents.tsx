@@ -47,12 +47,12 @@ export function TableOfContents({
         boxShadow: restShadow,
       }}
     >
-      <div className="relative bg-white rounded-xl overflow-hidden px-5 py-4">
-        <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-widest mb-3">
+      <div className="relative bg-hero-elevated rounded-xl overflow-hidden px-5 py-4">
+        <p className="text-[11px] font-semibold text-tertiary uppercase tracking-widest mb-3">
           On this page
         </p>
 
-        <div className="relative border-l border-neutral-200">
+        <div className="relative border-l border-hero-border">
           {items.map((item) => {
             const isActive = current === item.key;
             return (
@@ -63,8 +63,8 @@ export function TableOfContents({
                   "relative w-full text-left text-[13px] py-1.5 cursor-pointer transition-colors duration-200 block",
                   indentByLevel[item.level],
                   isActive
-                    ? "text-neutral-900 font-semibold"
-                    : "text-neutral-500 hover:text-neutral-700",
+                    ? "text-hero-foreground font-semibold"
+                    : "text-hero-muted hover:text-hero-foreground",
                 ].join(" ")}
                 style={{
                   paddingLeft:

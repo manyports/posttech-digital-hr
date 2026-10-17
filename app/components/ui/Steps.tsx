@@ -44,10 +44,10 @@ export function Steps({ steps, current, className = "" }: StepsProps) {
                 className={[
                   "w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-semibold shrink-0 relative transition-all duration-300 ease-[cubic-bezier(0.34,1.4,0.64,1)]",
                   isCompleted
-                    ? "bg-neutral-900 text-white"
+                    ? "bg-hero-foreground text-hero-on-foreground"
                     : isCurrent
-                      ? "bg-neutral-900 text-white ring-4 ring-neutral-900/10"
-                      : "bg-neutral-100 text-neutral-400",
+                      ? "bg-hero-foreground text-hero-on-foreground ring-4 ring-hero-foreground/10"
+                      : "bg-hero-cell-bg text-tertiary",
                 ].join(" ")}
                 style={{
                   boxShadow: isCompleted || isCurrent
@@ -61,9 +61,9 @@ export function Steps({ steps, current, className = "" }: StepsProps) {
               {/* Connecting line (not after last step) */}
               {i < steps.length - 1 && (
                 <div className="flex-1 mx-3 h-px relative">
-                  <div className="absolute inset-0 bg-neutral-200 rounded-full" />
+                  <div className="absolute inset-0 bg-hero-border rounded-full" />
                   <div
-                    className="absolute inset-0 bg-neutral-900 rounded-full transition-all duration-500 ease-out origin-left"
+                    className="absolute inset-0 bg-hero-foreground rounded-full transition-all duration-500 ease-out origin-left"
                     style={{
                       transform: i < current ? "scaleX(1)" : "scaleX(0)",
                     }}
@@ -91,14 +91,14 @@ export function Steps({ steps, current, className = "" }: StepsProps) {
                   className={[
                     "text-[12px] font-medium text-center leading-tight transition-colors duration-200",
                     isCompleted || isCurrent
-                      ? "text-neutral-900"
-                      : "text-neutral-400",
+                      ? "text-hero-foreground"
+                      : "text-tertiary",
                   ].join(" ")}
                 >
                   {step.label}
                 </span>
                 {step.description && (
-                  <span className="text-[11px] text-neutral-400 text-center leading-tight mt-0.5">
+                  <span className="text-[11px] text-tertiary text-center leading-tight mt-0.5">
                     {step.description}
                   </span>
                 )}

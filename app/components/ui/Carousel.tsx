@@ -96,7 +96,7 @@ export function Carousel({
 
   return (
     <div
-      className={["bg-white rounded-2xl p-3 flex flex-col gap-3", className].join(" ")}
+      className={["bg-hero-elevated rounded-2xl p-3 flex flex-col gap-3", className].join(" ")}
       style={{
         boxShadow:
           "0 1px 2px rgba(17,17,17,0.04), 0 2px 8px -2px rgba(17,17,17,0.04), 0 0 0 1px rgba(17,17,17,0.05), inset 0 1px 0 rgba(255,255,255,0.9)",
@@ -130,16 +130,16 @@ export function Carousel({
               className={[
                 "relative h-1.5 rounded-full transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer",
                 i === currentIdx
-                  ? "w-6 bg-neutral-900"
-                  : "w-1.5 bg-neutral-300 hover:bg-neutral-500",
+                  ? "w-6 bg-hero-foreground"
+                  : "w-1.5 bg-neutral-300 hover-wipe0",
               ].join(" ")}
               aria-label={`Go to slide ${i + 1}`}
               aria-current={i === currentIdx}
             />
           ))}
-          <span className="ml-2 text-[11.5px] font-medium text-neutral-400 tabular-nums tracking-[-0.005em]">
+          <span className="ml-2 text-[11.5px] font-medium text-tertiary tabular-nums tracking-[-0.005em]">
             {currentIdx + 1}
-            <span className="text-neutral-300"> / {items.length}</span>
+            <span className="text-tertiary"> / {items.length}</span>
           </span>
         </div>
 

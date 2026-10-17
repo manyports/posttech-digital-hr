@@ -128,7 +128,7 @@ export function Drawer({
       {/* backdrop */}
       <div
         className={[
-          "absolute inset-0 bg-neutral-950/40 backdrop-blur-sm",
+          "absolute inset-0 bg-hero-foreground/40 backdrop-blur-sm",
           "transition-opacity ease-out",
           visible ? `opacity-100 duration-[${ENTER_MS}ms]` : `opacity-0 duration-[${EXIT_MS}ms]`,
         ].join(" ")}
@@ -181,7 +181,7 @@ export function Drawer({
             {/* inner white surface */}
             <div
               className={[
-                "flex flex-col h-full bg-white overflow-hidden",
+                "flex flex-col h-full bg-hero-elevated overflow-hidden",
                 isRight ? "ml-1.5 rounded-l-xl" : "mr-1.5 rounded-r-xl",
               ].join(" ")}
             >
@@ -189,12 +189,12 @@ export function Drawer({
               <div className="px-6 pt-6 pb-4 flex items-start gap-4 shrink-0">
                 <div className="flex-1 min-w-0 flex flex-col gap-1.5">
                   {title && (
-                    <p className="text-[16px] font-semibold text-neutral-900 tracking-tight leading-snug">
+                    <p className="text-[16px] font-semibold text-hero-foreground tracking-tight leading-snug">
                       {title}
                     </p>
                   )}
                   {description && (
-                    <p className="text-[13px] text-neutral-400 leading-relaxed">
+                    <p className="text-[13px] text-tertiary leading-relaxed">
                       {description}
                     </p>
                   )}
@@ -202,7 +202,7 @@ export function Drawer({
                 <button
                   onClick={onClose}
                   aria-label="Закрыть панель"
-                  className="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-neutral-300 hover:text-neutral-600 hover:bg-neutral-100 cursor-pointer transition-colors duration-150"
+                  className="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-tertiary hover:text-hero-muted hover-wipe cursor-pointer transition-colors duration-150"
                 >
                   <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -219,7 +219,7 @@ export function Drawer({
 
               {/* ── footer actions ──────────────────── */}
               {actions && (
-                <div className="px-6 py-4 border-t border-neutral-100 flex items-center justify-end gap-2 shrink-0">
+                <div className="px-6 py-4 border-t border-hero-border flex items-center justify-end gap-2 shrink-0">
                   {actions}
                 </div>
               )}

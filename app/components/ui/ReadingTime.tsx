@@ -9,7 +9,7 @@ export function ReadingTime({ minutes, className = "" }: ReadingTimeProps) {
   return (
     <span
       className={[
-        "inline-flex items-center gap-1.5 text-[12px] font-medium text-neutral-500",
+        "inline-flex items-center gap-1.5 text-[12px] font-medium text-hero-muted",
         className,
       ]
         .filter(Boolean)
@@ -24,7 +24,7 @@ export function ReadingTime({ minutes, className = "" }: ReadingTimeProps) {
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="text-neutral-400"
+        className="text-tertiary"
       >
         <circle cx="12" cy="12" r="10" />
         <polyline points="12 6 12 12 16 14" />

@@ -57,7 +57,7 @@ export function QuoteCard({
         <p
           className={[
             "text-[18px] leading-[1.65] tracking-[-0.012em] font-normal",
-            dark ? "text-neutral-50" : "text-neutral-900",
+            dark ? "text-neutral-50" : "text-hero-foreground",
           ].join(" ")}
         >
           {quote}
@@ -66,7 +66,7 @@ export function QuoteCard({
         <div
           className={[
             "h-[1.5px] w-10 rounded-full",
-            dark ? "bg-white/12" : "bg-neutral-900/12",
+            dark ? "bg-hero-elevated/12" : "bg-hero-foreground/12",
           ].join(" ")}
         />
 
@@ -88,8 +88,8 @@ export function QuoteCard({
               className={[
                 "w-10 h-10 rounded-full flex items-center justify-center text-[14px] font-semibold shrink-0",
                 dark
-                  ? "bg-white/12 text-white"
-                  : "bg-neutral-100 text-neutral-700",
+                  ? "bg-hero-elevated/12 text-hero-on-foreground"
+                  : "bg-hero-cell-bg text-hero-foreground",
               ].join(" ")}
               style={{
                 boxShadow: dark
@@ -104,7 +104,7 @@ export function QuoteCard({
             <p
               className={[
                 "text-[14.5px] font-semibold tracking-[-0.008em] truncate",
-                dark ? "text-white" : "text-neutral-900",
+                dark ? "text-hero-on-foreground" : "text-hero-foreground",
               ].join(" ")}
             >
               {author}
@@ -113,7 +113,7 @@ export function QuoteCard({
               <p
                 className={[
                   "text-[12.5px] truncate",
-                  dark ? "text-neutral-500" : "text-neutral-600",
+                  dark ? "text-hero-muted" : "text-hero-muted",
                 ].join(" ")}
               >
                 {role}

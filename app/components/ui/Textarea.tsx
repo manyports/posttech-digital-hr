@@ -43,7 +43,7 @@ export function Textarea({
       {label && (
         <label
           htmlFor={textareaId}
-          className="text-[12.5px] font-medium text-neutral-700 tracking-[-0.005em]"
+          className="app-form-label"
         >
           {label}
         </label>
@@ -54,9 +54,9 @@ export function Textarea({
         rows={rows}
         onChange={handleChange}
         className={[
-          "rounded-xl px-4 py-3 text-[13.5px] text-neutral-900 placeholder:text-neutral-400",
+          "rounded-xl px-4 py-3 text-[13.5px] text-hero-foreground placeholder:text-tertiary",
           "transition-[box-shadow,background] duration-200 ease-out resize-none",
-          "focus:outline-none focus:[background:#ffffff]",
+          "focus:outline-none focus:[background:var(--color-hero-elevated)]",
           "focus:[box-shadow:var(--shadow-focus)]",
           "disabled:opacity-40 disabled:cursor-not-allowed",
           fullWidth ? "w-full" : "",
@@ -65,18 +65,14 @@ export function Textarea({
           .filter(Boolean)
           .join(" ")}
         style={{
-          background: "linear-gradient(180deg, #f7f7f7 0%, #fbfbfb 100%)",
-          boxShadow: error
-            ? "inset 0 0 0 1px rgba(239,68,68,0.5), inset 0 1px 2px rgba(239,68,68,0.06), 0 1px 2px -1px rgba(239,68,68,0.08)"
-            : "inset 0 0 0 1px rgba(17,17,17,0.12), inset 0 1px 2px rgba(17,17,17,0.03), 0 1px 2px -1px rgba(17,17,17,0.04)",
-          ["--shadow-focus" as string]: error
-            ? "inset 0 0 0 1px rgb(239,68,68), 0 0 0 4px rgba(239,68,68,0.12), 0 1px 2px -1px rgba(239,68,68,0.08)"
-            : "inset 0 0 0 1px rgba(17,17,17,0.92), 0 0 0 4px rgba(17,17,17,0.08), 0 1px 2px -1px rgba(17,17,17,0.04)",
+          background: "var(--field-rest-bg)",
+          boxShadow: error ? "var(--field-error-shadow)" : "var(--field-rest-shadow)",
+          ["--shadow-focus" as string]: error ? "var(--field-error-focus-shadow)" : "var(--field-focus-shadow)",
         } as React.CSSProperties}
         {...rest}
       />
       {error && (
-        <p className="text-[11.5px] text-red-500 font-medium flex items-center gap-1 mt-0.5">
+        <p className="text-[11.5px] text-error font-medium flex items-center gap-1 mt-0.5">
           <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="10" />
             <path strokeLinecap="round" d="M12 8v4m0 4h.01" />
@@ -85,7 +81,7 @@ export function Textarea({
         </p>
       )}
       {hint && !error && (
-        <p className="text-[11.5px] text-neutral-400 mt-0.5">{hint}</p>
+        <p className="text-[11.5px] text-tertiary mt-0.5">{hint}</p>
       )}
     </div>
   );

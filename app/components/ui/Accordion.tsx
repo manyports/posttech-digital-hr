@@ -58,7 +58,7 @@ export function Accordion({ items, allowMultiple = false, className }: Accordion
           "0 1px 2px rgba(17,17,17,0.04), 0 2px 8px -2px rgba(17,17,17,0.04), 0 0 0 1px rgba(17,17,17,0.04), inset 0 1px 0 rgba(255,255,255,0.9)",
       }}
     >
-      <div className="bg-white rounded-xl overflow-hidden">
+      <div className="bg-hero-elevated rounded-xl overflow-hidden">
         {items.map((item, index) => {
           const isOpen = openKeys.has(item.key);
           const isLast = index === items.length - 1;
@@ -66,12 +66,12 @@ export function Accordion({ items, allowMultiple = false, className }: Accordion
           return (
             <div
               key={item.key}
-              className={isLast ? "" : "border-b border-neutral-100"}
+              className={isLast ? "" : "border-b border-hero-border"}
             >
               <button
                 type="button"
                 onClick={() => toggle(item.key)}
-                className="w-full flex items-center justify-between py-3.5 px-4 text-[13px] font-semibold text-neutral-900 cursor-pointer hover:bg-neutral-50 rounded-lg transition-colors"
+                className="w-full flex items-center justify-between py-3.5 px-4 text-[13px] font-semibold text-hero-foreground cursor-pointer hover-wipe rounded-lg transition-colors"
               >
                 <span>{item.title}</span>
                 <svg
@@ -83,7 +83,7 @@ export function Accordion({ items, allowMultiple = false, className }: Accordion
                   strokeWidth="1.75"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="text-neutral-400 shrink-0 ml-2"
+                  className="text-tertiary shrink-0 ml-2"
                   style={{
                     transition:
                       "transform 300ms cubic-bezier(0.34, 1.4, 0.64, 1)",
@@ -102,7 +102,7 @@ export function Accordion({ items, allowMultiple = false, className }: Accordion
                 }}
               >
                 <div className="overflow-hidden">
-                  <div className="px-4 pb-4 text-[13px] text-neutral-500 leading-relaxed">
+                  <div className="px-4 pb-4 text-[13px] text-hero-muted leading-relaxed">
                     {item.content}
                   </div>
                 </div>

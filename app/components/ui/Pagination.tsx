@@ -62,7 +62,7 @@ export function Pagination({
   return (
     <div
       className={[
-        "inline-flex items-center gap-0.5 bg-neutral-100 rounded-xl p-1",
+        "inline-flex items-center gap-0.5 bg-hero-cell-bg rounded-xl p-1",
         className,
       ].join(" ")}
       style={{
@@ -73,9 +73,9 @@ export function Pagination({
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage <= 1}
-        className="group/nav relative overflow-hidden h-8 px-3 rounded-lg flex items-center gap-1.5 text-[13px] font-medium text-neutral-500 hover:text-neutral-900 transition-colors cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
+        className="group/nav relative overflow-hidden h-8 px-3 rounded-lg flex items-center gap-1.5 text-[13px] font-medium text-hero-muted hover:text-hero-foreground transition-colors cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
       >
-        <span className="pointer-events-none absolute inset-0 origin-bottom scale-y-0 bg-white transition-transform duration-300 ease-out group-hover/nav:scale-y-100 rounded-lg" />
+        <span className="pointer-events-none absolute inset-0 origin-bottom scale-y-0 bg-hero-elevated transition-transform duration-300 ease-out group-hover/nav:scale-y-100 rounded-lg" />
         <svg className="relative z-10" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
@@ -86,7 +86,7 @@ export function Pagination({
         {pill.ready && (
           <span
             aria-hidden
-            className="absolute top-0 bottom-0 rounded-lg bg-white pointer-events-none z-0"
+            className="absolute top-0 bottom-0 rounded-lg bg-hero-elevated pointer-events-none z-0"
             style={{
               left: pill.left,
               width: pill.width,
@@ -104,7 +104,7 @@ export function Pagination({
           slot === "..." ? (
             <span
               key={`dot-${i}`}
-              className="w-8 h-8 flex items-center justify-center text-[11px] text-neutral-300 select-none relative z-10"
+              className="w-8 h-8 flex items-center justify-center text-[11px] text-tertiary select-none relative z-10"
             >
               ···
             </span>
@@ -118,8 +118,8 @@ export function Pagination({
               className={[
                 "relative z-10 w-8 h-8 rounded-lg flex items-center justify-center text-[13px] transition-colors duration-200 cursor-pointer tabular-nums overflow-hidden",
                 slot === currentPage
-                  ? "text-neutral-900 font-semibold"
-                  : "text-neutral-400 hover:text-neutral-900 font-medium",
+                  ? "text-hero-foreground font-semibold"
+                  : "text-tertiary hover:text-hero-foreground font-medium",
               ].join(" ")}
             >
               <span
@@ -139,9 +139,9 @@ export function Pagination({
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage >= totalPages}
-        className="group/nav relative overflow-hidden h-8 px-3 rounded-lg flex items-center gap-1.5 text-[13px] font-medium text-neutral-500 hover:text-neutral-900 transition-colors cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
+        className="group/nav relative overflow-hidden h-8 px-3 rounded-lg flex items-center gap-1.5 text-[13px] font-medium text-hero-muted hover:text-hero-foreground transition-colors cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
       >
-        <span className="pointer-events-none absolute inset-0 origin-bottom scale-y-0 bg-white transition-transform duration-300 ease-out group-hover/nav:scale-y-100 rounded-lg" />
+        <span className="pointer-events-none absolute inset-0 origin-bottom scale-y-0 bg-hero-elevated transition-transform duration-300 ease-out group-hover/nav:scale-y-100 rounded-lg" />
         <span className="relative z-10 hidden sm:inline">Вперед</span>
         <svg className="relative z-10" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />

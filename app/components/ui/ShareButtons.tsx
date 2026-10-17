@@ -125,7 +125,7 @@ export function ShareButtons({
 
   return (
     <div className={className}>
-      <p className="text-[11px] font-medium text-neutral-400 uppercase tracking-widest mb-2.5">
+      <p className="text-[11px] font-medium text-tertiary uppercase tracking-widest mb-2.5">
         Share
       </p>
       <div className="flex items-center gap-2">
@@ -134,7 +134,7 @@ export function ShareButtons({
             key={btn.label}
             onClick={btn.onClick}
             aria-label={btn.label}
-            className="w-9 h-9 inline-flex items-center justify-center rounded-lg text-neutral-500 hover:text-neutral-900 bg-white hover:bg-neutral-50 transition-all duration-150 cursor-pointer active:scale-95"
+            className="w-9 h-9 inline-flex items-center justify-center rounded-lg text-hero-muted hover:text-hero-foreground bg-hero-elevated hover-wipe transition-all duration-150 cursor-pointer active:scale-95"
             style={{ boxShadow: btnShadow }}
           >
             {btn.icon}

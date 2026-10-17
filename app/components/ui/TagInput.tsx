@@ -119,7 +119,7 @@ export function TagInput({
   return (
     <div className={["flex flex-col gap-1.5", fullWidth ? "w-full" : ""].join(" ")}>
       {label && (
-        <label className="text-[12.5px] font-medium text-neutral-700 tracking-[-0.005em]">
+        <label className="text-[12.5px] font-medium text-hero-foreground tracking-[-0.005em]">
           {label}
         </label>
       )}
@@ -147,7 +147,7 @@ export function TagInput({
           <span
             key={at.text}
             className={[
-              "inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-white text-[11px] font-medium text-neutral-600 select-none",
+              "inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-hero-elevated text-[11px] font-medium text-hero-muted select-none",
               "transition-all duration-180 ease-[cubic-bezier(0.34,1.4,0.64,1)]",
               at.state === "entering" ? "opacity-0 scale-75" : "",
               at.state === "visible" ? "opacity-100 scale-100" : "",
@@ -166,7 +166,7 @@ export function TagInput({
                 const idx = tags.indexOf(at.text);
                 if (idx !== -1) removeTag(idx);
               }}
-              className="ml-0.5 text-neutral-400 hover:text-neutral-700 cursor-pointer transition-colors"
+              className="ml-0.5 text-tertiary hover:text-hero-foreground cursor-pointer transition-colors"
             >
               <svg width="8" height="8" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -182,10 +182,10 @@ export function TagInput({
           onKeyDown={handleKeyDown}
           onBlur={() => { if (input) addTag(input); }}
           placeholder={tags.length === 0 ? placeholder : ""}
-          className="flex-1 min-w-[80px] bg-transparent text-[13.5px] text-neutral-900 placeholder:text-neutral-400 outline-none py-0.5"
+          className="flex-1 min-w-[80px] bg-transparent text-[13.5px] text-hero-foreground placeholder:text-tertiary outline-none py-0.5"
         />
       </div>
-      {hint && <p className="text-[11.5px] text-neutral-400 mt-0.5">{hint}</p>}
+      {hint && <p className="text-[11.5px] text-tertiary mt-0.5">{hint}</p>}
     </div>
   );
 }

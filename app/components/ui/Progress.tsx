@@ -31,17 +31,17 @@ export function Progress({
       {(label || showValue) && (
         <div className="flex items-center justify-between gap-4">
           {label && (
-            <span className="text-[13px] font-medium text-neutral-700 truncate">{label}</span>
+            <span className="text-[13px] font-medium text-hero-foreground truncate">{label}</span>
           )}
           {showValue && (
-            <span className="text-[12px] tabular-nums text-neutral-400 shrink-0">
+            <span className="text-[12px] tabular-nums text-tertiary shrink-0">
               {Math.round(pct)}%
             </span>
           )}
         </div>
       )}
       <div
-        className="w-full h-[6px] rounded-full bg-neutral-100 overflow-hidden"
+        className="w-full h-[6px] rounded-full bg-hero-cell-bg overflow-hidden"
         role="progressbar"
         aria-valuenow={value}
         aria-valuemin={0}
@@ -55,7 +55,7 @@ export function Progress({
           className="h-full rounded-full relative overflow-hidden"
           style={{
             width: `${displayed}%`,
-            background: "linear-gradient(180deg, #262626 0%, #0a0a0a 100%)",
+            background: "var(--color-primary)",
             boxShadow:
               "inset 0 1px 0 rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.2)",
             transition: "width 700ms cubic-bezier(0.16, 1, 0.3, 1)",

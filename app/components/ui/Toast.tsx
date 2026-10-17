@@ -40,8 +40,8 @@ const variantConfig: Record<
   { tileBg: string; tileText: string; icon: React.ReactNode }
 > = {
   default: {
-    tileBg: "bg-neutral-900",
-    tileText: "text-white",
+    tileBg: "bg-hero-foreground",
+    tileText: "text-hero-on-foreground",
     icon: (
       <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
         <circle cx="12" cy="12" r="10" />
@@ -50,8 +50,8 @@ const variantConfig: Record<
     ),
   },
   success: {
-    tileBg: "bg-emerald-600",
-    tileText: "text-white",
+    tileBg: "bg-primary",
+    tileText: "text-hero-on-foreground",
     icon: (
       <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -59,8 +59,8 @@ const variantConfig: Record<
     ),
   },
   warning: {
-    tileBg: "bg-amber-500",
-    tileText: "text-white",
+    tileBg: "bg-warning",
+    tileText: "text-hero-foreground",
     icon: (
       <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
@@ -68,8 +68,8 @@ const variantConfig: Record<
     ),
   },
   error: {
-    tileBg: "bg-red-600",
-    tileText: "text-white",
+    tileBg: "bg-error",
+    tileText: "text-hero-on-foreground",
     icon: (
       <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -206,7 +206,7 @@ function ToastCard({
             "0 4px 16px -4px rgba(17,17,17,0.10), 0 16px 48px -12px rgba(17,17,17,0.18), 0 0 0 1px rgba(17,17,17,0.06), inset 0 1px 0 rgba(255,255,255,0.95)",
         }}
       >
-        <div className="bg-white rounded-xl px-3.5 py-3 flex items-start gap-3">
+        <div className="bg-hero-elevated rounded-xl px-3.5 py-3 flex items-start gap-3">
           <div
             className={[
               "shrink-0 w-6 h-6 rounded-md flex items-center justify-center",
@@ -221,11 +221,11 @@ function ToastCard({
             {icon}
           </div>
           <div className="flex-1 min-w-0 pt-px">
-            <p className="text-[13px] font-semibold text-neutral-900 leading-tight tracking-[-0.01em]">
+            <p className="text-[13px] font-semibold text-hero-foreground leading-tight tracking-[-0.01em]">
               {item.title}
             </p>
             {item.description && (
-              <p className="text-[12px] text-neutral-400 mt-0.5 leading-relaxed">
+              <p className="text-[12px] text-tertiary mt-0.5 leading-relaxed">
                 {item.description}
               </p>
             )}
@@ -233,7 +233,7 @@ function ToastCard({
           <button
             onClick={() => onDismiss(item.id)}
             aria-label="Закрыть"
-            className="shrink-0 w-6 h-6 flex items-center justify-center rounded-md text-neutral-300 hover:text-neutral-600 hover:bg-neutral-100 transition-colors cursor-pointer"
+            className="shrink-0 w-6 h-6 flex items-center justify-center rounded-md text-tertiary hover:text-hero-muted hover-wipe transition-colors cursor-pointer"
           >
             <svg width="8" height="8" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -378,7 +378,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 transition: `opacity ${ENTER_MS}ms ease`,
               }}
             >
-              <span className="text-[10px] font-medium text-neutral-400 bg-white/80 backdrop-blur-sm px-2 py-0.5 rounded-full border border-neutral-200/70">
+              <span className="text-[10px] font-medium text-tertiary bg-hero-elevated/80 backdrop-blur-sm px-2 py-0.5 rounded-full border border-hero-border/70">
                 +{showCount} more
               </span>
             </div>

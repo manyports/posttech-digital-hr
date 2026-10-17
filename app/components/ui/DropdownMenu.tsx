@@ -112,13 +112,13 @@ export function DropdownMenu({
               "0 4px 16px -4px rgba(17,17,17,0.12), 0 16px 40px -12px rgba(17,17,17,0.18), 0 0 0 1px rgba(17,17,17,0.06), inset 0 1px 0 rgba(255,255,255,0.95)",
           }}
         >
-          <div className="bg-white rounded-xl py-1">
+          <div className="bg-hero-elevated rounded-xl py-1">
             {items.map((item) => {
               if (item.divider) {
                 return (
                   <div
                     key={item.key}
-                    className="h-px bg-neutral-100 my-1 mx-2"
+                    className="h-px bg-hero-cell-bg my-1 mx-2"
                   />
                 );
               }
@@ -133,21 +133,21 @@ export function DropdownMenu({
                     "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-semibold transition-colors cursor-pointer",
                     item.disabled && "opacity-35 pointer-events-none",
                     item.danger
-                      ? "text-red-600 hover:bg-red-50"
-                      : "text-neutral-900 hover:bg-neutral-100",
+                      ? "text-error hover:bg-hero-cell-bg"
+                      : "text-hero-foreground hover-wipe",
                   ]
                     .filter(Boolean)
                     .join(" ")}
                 >
                   {item.icon && (
-                    <span className="flex-shrink-0 w-4 h-4 flex items-center justify-center text-neutral-500">
+                    <span className="flex-shrink-0 w-4 h-4 flex items-center justify-center text-hero-muted">
                       {item.icon}
                     </span>
                   )}
                   <span className="flex-1 text-left">{item.label}</span>
                   {item.shortcut && (
                     <kbd
-                      className="inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-md text-[11px] font-semibold text-neutral-500 bg-neutral-100 border border-neutral-200/80"
+                      className="inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-md text-[11px] font-semibold text-hero-muted bg-hero-cell-bg border border-hero-border/80"
                       style={{
                         boxShadow:
                           "0 1px 0 rgba(17,17,17,0.07), inset 0 1px 0 rgba(255,255,255,0.9)",

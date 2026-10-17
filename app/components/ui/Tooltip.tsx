@@ -165,7 +165,7 @@ export function Tooltip({
           ref={tooltipRef}
           role="tooltip"
           className={[
-            "absolute z-50 px-2.5 py-1.5 rounded-lg bg-neutral-900 text-white text-[11px] font-medium whitespace-nowrap pointer-events-none",
+            "absolute z-50 px-2.5 py-1.5 rounded-lg bg-hero-foreground text-hero-on-foreground text-[11px] font-medium whitespace-nowrap pointer-events-none",
             "transition-all duration-150 ease-[cubic-bezier(0.34,1.4,0.64,1)]",
             visible
               ? "opacity-100 scale-100 translate-x-0 translate-y-0"

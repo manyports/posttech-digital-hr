@@ -17,7 +17,7 @@ export function Skeleton({
   lines = 1,
   className = "",
 }: SkeletonProps) {
-  const base = "animate-skeleton-pulse bg-neutral-100 rounded-xl";
+  const base = "animate-skeleton-pulse bg-hero-cell-bg rounded-xl";
 
   if (variant === "circle") {
     return (
@@ -31,7 +31,7 @@ export function Skeleton({
   if (variant === "card") {
     return (
       <div
-        className={["rounded-2xl bg-white overflow-hidden", className].join(" ")}
+        className={["rounded-2xl bg-hero-elevated overflow-hidden", className].join(" ")}
         style={{
           boxShadow:
             "0 1px 2px rgba(17,17,17,0.04), 0 2px 8px -2px rgba(17,17,17,0.04), 0 0 0 1px rgba(17,17,17,0.05), inset 0 1px 0 rgba(255,255,255,0.9)",

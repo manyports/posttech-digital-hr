@@ -55,7 +55,7 @@ export function Tabs({ tabs, defaultTab, onChange, className = "" }: TabsProps) 
       <div
         ref={listRef}
         role="tablist"
-        className="relative flex w-full sm:inline-flex sm:w-auto items-center bg-neutral-100 rounded-xl p-1"
+        className="relative flex w-full sm:inline-flex sm:w-auto items-center bg-hero-cell-bg rounded-xl p-1"
         style={{
           boxShadow:
             "inset 0 1px 2px rgba(17,17,17,0.06), inset 0 0 0 1px rgba(17,17,17,0.04)",
@@ -64,7 +64,7 @@ export function Tabs({ tabs, defaultTab, onChange, className = "" }: TabsProps) 
         {pill.ready && (
           <span
             aria-hidden
-            className="absolute top-1 bottom-1 rounded-lg bg-white pointer-events-none"
+            className="absolute top-1 bottom-1 rounded-lg bg-hero-elevated pointer-events-none"
             style={{
               left: pill.left,
               width: pill.width,
@@ -84,7 +84,7 @@ export function Tabs({ tabs, defaultTab, onChange, className = "" }: TabsProps) 
             onClick={() => handleSelect(tab.key)}
             className={[
               "relative z-10 flex-1 sm:flex-none px-3 py-2 rounded-lg text-[13px] font-medium text-center whitespace-nowrap cursor-pointer transition-colors duration-150",
-              active === tab.key ? "text-neutral-900" : "text-neutral-400 hover:text-neutral-600",
+              active === tab.key ? "text-hero-foreground" : "text-tertiary hover:text-hero-muted",
             ].join(" ")}
           >
             {tab.label}
@@ -97,7 +97,7 @@ export function Tabs({ tabs, defaultTab, onChange, className = "" }: TabsProps) 
           key={active}
           role="tabpanel"
           className={[
-            "text-[13px] text-neutral-500 leading-relaxed",
+            "text-[13px] text-hero-muted leading-relaxed",
             direction === "right" ? "animate-tab-slide-right" : "animate-tab-slide-left",
           ].join(" ")}
         >

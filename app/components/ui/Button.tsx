@@ -25,9 +25,9 @@ const shellConfig: Record<
   }
 > = {
   primary: {
-    bg: "bg-neutral-900 border border-neutral-700/40",
-    innerBg: "bg-neutral-800 text-white",
-    fill: "bg-white/[0.08]",
+    bg: "bg-primary-deep border border-primary",
+    innerBg: "bg-primary text-hero-on-foreground",
+    fill: "bg-hero-elevated/[0.08]",
     shadow:
       "0 1px 3px rgba(0,0,0,0.35), 0 4px 12px -3px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06)",
     hoverShadow:
@@ -38,9 +38,9 @@ const shellConfig: Record<
       "linear-gradient(to bottom, rgba(255,255,255,0.07) 0%, transparent 40%, rgba(0,0,0,0.1) 100%)",
   },
   secondary: {
-    bg: "bg-neutral-100/80 border border-neutral-200/70",
-    innerBg: "bg-white text-neutral-800",
-    fill: "bg-neutral-900/[0.03]",
+    bg: "bg-hero-cell-bg border border-hero-border",
+    innerBg: "bg-hero-elevated text-hero-foreground",
+    fill: "bg-hero-foreground/[0.03]",
     shadow:
       "0 1px 3px rgba(0,0,0,0.08), 0 4px 12px -3px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9)",
     hoverShadow:
@@ -51,9 +51,9 @@ const shellConfig: Record<
       "linear-gradient(to bottom, rgba(255,255,255,0.8) 0%, transparent 40%, rgba(0,0,0,0.015) 100%)",
   },
   outline: {
-    bg: "bg-neutral-50/50 border border-neutral-200/70",
-    innerBg: "bg-white text-neutral-700",
-    fill: "bg-neutral-900/[0.03]",
+    bg: "bg-hero-cell-bg border border-hero-border",
+    innerBg: "bg-hero-elevated text-hero-foreground",
+    fill: "bg-hero-foreground/[0.03]",
     shadow:
       "0 1px 3px rgba(0,0,0,0.08), 0 4px 12px -3px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9)",
     hoverShadow:
@@ -77,8 +77,8 @@ const flatConfig: Record<
   }
 > = {
   primary: {
-    bg: "bg-neutral-900 text-white border border-transparent",
-    fill: "bg-white/[0.13]",
+    bg: "bg-primary text-hero-on-foreground border border-transparent",
+    fill: "bg-hero-elevated/[0.13]",
     shadow:
       "0 1px 3px rgba(0,0,0,0.35), 0 4px 12px -3px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06)",
     hoverShadow:
@@ -89,8 +89,8 @@ const flatConfig: Record<
       "linear-gradient(to bottom, rgba(255,255,255,0.08) 0%, transparent 40%, rgba(0,0,0,0.12) 100%)",
   },
   secondary: {
-    bg: "bg-neutral-50 text-neutral-800 border border-neutral-200/60",
-    fill: "bg-neutral-900/[0.04]",
+    bg: "bg-hero-elevated text-hero-foreground border border-hero-border",
+    fill: "bg-hero-foreground/[0.04]",
     shadow:
       "0 1px 2px rgba(0,0,0,0.06), 0 3px 8px -2px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.8)",
     hoverShadow:
@@ -101,16 +101,16 @@ const flatConfig: Record<
       "linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, transparent 40%, rgba(0,0,0,0.01) 100%)",
   },
   ghost: {
-    bg: "bg-transparent text-neutral-500 border border-transparent",
-    fill: "bg-neutral-900/[0.06]",
+    bg: "bg-transparent text-hero-muted border border-transparent",
+    fill: "bg-hero-foreground/[0.06]",
     shadow: "none",
     hoverShadow: "0 1px 4px rgba(0,0,0,0.04)",
     pressedShadow: "inset 0 1px 3px rgba(0,0,0,0.06)",
     gradient: "none",
   },
   outline: {
-    bg: "bg-transparent text-neutral-700 border border-neutral-200/60",
-    fill: "bg-neutral-50",
+    bg: "bg-transparent text-hero-foreground border border-hero-border",
+    fill: "bg-hero-cell-bg",
     shadow:
       "0 1px 2px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.7)",
     hoverShadow:
@@ -185,12 +185,13 @@ export function Button({
     return (
       <button
         className={[
-          "group/btn relative inline-flex cursor-pointer select-none whitespace-nowrap",
+          "group/btn hover-wipe relative inline-flex cursor-pointer select-none whitespace-nowrap",
+          variant === "primary" ? "hover-wipe-fill" : "",
           cfg.bg,
           "rounded-xl p-[3px]",
           pressed ? "scale-[0.975]" : "",
           "transition-all duration-200 ease-out",
-          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900",
+          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
           "disabled:opacity-40 disabled:pointer-events-none",
           fullWidth ? "w-full" : "",
           className,
@@ -251,10 +252,11 @@ export function Button({
   return (
     <button
       className={[
-        "group/btn relative overflow-hidden inline-flex items-center justify-center gap-1.5 font-medium cursor-pointer select-none whitespace-nowrap",
+        "group/btn hover-wipe relative overflow-hidden inline-flex items-center justify-center gap-1.5 font-medium cursor-pointer select-none whitespace-nowrap",
+        variant === "primary" ? "hover-wipe-fill" : "",
         pressed ? "scale-[0.975]" : "",
         "transition-all duration-200 ease-out",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
         "disabled:opacity-40 disabled:pointer-events-none",
         cfg.bg,
         flatSizeStyles[size],

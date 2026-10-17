@@ -49,9 +49,9 @@ export function RadioGroup({
             ].join(" ")}
           >
             <div className="flex flex-col gap-0.5 min-w-0">
-              <span className="text-[13px] font-medium text-neutral-900 leading-snug">{opt.label}</span>
+              <span className="text-[13px] font-medium text-hero-foreground leading-snug">{opt.label}</span>
               {opt.description && (
-                <span className="text-[12px] text-neutral-400 leading-relaxed">{opt.description}</span>
+                <span className="text-[12px] text-tertiary leading-relaxed">{opt.description}</span>
               )}
             </div>
 
@@ -61,7 +61,7 @@ export function RadioGroup({
               className={[
                 "shrink-0 w-5 h-5 rounded-full flex items-center justify-center",
                 "transition-[background-color,box-shadow] duration-150",
-                active ? "bg-neutral-900" : "bg-neutral-50",
+                active ? "bg-hero-foreground" : "bg-hero-cell-bg",
               ].join(" ")}
               style={{
                 boxShadow: active
@@ -70,7 +70,7 @@ export function RadioGroup({
               }}
             >
               {active && (
-                <span className="animate-checkbox-in w-[7px] h-[7px] rounded-full bg-white block" />
+                <span className="animate-checkbox-in w-[7px] h-[7px] rounded-full bg-hero-elevated block" />
               )}
             </div>
           </div>

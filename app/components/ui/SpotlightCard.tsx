@@ -81,8 +81,8 @@ export function SpotlightCard({
             className={[
               "w-11 h-11 rounded-[12px] flex items-center justify-center mb-2",
               dark
-                ? "bg-white/8 text-white ring-1 ring-inset ring-white/12"
-                : "bg-neutral-900/5 text-neutral-800 ring-1 ring-inset ring-neutral-900/10",
+                ? "bg-hero-elevated/8 text-hero-on-foreground ring-1 ring-inset ring-hero-elevated/12"
+                : "bg-hero-foreground/5 text-hero-foreground ring-1 ring-inset ring-hero-foreground/10",
             ].join(" ")}
             style={{
               boxShadow: dark
@@ -98,7 +98,7 @@ export function SpotlightCard({
           <p
             className={[
               "text-[11.5px] font-bold uppercase tracking-[0.12em]",
-              dark ? "text-neutral-400" : "text-neutral-600",
+              dark ? "text-tertiary" : "text-hero-muted",
             ].join(" ")}
           >
             {eyebrow}
@@ -109,7 +109,7 @@ export function SpotlightCard({
           className={[
             titleSizeBySize[size],
             "leading-[1.15] tracking-[-0.02em]",
-            dark ? "text-white" : "text-neutral-900",
+            dark ? "text-hero-on-foreground" : "text-hero-foreground",
           ].join(" ")}
         >
           {title}
@@ -119,7 +119,7 @@ export function SpotlightCard({
           <p
             className={[
               "text-[15px] leading-[1.6] max-w-lg",
-              dark ? "text-neutral-400" : "text-neutral-600",
+              dark ? "text-tertiary" : "text-hero-muted",
             ].join(" ")}
           >
             {subtitle}

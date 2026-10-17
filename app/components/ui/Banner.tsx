@@ -8,19 +8,19 @@ const variantStyles: Record<
 > = {
   default: {
     background: "linear-gradient(180deg, #171717 0%, #0a0a0a 100%)",
-    className: "text-white",
+    className: "text-hero-on-foreground",
     shadow:
       "0 1px 3px rgba(0,0,0,0.4), 0 4px 12px -3px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06)",
   },
   accent: {
     background: "linear-gradient(135deg, #171717 0%, #2a2a2a 100%)",
-    className: "text-white",
+    className: "text-hero-on-foreground",
     shadow:
       "0 1px 3px rgba(0,0,0,0.4), 0 4px 12px -3px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08)",
   },
   warning: {
     background: "linear-gradient(180deg, #f59e0b 0%, #d97706 100%)",
-    className: "text-white",
+    className: "text-hero-on-foreground",
     shadow:
       "0 1px 3px rgba(245,158,11,0.4), 0 4px 12px -3px rgba(245,158,11,0.3), inset 0 1px 0 rgba(255,255,255,0.2)",
   },
@@ -64,7 +64,7 @@ export function Banner({
       {dismissible && (
         <button
           onClick={onDismiss}
-          className="ml-3 flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-white/50 hover:text-white hover:bg-white/10 cursor-pointer transition-all duration-150"
+          className="ml-3 flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-hero-on-foreground/50 hover:text-hero-on-foreground hover:bg-hero-elevated/10 cursor-pointer transition-all duration-150"
           aria-label="Закрыть"
         >
           <svg

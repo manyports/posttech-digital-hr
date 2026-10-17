@@ -19,14 +19,11 @@ interface SelectProps {
   className?: string;
 }
 
-const REST_SHADOW =
-  "inset 0 0 0 1px rgba(17,17,17,0.12), inset 0 1px 2px rgba(17,17,17,0.03), 0 1px 2px -1px rgba(17,17,17,0.04)";
-const HOVER_SHADOW =
-  "inset 0 0 0 1px rgba(17,17,17,0.20), inset 0 1px 2px rgba(17,17,17,0.04), 0 1px 3px -1px rgba(17,17,17,0.06)";
-const OPEN_SHADOW =
-  "inset 0 0 0 1px rgba(17,17,17,0.92), 0 0 0 4px rgba(17,17,17,0.08), 0 2px 6px -2px rgba(17,17,17,0.08)";
-const REST_BG = "linear-gradient(180deg, #f7f7f7 0%, #fbfbfb 100%)";
-const HOVER_BG = "linear-gradient(180deg, #f2f2f2 0%, #f7f7f7 100%)";
+const REST_SHADOW = "var(--field-rest-shadow)";
+const HOVER_SHADOW = "var(--field-hover-shadow)";
+const OPEN_SHADOW = "var(--field-focus-shadow)";
+const REST_BG = "var(--field-rest-bg)";
+const HOVER_BG = "var(--field-hover-bg)";
 
 export function Select({
   options,
@@ -57,7 +54,7 @@ export function Select({
   return (
     <div className={["flex flex-col gap-1.5", fullWidth ? "w-full" : ""].join(" ")}>
       {label && (
-        <label className="text-[12.5px] font-medium text-neutral-700 tracking-[-0.005em]">
+        <label className="app-form-label">
           {label}
         </label>
       )}
@@ -72,14 +69,14 @@ export function Select({
           onClick={() => setOpen((v) => !v)}
           className={[
             "group/select relative isolate inline-flex items-center justify-between gap-3 w-full",
-            "rounded-xl px-4 py-3 text-[13.5px] font-medium text-neutral-900",
+            "rounded-xl px-4 py-3 text-[13.5px] font-medium text-hero-foreground",
             "transition-[box-shadow,background] duration-200 ease-out cursor-pointer select-none",
             "focus:outline-none",
             "disabled:opacity-40 disabled:pointer-events-none",
             !open ? "hover:[background:var(--hover-bg)] hover:[box-shadow:var(--hover-shadow)]" : "",
           ].join(" ")}
           style={{
-            background: open ? "#ffffff" : REST_BG,
+            background: open ? "var(--color-hero-elevated)" : REST_BG,
             boxShadow: open ? OPEN_SHADOW : REST_SHADOW,
             ["--hover-bg" as string]: HOVER_BG,
             ["--hover-shadow" as string]: HOVER_SHADOW,
@@ -88,7 +85,7 @@ export function Select({
           <span
             className={[
               "relative z-10 truncate",
-              selected ? "text-neutral-900" : "text-neutral-400 font-normal",
+              selected ? "text-hero-foreground" : "text-tertiary font-normal",
             ].join(" ")}
           >
             {selected ? selected.label : placeholder}
@@ -97,8 +94,8 @@ export function Select({
             className={[
               "relative z-10 shrink-0 transition-all duration-300 ease-[cubic-bezier(0.34,1.4,0.64,1)]",
               open
-                ? "text-neutral-900 scale-110"
-                : "text-neutral-400 group-hover/select:text-neutral-700",
+                ? "text-hero-foreground scale-110"
+                : "text-tertiary group-hover/select:text-hero-foreground",
             ].join(" ")}
           >
             <svg
@@ -165,8 +162,8 @@ export function Select({
                     className={[
                       "group/item relative flex items-center justify-between gap-3 w-full text-left px-3 py-2 text-[13px] rounded-lg transition-colors duration-150",
                       isSelected
-                        ? "font-medium text-neutral-900 bg-white"
-                        : "text-neutral-600 hover:text-neutral-900 hover:bg-white/70",
+                        ? "font-medium text-hero-foreground bg-hero-elevated"
+                        : "text-hero-muted hover:text-hero-foreground hover:bg-hero-elevated/70",
                     ].join(" ")}
                     style={{
                       animation: `select-option-in 320ms cubic-bezier(0.16,1,0.3,1) ${i * 28}ms both`,
@@ -178,7 +175,7 @@ export function Select({
                     <span className="whitespace-nowrap">{opt.label}</span>
                     {isSelected && (
                       <svg
-                        className="shrink-0 text-neutral-900"
+                        className="shrink-0 text-hero-foreground"
                         width="13"
                         height="13"
                         fill="none"
@@ -197,7 +194,7 @@ export function Select({
         )}
       </div>
 
-      {hint && <p className="text-[11.5px] text-neutral-400 mt-0.5">{hint}</p>}
+      {hint && <p className="text-[11.5px] text-tertiary mt-0.5">{hint}</p>}
     </div>
   );
 }

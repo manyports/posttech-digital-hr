@@ -67,8 +67,8 @@ export function ReactionBar({
             className={[
               "inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-[13px] font-medium cursor-pointer transition-all duration-200",
               reaction.active
-                ? "bg-neutral-900 text-white"
-                : "bg-white text-neutral-600 hover:bg-neutral-50",
+                ? "bg-hero-foreground text-hero-on-foreground"
+                : "bg-hero-elevated text-hero-muted hover-wipe",
             ].join(" ")}
             style={{
               transform: isAnimating ? "scale(1.08)" : "scale(1)",
