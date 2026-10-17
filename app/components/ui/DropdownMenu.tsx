@@ -98,7 +98,7 @@ export function DropdownMenu({
       {mounted && (
         <div
           className={[
-            "absolute z-50 min-w-[180px] rounded-2xl p-1.5 overflow-hidden",
+            "absolute z-50 min-w-[180px] max-h-[min(70vh,28rem)] rounded-2xl p-1.5 overflow-hidden",
             "transition-all duration-200 ease-[cubic-bezier(0.34,1.4,0.64,1)]",
             visible
               ? "opacity-100 scale-100 translate-y-0"
@@ -112,7 +112,7 @@ export function DropdownMenu({
               "0 4px 16px -4px rgba(17,17,17,0.12), 0 16px 40px -12px rgba(17,17,17,0.18), 0 0 0 1px rgba(17,17,17,0.06), inset 0 1px 0 rgba(255,255,255,0.95)",
           }}
         >
-          <div className="bg-hero-elevated rounded-xl py-1">
+          <div className="max-h-full overflow-y-auto bg-hero-elevated rounded-xl py-1 overscroll-contain">
             {items.map((item) => {
               if (item.divider) {
                 return (
