@@ -3,6 +3,7 @@ import type {
   EmployeeSummary,
   ProfileView,
 } from "../../domain/types";
+import { addDays, todayISO } from "../../domain/dates";
 import { getDb } from "../db";
 import type { Db } from "../db";
 import { forbidden, notFound } from "../errors";
@@ -79,6 +80,46 @@ export interface TeamMemberView extends EmployeeSummary {
   coursesAssigned: number;
   coursesCompleted: number;
   coursesOverdue: number;
+}
+
+export interface TeamWeekDay {
+  date: string;
+  state: "clear" | "open" | "approved";
+}
+
+export interface TeamWeekPerson {
+  id: string;
+  fullName: string;
+  days: TeamWeekDay[];
+}
+
+export async function teamWeek(actor: Actor, days = 14): Promise<TeamWeekPerson[]> {
+  const db = await getDb();
+  const people = await visibleEmployees(db, actor);
+  const start = todayISO();
+  const dates = Array.from({ length: days }, (_, i) => addDays(start, i));
+  const live = people.length
+    ? await db.requests.find({
+        employeeId: { $in: people.map((p) => p._id) },
+        type: "vacation",
+        status: { $in: ["submitted", "in_review", "approved"] },
+      })
+    : [];
+  return people.map((person) => ({
+    id: person._id,
+    fullName: person.fullName,
+    days: dates.map((date) => {
+      const hit = live.find(
+        (req) =>
+          req.employeeId === person._id &&
+          req.payload.kind === "vacation" &&
+          req.payload.startDate <= date &&
+          req.payload.endDate >= date,
+      );
+      const state: TeamWeekDay["state"] = !hit ? "clear" : hit.status === "approved" ? "approved" : "open";
+      return { date, state };
+    }),
+  }));
 }
 
 export async function listTeam(actor: Actor): Promise<TeamMemberView[]> {

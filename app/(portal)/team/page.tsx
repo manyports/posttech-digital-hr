@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { TeamMemberView } from "@/lib/server/services/employees";
+import type { TeamMemberView, TeamWeekPerson } from "@/lib/server/services/employees";
 import { useApi } from "@/lib/client/hooks";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import { tx } from "@/lib/i18n/locale";
@@ -9,6 +9,7 @@ import { Avatar } from "../../components/ui/Avatar";
 import { Badge } from "../../components/ui/Badge";
 import { ArrowRightIcon } from "../../components/portal/icons";
 import { AccessDenied, ErrorBlock, LoadingBlock, PageHeader } from "../../components/portal/Panel";
+import { TeamWeek } from "../../components/portal/TeamWeek";
 import { Pill } from "../../components/portal/StatusBadge";
 import { useUser } from "../../components/portal/UserContext";
 
@@ -18,7 +19,7 @@ const SHADOW =
 export default function TeamPage() {
   const user = useUser();
   const { m } = useI18n();
-  const { data, error, loading, reload } = useApi<{ team: TeamMemberView[] }>("/api/team", { interval: 10000 });
+  const { data, error, loading, reload } = useApi<{ team: TeamMemberView[]; week: TeamWeekPerson[] }>("/api/team", { interval: 10000 });
   const isHr = user.role === "hr";
 
   if (error?.status === 403) {
@@ -40,6 +41,8 @@ export default function TeamPage() {
             : tx(m.team.reports, { count: data ? ` (${data.team.length})` : "" })
         }
       />
+
+      {data?.week && data.week.length > 0 && <TeamWeek people={data.week} />}
 
       {loading && !data && <LoadingBlock rows={3} />}
       {error && !data && <ErrorBlock message={error.message} onRetry={reload} />}
