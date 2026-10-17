@@ -129,6 +129,7 @@ const BODY: { test: RegExp; text: Pair; keys: string[] }[] = [
 ];
 
 const HISTORY: { test: RegExp; text: Pair; keys: string[] }[] = [
+  { test: /^Draft saved$/, keys: [], text: { ru: "Черновик сохранён", kk: "Жоба сақталды" } },
   { test: /^Request submitted$/, keys: [], text: { ru: "Заявка отправлена", kk: "Өтінім жіберілді" } },
   { test: /^Manager started review$/, keys: [], text: { ru: "Руководитель начал рассмотрение", kk: "Басшы қарауды бастады" } },
   { test: /^Approved by manager$/, keys: [], text: { ru: "Одобрено руководителем", kk: "Басшы мақұлдады" } },

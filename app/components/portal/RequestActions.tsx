@@ -25,6 +25,7 @@ export function RequestActions({
   const { toast } = useToast();
   const { m } = useI18n();
   const COPY: Record<RequestAction, { label: string; title: string; done: string; needsComment: boolean; askComment: boolean }> = {
+    submit: { label: m.actions.submit, title: m.actions.submitTitle, done: m.actions.submitDone, needsComment: false, askComment: false },
     start_review: { label: m.actions.start, title: m.actions.startTitle, done: m.actions.startDone, needsComment: false, askComment: false },
     approve: { label: m.actions.approve, title: m.actions.approveTitle, done: m.actions.approveDone, needsComment: false, askComment: true },
     reject: { label: m.actions.reject, title: m.actions.rejectTitle, done: m.actions.rejectDone, needsComment: true, askComment: true },
@@ -59,8 +60,8 @@ export function RequestActions({
   }
 
   function click(action: RequestAction) {
-    // Review start is a single click; the rest confirm in a dialog.
-    if (action === "start_review") void run(action);
+    // Submission and review start are single-click actions; decisions confirm in a dialog.
+    if (action === "start_review" || action === "submit") void run(action);
     else {
       setError(null);
       setPending(action);
@@ -77,7 +78,7 @@ export function RequestActions({
           <Button
             key={a}
             size={size}
-            variant={a === "approve" || a === "start_review" ? "primary" : "outline"}
+            variant={a === "submit" || a === "approve" || a === "start_review" ? "primary" : "outline"}
             disabled={busy}
             onClick={() => click(a)}
           >

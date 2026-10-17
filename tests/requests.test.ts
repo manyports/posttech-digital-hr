@@ -9,6 +9,7 @@ import {
   createRequest,
   getRequest,
   getRequestFormInfo,
+  listApprovals,
   listMyRequests,
 } from "../lib/server/services/requests";
 import { actor, fresh, rejectsWith, weekRange } from "./helpers";
@@ -128,6 +129,63 @@ describe("vacation: submitted -> in review -> approved", () => {
   it("an employee cannot approve or cancel on someone else's behalf", async () => {
     await rejectsWith(actOnRequest(await actor("emp-e2"), "REQ-1003", { action: "approve" }), 403, "self approve");
     await rejectsWith(actOnRequest(await actor("emp-m1"), "REQ-1003", { action: "cancel" }), 403, "manager cancel");
+  });
+});
+
+describe("request drafts", () => {
+  it("keeps a draft private until its owner submits it", async () => {
+    const emp = await actor("emp-e1");
+    const mgr = await actor("emp-m1");
+    const range = weekRange(16);
+    const beforeInbox = await listNotifications(mgr);
+
+    const draft = await createRequest(emp, {
+      type: "vacation",
+      ...range,
+      comment: "Family trip",
+      intent: "draft",
+    });
+
+    assert.equal(draft.status, "draft");
+    assert.deepEqual(draft.allowedActions, ["submit", "cancel"]);
+    assert.deepEqual(draft.history.map((event) => event.status), ["draft"]);
+    assert.deepEqual(draft.integration, {});
+    assert.ok(!(await listApprovals(mgr)).some((request) => request.id === draft.id));
+    await rejectsWith(getRequest(mgr, draft.id), 403, "manager cannot open an unsubmitted draft");
+    assert.equal((await listNotifications(mgr)).notifications.length, beforeInbox.notifications.length);
+
+    const submitted = await actOnRequest(emp, draft.id, { action: "submit" });
+    assert.equal(submitted.status, "submitted");
+    assert.deepEqual(submitted.allowedActions, ["cancel"]);
+    assert.deepEqual(submitted.history.map((event) => event.status), ["draft", "submitted"]);
+    assert.ok(submitted.integration.documentolog?.ref);
+    assert.ok((await listApprovals(mgr)).some((request) => request.id === draft.id));
+    assert.ok((await listNotifications(mgr)).notifications.some((n) => n.body.includes(draft.id)));
+  });
+
+  it("allows only the owner to submit a draft", async () => {
+    const draft = await createRequest(await actor("emp-e1"), {
+      type: "vacation",
+      ...weekRange(18),
+      intent: "draft",
+    });
+
+    await rejectsWith(actOnRequest(await actor("emp-m1"), draft.id, { action: "submit" }), 403, "manager submit");
+    await rejectsWith(actOnRequest(await actor("emp-e2"), draft.id, { action: "submit" }), 403, "colleague submit");
+  });
+
+  it("does not expose a cancelled draft to managers or HR", async () => {
+    const owner = await actor("emp-e1");
+    const draft = await createRequest(owner, {
+      type: "vacation",
+      ...weekRange(19),
+      intent: "draft",
+    });
+
+    assert.equal((await actOnRequest(owner, draft.id, { action: "cancel" })).status, "cancelled");
+    assert.ok(!(await listApprovals(await actor("emp-m1"))).some((request) => request.id === draft.id));
+    assert.ok(!(await listApprovals(await actor("emp-hr1"))).some((request) => request.id === draft.id));
+    await rejectsWith(getRequest(await actor("emp-m1"), draft.id), 403, "cancelled private draft");
   });
 });
 

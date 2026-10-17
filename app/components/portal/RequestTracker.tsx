@@ -7,9 +7,10 @@ import { CheckIcon, XIcon } from "./icons";
 const TERMINAL: RequestStatus[] = ["approved", "rejected", "cancelled"];
 
 function stageIndex(status: RequestStatus): number {
-  if (status === "submitted") return 0;
-  if (status === "in_review") return 1;
-  return 2;
+  if (status === "draft") return 0;
+  if (status === "submitted") return 1;
+  if (status === "in_review") return 2;
+  return 3;
 }
 
 /** Time the request first reached a status (for the small captions). */
@@ -18,8 +19,8 @@ function at(history: RequestEvent[], ...statuses: RequestStatus[]) {
 }
 
 /**
- * Three-stage progress: Submitted -> In review -> Decision (approved / rejected /
- * cancelled). Completed stages are filled, the current one pulses.
+ * Four-stage progress: Draft -> Submitted -> In review -> Decision. Completed
+ * stages are filled, the current one pulses.
  */
 export function RequestTracker({
   status,
@@ -29,20 +30,24 @@ export function RequestTracker({
   history: RequestEvent[];
 }) {
   const { m, locale } = useI18n();
-  const current = stageIndex(status);
+  const privateCancelledDraft = status === "cancelled" && !history.some((event) => event.status === "submitted");
+  const current = privateCancelledDraft ? 0 : stageIndex(status);
   const terminal = TERMINAL.includes(status);
 
   const decisionLabel =
     status === "approved" ? m.requestStatus.approved : status === "rejected" ? m.requestStatus.rejected : status === "cancelled" ? m.requestStatus.cancelled : m.requestStatus.decision;
 
-  const stages = [
-    { label: m.requestStatus.filed, time: at(history, "submitted") },
-    { label: m.requestStatus.in_review, time: at(history, "in_review") },
-    { label: decisionLabel, time: at(history, "approved", "rejected", "cancelled") },
-  ];
+  const stages = privateCancelledDraft
+    ? [{ label: m.requestStatus.cancelled, time: at(history, "cancelled") }]
+    : [
+        { label: m.requestStatus.draft, time: at(history, "draft") },
+        { label: m.requestStatus.filed, time: at(history, "submitted") },
+        { label: m.requestStatus.in_review, time: at(history, "in_review") },
+        { label: decisionLabel, time: at(history, "approved", "rejected", "cancelled") },
+      ];
 
   return (
-    <ol className="grid grid-cols-3" aria-label={m.request.progress}>
+    <ol className={privateCancelledDraft ? "grid grid-cols-1" : "grid grid-cols-4"} aria-label={m.request.progress}>
       {stages.map((s, i) => {
         const done = i < current || (i === current && terminal);
         const isCurrent = i === current && !terminal;
@@ -109,17 +114,21 @@ export function RequestTracker({
   );
 }
 
-/** Slim 3-segment bar for list rows. */
-export function MiniTracker({ status }: { status: RequestStatus }) {
+/** Slim four-segment bar for list rows. */
+export function MiniTracker({ status, history }: { status: RequestStatus; history: RequestEvent[] }) {
+  const privateCancelledDraft = status === "cancelled" && !history.some((event) => event.status === "submitted");
+  if (privateCancelledDraft) {
+    return <div className="h-1 w-full max-w-[140px] rounded-full bg-additional" aria-hidden />;
+  }
   const current = stageIndex(status);
   const terminal = TERMINAL.includes(status);
   const finalColor =
     status === "approved" ? "bg-primary" : status === "rejected" ? "bg-error" : status === "cancelled" ? "bg-additional" : "bg-hero-foreground";
   return (
     <div className="flex gap-1 w-full max-w-[140px]" aria-hidden>
-      {[0, 1, 2].map((i) => {
-        const filled = i < current || (i === current && (terminal || i < 2));
-        const color = i === 2 && terminal ? finalColor : "bg-hero-foreground";
+      {[0, 1, 2, 3].map((i) => {
+        const filled = i < current || (i === current && (terminal || i < 3));
+        const color = i === 3 && terminal ? finalColor : "bg-hero-foreground";
         return (
           <span
             key={i}

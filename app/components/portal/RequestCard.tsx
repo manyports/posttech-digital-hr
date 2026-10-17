@@ -45,7 +45,7 @@ export function RequestCard({
           </div>
           <p className="text-[13px] text-hero-muted mt-0.5 truncate">{payloadSummary(request.payload, locale)}</p>
           <div className="mt-2.5 flex items-center gap-3">
-            <MiniTracker status={request.status} />
+            <MiniTracker status={request.status} history={request.history} />
             <span className="text-[11.5px] text-tertiary hidden sm:inline">{tx(m.requests.filed, { date: fmtDate(request.createdAt, locale) })}</span>
           </div>
         </div>

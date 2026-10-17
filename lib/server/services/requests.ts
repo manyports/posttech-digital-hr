@@ -35,6 +35,7 @@ export const TYPE_LABEL: Record<RequestType, string> = {
 };
 
 const TARGET_STATUS: Record<RequestAction, RequestStatus> = {
+  submit: "submitted",
   start_review: "in_review",
   approve: "approved",
   reject: "rejected",
@@ -42,6 +43,7 @@ const TARGET_STATUS: Record<RequestAction, RequestStatus> = {
 };
 
 const EVENT_NOTE: Record<RequestAction, string> = {
+  submit: "Request submitted",
   start_review: "Manager started review",
   approve: "Approved",
   reject: "Rejected",
@@ -72,6 +74,9 @@ const describe = (r: Pick<HrRequestDoc, "payload">) =>
   r.payload.kind === "vacation"
     ? `${r.payload.startDate} to ${r.payload.endDate} (${r.payload.days} working day${r.payload.days === 1 ? "" : "s"})`
     : `${r.payload.amount.toLocaleString("en-US")} ${r.payload.currency}`;
+
+const wasSubmitted = (request: Pick<HrRequestDoc, "history">) =>
+  request.history.some((event) => event.status === "submitted");
 
 /* ── Views ─────────────────────────────────────────────────────────── */
 
@@ -117,7 +122,9 @@ export async function getRequest(actor: Actor, id: string): Promise<RequestView>
   const doc = await db.requests.findOne({ _id: id });
   if (!doc) throw notFound("Request not found.");
   const emp = await db.employees.findOne({ _id: doc.employeeId });
-  if (!emp || !canViewEmployee(actor, emp)) throw forbidden("You can't view this request.");
+  if (!emp || !canViewEmployee(actor, emp) || (!wasSubmitted(doc) && actor.id !== doc.employeeId)) {
+    throw forbidden("You can't view this request.");
+  }
   return (await hydrate(db, actor, [doc]))[0];
 }
 
@@ -128,7 +135,7 @@ export async function listRequestsOf(actor: Actor, employeeId: string): Promise<
   if (!emp) throw notFound("Employee not found.");
   if (!canViewEmployee(actor, emp)) throw forbidden("You can't view this employee's requests.");
   const docs = await db.requests.find({ employeeId }, { sort: { createdAt: -1 } });
-  return hydrate(db, actor, docs);
+  return hydrate(db, actor, actor.id === employeeId ? docs : docs.filter(wasSubmitted));
 }
 
 /** Requests raised by the actor's direct reports (HR: everyone). */
@@ -139,7 +146,7 @@ export async function listApprovals(actor: Actor): Promise<RequestView[]> {
     { employeeId: { $in: scope.map((e) => e._id) } },
     { sort: { createdAt: -1 } },
   );
-  return hydrate(db, actor, docs);
+  return hydrate(db, actor, docs.filter(wasSubmitted));
 }
 
 /** Numbers the "new request" form needs (balance, limits). Caller's own only. */
@@ -192,10 +199,52 @@ async function syncExternal(
   }
 }
 
+async function notifySubmitted(db: Db, doc: HrRequestDoc, employee: EmployeeDoc): Promise<void> {
+  const label = TYPE_LABEL[doc.type].toLowerCase();
+  const approver = await db.employees.findOne({ _id: doc.approverId });
+  await notify(db, employee._id, {
+    kind: "request",
+    title: "Request submitted",
+    body: `Your ${label} request ${doc._id} (${describe(doc)}) was sent to ${approver?.fullName ?? "your approver"}.`,
+    href: `/requests/${doc._id}`,
+  });
+  await notify(db, doc.approverId, {
+    kind: "request",
+    title: `New ${label} request`,
+    body: `${employee.fullName} submitted a ${label} request (${doc._id}): ${describe(doc)}.`,
+    href: "/approvals",
+  });
+}
+
+async function validateDraftForSubmission(db: Db, employee: EmployeeDoc, request: HrRequestDoc): Promise<void> {
+  if (request.payload.kind === "vacation") {
+    const { startDate, endDate, days } = request.payload;
+    if (startDate < todayISO()) throw conflict("Vacation dates are no longer in the future. Update the draft first.");
+    const available = employee.vacationBalance - (await pendingVacationDays(db, employee._id));
+    if (days > available) throw conflict(`Only ${Math.max(0, available)} vacation day(s) are available now.`);
+    const live = await db.requests.find({ employeeId: employee._id, type: "vacation", status: { $in: LIVE } });
+    const clash = live.find(
+      (item) => item.payload.kind === "vacation" && rangesOverlap(startDate, endDate, item.payload.startDate, item.payload.endDate),
+    );
+    if (clash) throw conflict(`These dates overlap your existing request ${clash._id}.`);
+    return;
+  }
+
+  const month = todayISO().slice(0, 7);
+  const live = await db.requests.find({ employeeId: employee._id, type: "salary_advance", status: { $in: LIVE } });
+  if (live.some((item) => item.createdAt.startsWith(month))) {
+    throw conflict("You already have a salary advance request for this month.");
+  }
+}
+
 export async function createRequest(actor: Actor, input: unknown): Promise<RequestView> {
   if (typeof input !== "object" || input === null) throw badRequest("Invalid request body.");
   const body = input as Record<string, unknown>;
   const type = body.type;
+  const intent = body.intent ?? "submit";
+  if (intent !== "draft" && intent !== "submit") {
+    throw badRequest("Unknown request intent.", { intent: "Use draft or submit" });
+  }
   if (type !== "vacation" && type !== "salary_advance") {
     throw badRequest("Unknown request type.", { type: "Choose vacation or salary advance" });
   }
@@ -262,33 +311,29 @@ export async function createRequest(actor: Actor, input: unknown): Promise<Reque
     type,
     employeeId: me._id,
     approverId,
-    status: "submitted",
+    status: intent === "draft" ? "draft" : "submitted",
     payload,
     createdAt: now,
     updatedAt: now,
-    history: [{ at: now, status: "submitted", actorId: me._id, actorName: me.fullName, note: "Request submitted" }],
+    history: [{
+      at: now,
+      status: intent === "draft" ? "draft" : "submitted",
+      actorId: me._id,
+      actorName: me.fullName,
+      note: intent === "draft" ? "Draft saved" : "Request submitted",
+    }],
     integration: {},
   };
   await db.requests.insertOne(doc);
+
+  if (intent === "draft") return (await hydrate(db, actor, [doc]))[0];
 
   // Post-commit side effects (never block the employee).
   const dl = await syncExternal(() => integrations.documentflow.startApproval(doc, me));
   doc.integration = { documentolog: dl };
   await db.requests.updateOne({ _id: doc._id }, { $set: { integration: doc.integration } });
 
-  const label = TYPE_LABEL[type].toLowerCase();
-  await notify(db, me._id, {
-    kind: "request",
-    title: "Request submitted",
-    body: `Your ${label} request ${doc._id} (${describe(doc)}) was sent to ${(await db.employees.findOne({ _id: approverId }))?.fullName ?? "your approver"}.`,
-    href: `/requests/${doc._id}`,
-  });
-  await notify(db, approverId, {
-    kind: "request",
-    title: `New ${label} request`,
-    body: `${me.fullName} submitted a ${label} request (${doc._id}): ${describe(doc)}.`,
-    href: "/approvals",
-  });
+  await notifySubmitted(db, doc, me);
 
   return (await hydrate(db, actor, [doc]))[0];
 }
@@ -301,7 +346,7 @@ export async function actOnRequest(
   if (typeof input !== "object" || input === null) throw badRequest("Invalid request body.");
   const { action, comment: rawComment } = input as { action?: unknown; comment?: unknown };
   if (typeof action !== "string" || !(action in TARGET_STATUS)) {
-    throw badRequest("Unknown action.", { action: "Use start_review, approve, reject or cancel" });
+    throw badRequest("Unknown action.", { action: "Use submit, start_review, approve, reject or cancel" });
   }
   const act = action as RequestAction;
 
@@ -309,14 +354,17 @@ export async function actOnRequest(
   const doc = await db.requests.findOne({ _id: id });
   if (!doc) throw notFound("Request not found.");
   const emp = await db.employees.findOne({ _id: doc.employeeId });
-  if (!emp || !canViewEmployee(actor, emp)) throw forbidden("You can't act on this request.");
+  if (!emp || !canViewEmployee(actor, emp) || (!wasSubmitted(doc) && actor.id !== doc.employeeId)) {
+    throw forbidden("You can't act on this request.");
+  }
 
   // Role check first (403), then state check (409).
-  const mayDoThis = act === "cancel" ? actor.id === doc.employeeId : canDecideRequestOf(actor, emp);
+  const ownerAction = act === "submit" || act === "cancel";
+  const mayDoThis = ownerAction ? actor.id === doc.employeeId : canDecideRequestOf(actor, emp);
   if (!mayDoThis) {
     throw forbidden(
-      act === "cancel"
-        ? "Only the requester can cancel a request."
+      ownerAction
+        ? "Only the requester can submit or cancel this request."
         : actor.id === doc.employeeId
           ? "You can't approve or reject your own request."
           : "You aren't an approver for this employee.",
@@ -325,6 +373,8 @@ export async function actOnRequest(
   if (!allowedRequestActions(actor, doc, emp).includes(act)) {
     throw conflict(`This request is already ${doc.status.replace("_", " ")}; it can't be ${TARGET_STATUS[act]}.`);
   }
+
+  if (act === "submit") await validateDraftForSubmission(db, emp, doc);
 
   const comment = text(rawComment, "comment", act === "reject" ? 3 : 0, 300, act === "reject");
 
@@ -364,7 +414,9 @@ export async function actOnRequest(
   // External systems (mock today). Post-commit, failure-tolerant.
   const integration: IntegrationRefs = { ...doc.integration };
   const updated = { ...doc, status: toStatus };
-  if (act === "approve" || act === "reject" || act === "cancel") {
+  if (act === "submit") {
+    integration.documentolog = await syncExternal(() => integrations.documentflow.startApproval(updated, emp));
+  } else if ((act === "approve" || act === "reject" || act === "cancel") && doc.status !== "draft") {
     integration.documentolog = await syncExternal(() =>
       integrations.documentflow.finishApproval(updated, toStatus as "approved" | "rejected" | "cancelled"),
     );
@@ -382,14 +434,16 @@ export async function actOnRequest(
 
   // Notifications.
   const label = TYPE_LABEL[doc.type].toLowerCase();
-  if (act === "cancel") {
+  if (act === "submit") {
+    await notifySubmitted(db, updated, emp);
+  } else if (act === "cancel" && doc.status !== "draft") {
     await notify(db, doc.approverId, {
       kind: "request",
       title: "Request cancelled",
       body: `${emp.fullName} cancelled their ${label} request ${doc._id}.`,
       href: "/approvals",
     });
-  } else {
+  } else if (act !== "cancel") {
     const titles: Record<string, string> = {
       start_review: "Your request is in review",
       approve: `Your ${label} request was approved`,

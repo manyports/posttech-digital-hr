@@ -31,6 +31,7 @@ export interface Dict {
   roles: { employee: string; manager: string; hr: string };
   requestType: { vacation: string; salary_advance: string };
   requestStatus: {
+    draft: string;
     submitted: string;
     in_review: string;
     approved: string;
@@ -146,8 +147,10 @@ export interface Dict {
     approvals: string;
     heading: string;
     byYou: string;
+    savedByYou: string;
     live: string;
     canCancel: string;
+    draftActions: string;
     awaitsYou: string;
     details: string;
     employee: string;
@@ -168,6 +171,9 @@ export interface Dict {
     stepDone: string;
   };
   actions: {
+    submit: string;
+    submitTitle: string;
+    submitDone: string;
     start: string;
     startTitle: string;
     startDone: string;
@@ -189,6 +195,10 @@ export interface Dict {
     description: string;
     send: string;
     sending: string;
+    saveDraft: string;
+    savingDraft: string;
+    draftSaved: string;
+    draftSavedHint: string;
     sent: string;
     sentTo: string;
     network: string;
@@ -485,6 +495,7 @@ const ru: Dict = {
   roles: { employee: "Сотрудник", manager: "Руководитель", hr: "HR / Админ" },
   requestType: { vacation: "Отпуск", salary_advance: "Аванс" },
   requestStatus: {
+    draft: "Черновик",
     submitted: "Отправлено",
     in_review: "На рассмотрении",
     approved: "Одобрено",
@@ -612,8 +623,10 @@ const ru: Dict = {
     approvals: "Согласования",
     heading: "Заявка: {type}",
     byYou: "Подана вами",
+    savedByYou: "Сохранена вами",
     live: "В реальном времени",
     canCancel: "Вы можете отозвать эту заявку, пока она открыта.",
+    draftActions: "Черновик виден только вам. Отправьте его руководителю, когда будете готовы.",
     awaitsYou: "Эта заявка ожидает вашего решения.",
     details: "Детали заявки",
     employee: "Сотрудник",
@@ -634,6 +647,9 @@ const ru: Dict = {
     stepDone: "завершено",
   },
   actions: {
+    submit: "Отправить руководителю",
+    submitTitle: "Отправить черновик руководителю?",
+    submitDone: "Заявка отправлена. Руководитель уведомлен.",
     start: "Взять в работу",
     startTitle: "Начать рассмотрение заявки?",
     startDone: "Рассмотрение начато. Сотрудник уведомлен.",
@@ -655,6 +671,10 @@ const ru: Dict = {
     description: "Заявка сначала поступает вашему руководителю. Вы сможете отслеживать каждый этап на странице заявки.",
     send: "Отправить заявку",
     sending: "Отправка…",
+    saveDraft: "Сохранить черновик",
+    savingDraft: "Сохранение…",
+    draftSaved: "Черновик сохранён",
+    draftSavedHint: "Заявка {id} сохранена и пока видна только вам.",
     sent: "Заявка отправлена",
     sentTo: "Заявка {id} направлена: {name}.",
     network: "Ошибка сети.",
@@ -957,6 +977,7 @@ const kk: Dict = {
   roles: { employee: "Қызметкер", manager: "Басшы", hr: "HR / Әкімші" },
   requestType: { vacation: "Демалыс", salary_advance: "Аванс" },
   requestStatus: {
+    draft: "Жоба",
     submitted: "Жіберілді",
     in_review: "Қаралуда",
     approved: "Мақұлданды",
@@ -1084,8 +1105,10 @@ const kk: Dict = {
     approvals: "Келісу",
     heading: "Өтінім: {type}",
     byYou: "Сіз бердіңіз",
+    savedByYou: "Сіз сақтадыңыз",
     live: "Нақты уақытта",
     canCancel: "Өтінім ашық тұрғанда оны кері қайтара аласыз.",
+    draftActions: "Жоба тек сізге көрінеді. Дайын болғанда оны басшыға жіберіңіз.",
     awaitsYou: "Бұл өтінім сіздің шешіміңізді күтуде.",
     details: "Өтінім мәліметі",
     employee: "Қызметкер",
@@ -1106,6 +1129,9 @@ const kk: Dict = {
     stepDone: "аяқталды",
   },
   actions: {
+    submit: "Басшыға жіберу",
+    submitTitle: "Жобаны басшыға жіберу керек пе?",
+    submitDone: "Өтінім жіберілді. Басшыға хабар берілді.",
     start: "Жұмысқа алу",
     startTitle: "Өтінімді қарауды бастау керек пе?",
     startDone: "Қарау басталды. Қызметкерге хабар жіберілді.",
@@ -1127,6 +1153,10 @@ const kk: Dict = {
     description: "Өтінім алдымен басшыңызға түседі. Әр кезеңді өтінім бетінде көресіз.",
     send: "Өтінім жіберу",
     sending: "Жіберілуде…",
+    saveDraft: "Жобаны сақтау",
+    savingDraft: "Сақталуда…",
+    draftSaved: "Жоба сақталды",
+    draftSavedHint: "{id} өтінімі сақталды және әзірге тек сізге көрінеді.",
     sent: "Өтінім жіберілді",
     sentTo: "{id} өтінімі {name} адамға жіберілді.",
     network: "Желі қатесі.",

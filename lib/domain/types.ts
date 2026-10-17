@@ -61,6 +61,7 @@ export interface ProfileView extends EmployeeSummary {
 export type RequestType = "vacation" | "salary_advance";
 
 export type RequestStatus =
+  | "draft"
   | "submitted"
   | "in_review"
   | "approved"
@@ -112,7 +113,7 @@ export interface HrRequestDoc {
   integration: IntegrationRefs;
 }
 
-export type RequestAction = "start_review" | "approve" | "reject" | "cancel";
+export type RequestAction = "submit" | "start_review" | "approve" | "reject" | "cancel";
 
 export interface RequestView {
   id: string;

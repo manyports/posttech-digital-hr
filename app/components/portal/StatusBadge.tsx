@@ -47,6 +47,7 @@ export function Pill({
 }
 
 const requestTone: Record<RequestStatus, keyof typeof tones> = {
+  draft: "neutral",
   submitted: "info",
   in_review: "warn",
   approved: "good",

@@ -18,7 +18,7 @@ type Filter = "all" | "open" | "approved" | "rejected";
 
 const matchers: Record<Filter, (s: RequestStatus) => boolean> = {
   all: () => true,
-  open: (s) => s === "submitted" || s === "in_review",
+  open: (s) => s === "draft" || s === "submitted" || s === "in_review",
   approved: (s) => s === "approved",
   rejected: (s) => s === "rejected" || s === "cancelled",
 };

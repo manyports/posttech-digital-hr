@@ -61,7 +61,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
               <StatusBadge status={r.status} />
             </div>
             <p className="text-[13px] text-hero-muted mt-1">
-              {r.id} · {mine ? m.request.byYou : r.employee.fullName} · {fmtDateTime(r.createdAt, locale)}
+              {r.id} · {mine ? (r.status === "draft" ? m.request.savedByYou : m.request.byYou) : r.employee.fullName} · {fmtDateTime(r.createdAt, locale)}
             </p>
           </div>
           <Pill tone="dark" pulse>
@@ -76,7 +76,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
         {r.allowedActions.length > 0 && (
           <div className="px-5 sm:px-6 py-4 border-t border-hero-border bg-hero-cell-bg/60 flex flex-wrap items-center justify-between gap-3">
             <p className="text-[12.5px] text-hero-muted">
-              {mine ? m.request.canCancel : m.request.awaitsYou}
+              {mine ? (r.status === "draft" ? m.request.draftActions : m.request.canCancel) : m.request.awaitsYou}
             </p>
             <RequestActions request={r} onDone={reload} />
           </div>

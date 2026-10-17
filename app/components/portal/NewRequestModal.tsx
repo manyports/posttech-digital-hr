@@ -61,20 +61,22 @@ export function NewRequestModal({
   const days =
     isValidDate(startDate) && isValidDate(endDate) && endDate >= startDate ? workingDays(startDate, endDate) : null;
 
-  async function submit() {
+  async function save(intent: "draft" | "submit") {
     setBusy(true);
     setError(null);
     try {
-      const body =
+      const payload =
         kind === "vacation"
           ? { type: kind, startDate, endDate, comment: comment || undefined }
           : { type: kind, amount: amount === "" ? undefined : Number(amount), reason };
-      const { request } = await post<{ request: RequestView }>("/api/requests", body);
-      toast({
-        title: m.modal.sent,
-        description: tx(m.modal.sentTo, { id: request.id, name: request.approver.fullName }),
-        variant: "success",
-      });
+      const { request } = await post<{ request: RequestView }>("/api/requests", { ...payload, intent });
+      toast(intent === "draft"
+        ? { title: m.modal.draftSaved, description: tx(m.modal.draftSavedHint, { id: request.id }), variant: "success" }
+        : {
+            title: m.modal.sent,
+            description: tx(m.modal.sentTo, { id: request.id, name: request.approver.fullName }),
+            variant: "success",
+          });
       onClose();
       setStartDate("");
       setEndDate("");
@@ -103,7 +105,10 @@ export function NewRequestModal({
           <Button variant="ghost" size="sm" onClick={onClose} disabled={busy}>
             {m.common.cancel}
           </Button>
-          <Button variant="primary" size="sm" onClick={() => void submit()} disabled={busy}>
+          <Button variant="outline" size="sm" onClick={() => void save("draft")} disabled={busy}>
+            {busy ? m.modal.savingDraft : m.modal.saveDraft}
+          </Button>
+          <Button variant="primary" size="sm" onClick={() => void save("submit")} disabled={busy}>
             {busy ? m.modal.sending : m.modal.send}
           </Button>
         </>
