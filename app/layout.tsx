@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ru" className={`${archivo.variable} h-full antialiased`}>
-      <body className="min-h-full bg-[#EBEBEB] font-sans text-neutral-900">
+      <body className="page-matte min-h-full font-sans tracking-[-0.05em] selection:bg-primary/10 selection:text-primary">
         <Providers>{children}</Providers>
       </body>
     </html>
