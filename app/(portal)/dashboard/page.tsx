@@ -124,15 +124,15 @@ export default function DashboardPage() {
                 <h2 id="recent" className="text-[14px] font-semibold">
                   Недавние заявки
                 </h2>
-                <Link href="/requests" className="text-[12.5px] text-neutral-500 hover:text-neutral-900 link-slide">
+                <Link href="/requests" className="text-[12.5px] text-hero-muted hover:text-hero-foreground link-slide">
                   Все заявки
                 </Link>
               </div>
               {data.recentRequests.length === 0 ? (
                 <Panel padding="p-8">
-                  <p className="text-[13px] text-neutral-500 text-center">
+                  <p className="text-[13px] text-hero-muted text-center">
                     Заявок пока нет.{" "}
-                    <Link href="/requests?new=vacation" className="font-medium text-neutral-900 underline underline-offset-2">
+                    <Link href="/requests?new=vacation" className="font-medium text-hero-foreground underline underline-offset-2">
                       Подать первую заявку
                     </Link>
                     .
@@ -149,7 +149,7 @@ export default function DashboardPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-[14px] font-semibold tracking-[-0.01em]">{data.training.next.course.title}</p>
-                      <p className="text-[12px] text-neutral-400 mt-0.5">Срок до {fmtDate(data.training.next.dueDate)}</p>
+                      <p className="text-[12px] text-tertiary mt-0.5">Срок до {fmtDate(data.training.next.dueDate)}</p>
                     </div>
                     <CourseStatusBadge status={data.training.next.status} overdue={data.training.next.overdue} />
                   </div>
@@ -161,7 +161,7 @@ export default function DashboardPage() {
                   </Link>
                 </div>
               ) : (
-                <p className="text-[13px] text-neutral-500">Все курсы пройдены. Отличная работа!</p>
+                <p className="text-[13px] text-hero-muted">Все курсы пройдены. Отличная работа!</p>
               )}
             </Panel>
           </div>
@@ -174,8 +174,8 @@ export default function DashboardPage() {
 function Kpi({ label, value, href, warn }: { label: string; value: React.ReactNode; href?: string; warn?: boolean }) {
   const inner = (
     <>
-      <dt className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400">{label}</dt>
-      <dd className={["mt-1 text-[24px] font-semibold tabular-nums tracking-[-0.03em]", warn ? "text-amber-600" : "text-neutral-900"].join(" ")}>{value}</dd>
+      <dt className="text-[11px] font-semibold uppercase tracking-widest text-tertiary">{label}</dt>
+      <dd className={["mt-1 text-[24px] font-semibold tabular-nums tracking-[-0.03em]", warn ? "text-error" : "text-hero-foreground"].join(" ")}>{value}</dd>
     </>
   );
   return href ? (

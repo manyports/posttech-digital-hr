@@ -101,11 +101,11 @@ export default function HrPage() {
           {esc.data && shown.length === 0 && (
             <Panel padding="p-10" as="div">
               <div className="text-center">
-                <div className="w-11 h-11 rounded-xl bg-neutral-100 text-neutral-500 flex items-center justify-center mx-auto mb-3">
+                <div className="w-11 h-11 rounded-xl bg-hero-cell-bg text-hero-muted flex items-center justify-center mx-auto mb-3">
                   <InboxIcon size={20} />
                 </div>
                 <p className="text-[14px] font-semibold">{tab === "open" ? "Нет открытых вопросов" : "Ответов пока нет"}</p>
-                <p className="text-[13px] text-neutral-500 mt-1">
+                <p className="text-[13px] text-hero-muted mt-1">
                   {tab === "open" ? "Когда Al Jana не может найти ответ и сотрудник передает вопрос в HR, он появляется здесь." : "Отправленные вами ответы отображаются здесь."}
                 </p>
               </div>
@@ -115,15 +115,15 @@ export default function HrPage() {
           {shown.map((e) => (
             <Panel key={e.id} padding="p-5" as="div">
               <div className="flex items-center justify-between gap-3">
-                <span className="text-[12px] text-neutral-400 tabular-nums">
+                <span className="text-[12px] text-tertiary tabular-nums">
                   {e.id} · {e.employee.fullName} · {fmtRelative(e.createdAt)}
                 </span>
                 <Pill tone={e.status === "answered" ? "good" : "warn"}>{e.status === "answered" ? "Отвечено" : "Ожидает ответа"}</Pill>
               </div>
               <p className="text-[15px] font-semibold tracking-[-0.01em] mt-2 leading-snug">{e.question}</p>
               {e.answer && (
-                <p className="mt-3 text-[13.5px] text-neutral-600 leading-relaxed bg-neutral-50 rounded-xl px-4 py-3">
-                  <span className="block text-[10.5px] font-semibold uppercase tracking-widest text-neutral-400 mb-1">Ваш ответ</span>
+                <p className="mt-3 text-[13.5px] text-hero-muted leading-relaxed bg-hero-cell-bg rounded-xl px-4 py-3">
+                  <span className="block text-[10.5px] font-semibold uppercase tracking-widest text-tertiary mb-1">Ваш ответ</span>
                   {e.answer}
                 </p>
               )}
@@ -140,26 +140,26 @@ export default function HrPage() {
 
         <div className="flex flex-col gap-6 min-w-0">
           <Panel title="Аналитика Al Jana" description="Помогает улучшать базу знаний" padding="p-0">
-            <dl className="grid grid-cols-2 border-b border-neutral-100 [&>div+div]:border-l [&>div]:border-neutral-100">
+            <dl className="grid grid-cols-2 border-b border-hero-border [&>div+div]:border-l [&>div]:border-hero-border">
               <div className="px-5 py-4">
-                <dt className="text-[10.5px] font-semibold uppercase tracking-widest text-neutral-400">Вопросов задано</dt>
+                <dt className="text-[10.5px] font-semibold uppercase tracking-widest text-tertiary">Вопросов задано</dt>
                 <dd className="mt-1 text-[22px] font-semibold tabular-nums tracking-[-0.03em]">{insights.data?.total ?? "-"}</dd>
               </div>
               <div className="px-5 py-4">
-                <dt className="text-[10.5px] font-semibold uppercase tracking-widest text-neutral-400">Ответов из базы</dt>
+                <dt className="text-[10.5px] font-semibold uppercase tracking-widest text-tertiary">Ответов из базы</dt>
                 <dd className="mt-1 text-[22px] font-semibold tabular-nums tracking-[-0.03em]">{rate === null ? "-" : `${rate}%`}</dd>
               </div>
             </dl>
             <div className="px-5 py-3">
-              <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400 mb-2">Без ответа, последние</p>
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-tertiary mb-2">Без ответа, последние</p>
               {insights.data && insights.data.unanswered.length === 0 && (
-                <p className="text-[13px] text-neutral-500 py-1">Нет. База знаний покрыла все заданные вопросы.</p>
+                <p className="text-[13px] text-hero-muted py-1">Нет. База знаний покрыла все заданные вопросы.</p>
               )}
               <ul className="flex flex-col gap-2">
                 {insights.data?.unanswered.slice(0, 8).map((u) => (
                   <li key={u.question} className="flex items-start justify-between gap-3 text-[13px]">
-                    <span className="text-neutral-700 leading-snug">{u.question}</span>
-                    <span className="text-[11.5px] text-neutral-400 tabular-nums shrink-0">×{u.count}</span>
+                    <span className="text-hero-foreground leading-snug">{u.question}</span>
+                    <span className="text-[11.5px] text-tertiary tabular-nums shrink-0">×{u.count}</span>
                   </li>
                 ))}
               </ul>
@@ -167,7 +167,7 @@ export default function HrPage() {
           </Panel>
 
           <Panel title="Управление демо" description="Только для прототипа">
-            <p className="text-[13px] text-neutral-500 leading-relaxed">
+            <p className="text-[13px] text-hero-muted leading-relaxed">
               Сбросьте все заявки, курсы, уведомления и вопросы до исходного состояния демо-данных, чтобы пройти сценарии заново.
             </p>
             <div className="mt-3">
@@ -194,7 +194,7 @@ export default function HrPage() {
         }
       >
         <Textarea label="Ваш ответ" value={reply} onChange={(e) => setReply(e.target.value)} rows={4} maxLength={1000} fullWidth />
-        {error && <p role="alert" className="text-[12.5px] text-red-600 font-medium mt-2">{error}</p>}
+        {error && <p role="alert" className="text-[12.5px] text-error font-medium mt-2">{error}</p>}
       </Modal>
 
       <Modal

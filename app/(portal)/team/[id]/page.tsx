@@ -27,7 +27,7 @@ export default function TeamMemberPage({ params }: { params: Promise<{ id: strin
   const [assignOpen, setAssignOpen] = useState(false);
 
   const back = (
-    <Link href="/team" className="inline-flex items-center gap-1.5 text-[13px] text-neutral-500 hover:text-neutral-900 transition-colors w-fit">
+    <Link href="/team" className="inline-flex items-center gap-1.5 text-[13px] text-hero-muted hover:text-hero-foreground transition-colors w-fit">
       <ArrowLeftIcon size={13} /> Команда
     </Link>
   );
@@ -57,17 +57,17 @@ export default function TeamMemberPage({ params }: { params: Promise<{ id: strin
                 <h1 className="text-[22px] font-semibold tracking-[-0.025em]">{p.fullName}</h1>
                 <Badge variant="muted">{ROLE_LABEL[p.role]}</Badge>
               </div>
-              <p className="text-[13.5px] text-neutral-500 mt-0.5">
+              <p className="text-[13.5px] text-hero-muted mt-0.5">
                 {p.position} · {p.department} · в компании с {fmtDate(p.hireDate)}
               </p>
-              <p className="text-[12.5px] text-neutral-400 mt-0.5">{p.email}</p>
+              <p className="text-[12.5px] text-tertiary mt-0.5">{p.email}</p>
             </div>
           </div>
           <Button variant="primary" size="sm" onClick={() => setAssignOpen(true)}>
             <PlusIcon size={14} /> Назначить курс
           </Button>
         </div>
-        <dl className="grid grid-cols-3 border-t border-neutral-100 [&>div+div]:border-l [&>div]:border-neutral-100">
+        <dl className="grid grid-cols-3 border-t border-hero-border [&>div+div]:border-l [&>div]:border-hero-border">
           <Stat label="Остаток отпуска" value={`${p.vacation.remaining} дн.`} />
           <Stat label="На рассмотрении" value={`${p.vacation.pending} дн.`} />
           <Stat label="Ежегодный отпуск" value={`${p.vacation.entitlement} дн.`} />
@@ -75,9 +75,9 @@ export default function TeamMemberPage({ params }: { params: Promise<{ id: strin
       </Panel>
 
       <section aria-labelledby="req" className="flex flex-col gap-3">
-        <h2 id="req" className="text-[14px] font-semibold">Заявки <span className="text-neutral-400 font-normal ml-1">{requests.length}</span></h2>
+        <h2 id="req" className="text-[14px] font-semibold">Заявки <span className="text-tertiary font-normal ml-1">{requests.length}</span></h2>
         {requests.length === 0 ? (
-          <Panel padding="p-6"><p className="text-[13px] text-neutral-500">Нет заявок.</p></Panel>
+          <Panel padding="p-6"><p className="text-[13px] text-hero-muted">Нет заявок.</p></Panel>
         ) : (
           requests.map((r) => (
             <RequestCard key={r.id} request={r} footer={r.allowedActions.length > 0 ? <RequestActions request={r} onDone={reload} compact /> : undefined} />
@@ -87,17 +87,17 @@ export default function TeamMemberPage({ params }: { params: Promise<{ id: strin
 
       <Panel title="Обучение" description={`${training.filter((t) => t.status === "completed").length} из ${training.length} завершено`} padding="p-0">
         {training.length === 0 ? (
-          <p className="p-5 text-[13px] text-neutral-500">Нет назначенных курсов.</p>
+          <p className="p-5 text-[13px] text-hero-muted">Нет назначенных курсов.</p>
         ) : (
-          <ul className="divide-y divide-neutral-100">
+          <ul className="divide-y divide-hero-border">
             {training.map((t) => (
               <li key={t.id} className="flex items-center gap-3 px-5 py-3.5">
                 <div className="flex-1 min-w-0">
                   <p className="text-[13.5px] font-medium truncate">{t.course.title}</p>
                   <div className="mt-1.5 flex items-center gap-2.5">
                     <div className="w-28"><Progress value={t.progress} /></div>
-                    <span className="text-[11.5px] text-neutral-400 tabular-nums">{t.progress}%</span>
-                    <span className="text-[11.5px] text-neutral-400">
+                    <span className="text-[11.5px] text-tertiary tabular-nums">{t.progress}%</span>
+                    <span className="text-[11.5px] text-tertiary">
                       {t.status === "completed" ? `балл: ${t.bestScore}%` : `срок: ${fmtDate(t.dueDate)}`}
                     </span>
                   </div>
@@ -117,7 +117,7 @@ export default function TeamMemberPage({ params }: { params: Promise<{ id: strin
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="px-5 py-4">
-      <dt className="text-[10.5px] font-semibold uppercase tracking-widest text-neutral-400">{label}</dt>
+      <dt className="text-[10.5px] font-semibold uppercase tracking-widest text-tertiary">{label}</dt>
       <dd className="mt-1 text-[20px] font-semibold tabular-nums tracking-[-0.03em]">{value}</dd>
     </div>
   );
@@ -187,7 +187,7 @@ function AssignModal({ open, employeeId, employeeName, onClose }: { open: boolea
           options={courses.map((c) => ({ value: c.id, label: `${c.title}${c.mandatory ? " (обязательный)" : ""}` }))}
         />
         <Input label="Срок прохождения (необязательно, по умолчанию 30 дней)" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} fullWidth />
-        {error && <p role="alert" className="text-[12.5px] text-red-600 font-medium">{error}</p>}
+        {error && <p role="alert" className="text-[12.5px] text-error font-medium">{error}</p>}
       </div>
     </Modal>
   );

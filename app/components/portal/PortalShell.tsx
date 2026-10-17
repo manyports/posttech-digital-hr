@@ -17,6 +17,7 @@ import {
   HomeIcon,
   InboxIcon,
   LogoutIcon,
+  LogoMark,
   MenuIcon,
   SparkleIcon,
   UserIcon,
@@ -80,7 +81,7 @@ function NavList({ user, onNavigate }: { user: SessionUser; onNavigate?: () => v
       {sections.map((section, si) => (
         <div key={si} className="flex flex-col gap-0.5">
           {section.title && (
-            <p className="px-2.5 pt-1 pb-1.5 text-[10px] font-semibold text-neutral-400 uppercase tracking-widest">
+            <p className="px-2.5 pt-1 pb-1.5 text-[10px] font-semibold text-tertiary uppercase tracking-widest">
               {section.title}
             </p>
           )}
@@ -96,8 +97,8 @@ function NavList({ user, onNavigate }: { user: SessionUser; onNavigate?: () => v
                   "relative w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-[13px] font-medium",
                   "transition-all duration-200",
                   active
-                    ? "bg-neutral-900 text-white"
-                    : "text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100",
+                    ? "bg-hero-foreground text-hero-on-foreground"
+                    : "text-hero-muted hover:text-hero-foreground hover-wipe",
                 ].join(" ")}
                 style={
                   active
@@ -108,7 +109,7 @@ function NavList({ user, onNavigate }: { user: SessionUser; onNavigate?: () => v
                 <span
                   className={[
                     "shrink-0 w-[22px] h-[22px] rounded-md flex items-center justify-center transition-colors duration-200",
-                    active ? "bg-white/15" : "bg-neutral-100 text-neutral-500",
+                    active ? "bg-hero-on-foreground/15" : "bg-hero-cell-bg text-hero-muted",
                   ].join(" ")}
                 >
                   {item.icon}
@@ -118,7 +119,7 @@ function NavList({ user, onNavigate }: { user: SessionUser; onNavigate?: () => v
                   <span
                     className={[
                       "shrink-0 text-[11px] font-semibold px-1.5 py-0.5 rounded-md tabular-nums leading-none",
-                      active ? "bg-white/20 text-white" : "bg-neutral-900 text-white",
+                      active ? "bg-hero-elevated/20 text-hero-on-foreground" : "bg-hero-foreground text-hero-on-foreground",
                     ].join(" ")}
                   >
                     {item.badge}
@@ -136,10 +137,10 @@ function NavList({ user, onNavigate }: { user: SessionUser; onNavigate?: () => v
 function Brand() {
   return (
     <Link href="/dashboard" className="flex items-center gap-2.5 shrink-0 group/brand">
-      <span className="w-7 h-7 rounded-lg bg-neutral-900 text-white flex items-center justify-center text-[13px] font-semibold tracking-tight">
-        J
+      <span className="w-7 h-7 rounded-lg bg-logo text-hero-on-foreground flex items-center justify-center">
+        <LogoMark size={16} />
       </span>
-      <span className="text-[14px] font-semibold tracking-tight text-neutral-900 transition-opacity group-hover/brand:opacity-60">
+      <span className="text-[14px] font-semibold tracking-tight text-hero-foreground transition-opacity group-hover/brand:opacity-60">
         Digital HR
       </span>
     </Link>
@@ -164,15 +165,11 @@ function Shell({ user, children }: { user: SessionUser; children: React.ReactNod
     <div className="min-h-screen">
       <header className="animate-header-in sticky top-0 z-30 px-4 sm:px-6 pt-3 pb-2 pointer-events-none">
         <div
-          className="max-w-6xl mx-auto bg-white rounded-2xl px-3 sm:px-4 py-2.5 flex items-center justify-between gap-3 pointer-events-auto"
-          style={{
-            boxShadow:
-              "0 1px 2px rgba(17,17,17,0.04), 0 4px 16px -4px rgba(17,17,17,0.06), 0 0 0 1px rgba(17,17,17,0.05), inset 0 1px 0 rgba(255,255,255,0.9)",
-          }}
+          className="surface-matte max-w-6xl mx-auto rounded-2xl px-3 sm:px-4 py-2.5 flex items-center justify-between gap-3 pointer-events-auto"
         >
           <div className="flex items-center gap-2">
             <button
-              className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg text-neutral-700 hover:bg-neutral-100 transition-colors cursor-pointer"
+              className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg text-hero-foreground hover-wipe transition-colors cursor-pointer"
               onClick={() => setNavOpen(true)}
               aria-label="Открыть меню"
             >
@@ -185,11 +182,11 @@ function Shell({ user, children }: { user: SessionUser; children: React.ReactNod
             <Link
               href="/notifications"
               aria-label={unread ? `Уведомления (${unread} непрочитанных)` : "Уведомления"}
-              className="relative w-8 h-8 flex items-center justify-center rounded-lg text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
+              className="relative w-8 h-8 flex items-center justify-center rounded-lg text-hero-muted hover:text-hero-foreground hover-wipe transition-colors"
             >
               <BellIcon size={17} />
               {unread > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-neutral-900 text-white text-[10px] font-semibold flex items-center justify-center tabular-nums ring-2 ring-white">
+                <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-hero-foreground text-hero-on-foreground text-[10px] font-semibold flex items-center justify-center tabular-nums ring-2 ring-white">
                   {unread > 9 ? "9+" : unread}
                 </span>
               )}
@@ -208,13 +205,13 @@ function Shell({ user, children }: { user: SessionUser; children: React.ReactNod
               ]}
               trigger={
                 <button
-                  className="flex items-center gap-2.5 pl-1 pr-2 py-1 rounded-xl hover:bg-neutral-100 transition-colors cursor-pointer"
+                  className="flex items-center gap-2.5 pl-1 pr-2 py-1 rounded-xl hover-wipe transition-colors cursor-pointer"
                   aria-label="Меню аккаунта"
                 >
                   <Avatar name={user.fullName} size="sm" />
                   <span className="hidden sm:flex flex-col items-start leading-tight">
-                    <span className="text-[12.5px] font-semibold text-neutral-900">{user.fullName}</span>
-                    <span className="text-[10.5px] text-neutral-400">{ROLE_LABEL[user.role]}</span>
+                    <span className="text-[12.5px] font-semibold text-hero-foreground">{user.fullName}</span>
+                    <span className="text-[10.5px] text-tertiary">{ROLE_LABEL[user.role]}</span>
                   </span>
                 </button>
               }
@@ -226,7 +223,7 @@ function Shell({ user, children }: { user: SessionUser; children: React.ReactNod
       <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-20 pt-4 grid grid-cols-1 lg:grid-cols-[224px_minmax(0,1fr)] gap-6 items-start">
         <aside className="hidden lg:block sticky top-[76px]">
           <div
-            className="bg-white rounded-2xl p-2"
+            className="bg-hero-elevated rounded-2xl p-2"
             style={{
               boxShadow:
                 "0 1px 2px rgba(17,17,17,0.04), 0 2px 8px -2px rgba(17,17,17,0.04), 0 0 0 1px rgba(17,17,17,0.05), inset 0 1px 0 rgba(255,255,255,0.9)",
@@ -234,7 +231,7 @@ function Shell({ user, children }: { user: SessionUser; children: React.ReactNod
           >
             <NavList user={user} />
           </div>
-          <p className="text-[11px] text-neutral-400 mt-3 px-2 leading-relaxed">
+          <p className="text-[11px] text-tertiary mt-3 px-2 leading-relaxed">
             Прототип · все данные вымышлены
           </p>
         </aside>

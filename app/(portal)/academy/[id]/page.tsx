@@ -97,20 +97,20 @@ export default function CoursePlayerPage({ params }: { params: Promise<{ id: str
               <CourseStatusBadge status={a.status} overdue={a.overdue} />
             </div>
             <h1 className="text-[24px] font-semibold tracking-[-0.025em] leading-tight">{a.course.title}</h1>
-            <p className="text-[13.5px] text-neutral-500 mt-1.5 max-w-2xl leading-relaxed">{a.course.description}</p>
-            <p className="text-[12px] text-neutral-400 mt-2">
+            <p className="text-[13.5px] text-hero-muted mt-1.5 max-w-2xl leading-relaxed">{a.course.description}</p>
+            <p className="text-[12px] text-tertiary mt-2">
               Назначил(а) {a.assignedBy.fullName} · срок до {fmtDate(a.dueDate)} · проходной балл {a.course.passScore}%
             </p>
           </div>
           <div className="w-full sm:w-60">
             <Progress value={a.progress} showValue label="Общий прогресс" />
-            <p className="text-[11.5px] text-neutral-400 mt-1.5">
+            <p className="text-[11.5px] text-tertiary mt-1.5">
               {a.completedLessons} из {a.course.lessonCount} уроков{a.status === "completed" ? " · тест сдан" : " · затем тест"}
             </p>
           </div>
         </div>
         {!isLearner && (
-          <p className="px-5 sm:px-6 py-2.5 text-[12.5px] bg-neutral-50 border-t border-neutral-100 text-neutral-500">
+          <p className="px-5 sm:px-6 py-2.5 text-[12.5px] bg-hero-cell-bg border-t border-hero-border text-hero-muted">
             Вы просматриваете этот курс как руководитель/HR. Проходить уроки может только назначенный сотрудник.
           </p>
         )}
@@ -128,13 +128,13 @@ export default function CoursePlayerPage({ params }: { params: Promise<{ id: str
                     aria-current={active ? "step" : undefined}
                     className={[
                       "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors cursor-pointer",
-                      active ? "bg-neutral-900 text-white" : "hover:bg-neutral-100 text-neutral-700",
+                      active ? "bg-hero-foreground text-hero-on-foreground" : "hover-wipe text-hero-foreground",
                     ].join(" ")}
                   >
                     <StepDot done={l.completed} active={active} n={i + 1} />
                     <span className="flex-1 min-w-0">
                       <span className="block text-[13px] font-medium leading-snug">{l.title}</span>
-                      <span className={["block text-[11px] mt-0.5", active ? "text-white/60" : "text-neutral-400"].join(" ")}>{l.durationMin} мин.</span>
+                      <span className={["block text-[11px] mt-0.5", active ? "text-hero-on-foreground/60" : "text-tertiary"].join(" ")}>{l.durationMin} мин.</span>
                     </span>
                   </button>
                 </li>
@@ -146,20 +146,20 @@ export default function CoursePlayerPage({ params }: { params: Promise<{ id: str
                 aria-current={view.kind === "test" ? "step" : undefined}
                 className={[
                   "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors cursor-pointer",
-                  view.kind === "test" ? "bg-neutral-900 text-white" : "hover:bg-neutral-100 text-neutral-700",
+                  view.kind === "test" ? "bg-hero-foreground text-hero-on-foreground" : "hover-wipe text-hero-foreground",
                 ].join(" ")}
               >
                 <span
                   className={[
                     "w-6 h-6 rounded-full flex items-center justify-center shrink-0",
-                    a.status === "completed" ? "bg-emerald-600 text-white" : view.kind === "test" ? "bg-white/15" : "bg-neutral-100 text-neutral-500",
+                    a.status === "completed" ? "bg-primary text-hero-on-foreground" : view.kind === "test" ? "bg-hero-on-foreground/15" : "bg-hero-cell-bg text-hero-muted",
                   ].join(" ")}
                 >
                   {a.status === "completed" ? <CheckIcon size={12} /> : a.testUnlocked ? <span className="text-[11px] font-semibold">?</span> : <LockIcon size={12} />}
                 </span>
                 <span className="flex-1">
                   <span className="block text-[13px] font-medium">Итоговый тест</span>
-                  <span className={["block text-[11px] mt-0.5", view.kind === "test" ? "text-white/60" : "text-neutral-400"].join(" ")}>
+                  <span className={["block text-[11px] mt-0.5", view.kind === "test" ? "text-hero-on-foreground/60" : "text-tertiary"].join(" ")}>
                     {a.course.questionCount} вопросов
                   </span>
                 </span>
@@ -192,7 +192,7 @@ export default function CoursePlayerPage({ params }: { params: Promise<{ id: str
 
 function Back() {
   return (
-    <Link href="/academy" className="inline-flex items-center gap-1.5 text-[13px] text-neutral-500 hover:text-neutral-900 transition-colors w-fit">
+    <Link href="/academy" className="inline-flex items-center gap-1.5 text-[13px] text-hero-muted hover:text-hero-foreground transition-colors w-fit">
       <ArrowLeftIcon size={13} /> Jana Academy
     </Link>
   );
@@ -203,7 +203,7 @@ function StepDot({ done, active, n }: { done: boolean; active: boolean; n: numbe
     <span
       className={[
         "w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[11px] font-semibold",
-        done ? "bg-emerald-600 text-white" : active ? "bg-white/15 text-white" : "bg-neutral-100 text-neutral-500",
+        done ? "bg-primary text-hero-on-foreground" : active ? "bg-hero-on-foreground/15 text-hero-on-foreground" : "bg-hero-cell-bg text-hero-muted",
       ].join(" ")}
     >
       {done ? <CheckIcon size={12} /> : n}
@@ -231,36 +231,36 @@ function LessonPanel({
   return (
     <Panel padding="p-0" as="div">
       <article>
-        <header className="px-6 pt-6 pb-4 border-b border-neutral-100">
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400">
+        <header className="px-6 pt-6 pb-4 border-b border-hero-border">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-tertiary">
             Урок {index + 1} из {total} · <ClockIcon size={11} className="inline -mt-0.5" /> {lesson.durationMin} мин.
           </p>
           <h2 className="text-[20px] font-semibold tracking-[-0.02em] mt-1.5">{lesson.title}</h2>
-          <p className="text-[14px] text-neutral-500 mt-1.5 leading-relaxed">{lesson.summary}</p>
+          <p className="text-[14px] text-hero-muted mt-1.5 leading-relaxed">{lesson.summary}</p>
         </header>
 
         <div className="px-6 py-5 flex flex-col gap-4 max-w-2xl">
           {lesson.body.map((para, i) => (
-            <p key={i} className="text-[14.5px] leading-[1.75] text-neutral-700">
+            <p key={i} className="text-[14.5px] leading-[1.75] text-hero-foreground">
               {para}
             </p>
           ))}
         </div>
 
-        <div className="mx-6 mb-6 rounded-xl bg-neutral-50 p-4 ring-1 ring-inset ring-neutral-900/5">
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400 mb-2">Ключевые моменты</p>
+        <div className="mx-6 mb-6 rounded-xl bg-hero-cell-bg p-4 ring-1 ring-inset ring-hero-foreground/5">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-tertiary mb-2">Ключевые моменты</p>
           <ul className="flex flex-col gap-1.5">
             {lesson.keyPoints.map((k) => (
-              <li key={k} className="flex items-start gap-2.5 text-[13.5px] text-neutral-700 leading-snug">
-                <CheckIcon size={14} className="mt-0.5 text-neutral-400 shrink-0" />
+              <li key={k} className="flex items-start gap-2.5 text-[13.5px] text-hero-foreground leading-snug">
+                <CheckIcon size={14} className="mt-0.5 text-tertiary shrink-0" />
                 {k}
               </li>
             ))}
           </ul>
         </div>
 
-        <footer className="px-6 py-4 border-t border-neutral-100 flex flex-wrap items-center justify-between gap-3">
-          {lesson.completed ? <Pill tone="good">Завершено</Pill> : <span className="text-[12.5px] text-neutral-400">Отметьте урок завершенным, чтобы сохранить прогресс.</span>}
+        <footer className="px-6 py-4 border-t border-hero-border flex flex-wrap items-center justify-between gap-3">
+          {lesson.completed ? <Pill tone="good">Завершено</Pill> : <span className="text-[12.5px] text-tertiary">Отметьте урок завершенным, чтобы сохранить прогресс.</span>}
           <div className="flex items-center gap-2">
             {canProgress && !lesson.completed && (
               <Button variant="primary" size="sm" disabled={busy} onClick={onComplete}>
@@ -312,10 +312,10 @@ function TestPanel({ a, isLearner, onChange }: { a: AssignmentDetailView; isLear
 
   const history = a.attempts.length > 0 && (
     <Panel title="Попытки" description="История всех попыток сохраняется" padding="p-0" as="div">
-      <ul className="divide-y divide-neutral-100">
+      <ul className="divide-y divide-hero-border">
         {[...a.attempts].reverse().map((t, i) => (
           <li key={t.at} className="flex items-center justify-between gap-3 px-5 py-3 text-[13px]">
-            <span className="text-neutral-500">
+            <span className="text-hero-muted">
               Попытка {a.attempts.length - i} · {fmtDateTime(t.at)}
             </span>
             <span className="flex items-center gap-3">
@@ -334,11 +334,11 @@ function TestPanel({ a, isLearner, onChange }: { a: AssignmentDetailView; isLear
     return (
       <Panel padding="p-10" as="div">
         <div className="text-center max-w-sm mx-auto">
-          <div className="w-11 h-11 rounded-xl bg-neutral-100 text-neutral-500 flex items-center justify-center mx-auto mb-4">
+          <div className="w-11 h-11 rounded-xl bg-hero-cell-bg text-hero-muted flex items-center justify-center mx-auto mb-4">
             <LockIcon size={20} />
           </div>
           <p className="text-[15px] font-semibold">Тест заблокирован</p>
-          <p className="text-[13px] text-neutral-500 mt-1.5 leading-relaxed">
+          <p className="text-[13px] text-hero-muted mt-1.5 leading-relaxed">
             Пройдите все {a.course.lessonCount} уроков, чтобы открыть тест. Пройдено: {a.completedLessons}.
           </p>
         </div>
@@ -350,39 +350,39 @@ function TestPanel({ a, isLearner, onChange }: { a: AssignmentDetailView; isLear
     return (
       <>
         <Panel padding="p-0" as="div">
-          <div className="p-6 flex flex-wrap items-center gap-5 border-b border-neutral-100">
+          <div className="p-6 flex flex-wrap items-center gap-5 border-b border-hero-border">
             <div
               className={[
-                "w-20 h-20 rounded-2xl flex flex-col items-center justify-center text-white shrink-0",
-                result.passed ? "bg-emerald-600" : "bg-neutral-900",
+                "w-20 h-20 rounded-2xl flex flex-col items-center justify-center text-hero-on-foreground shrink-0",
+                result.passed ? "bg-primary" : "bg-hero-foreground",
               ].join(" ")}
             >
               <span className="text-[26px] font-semibold tabular-nums leading-none">{result.score}%</span>
             </div>
             <div className="min-w-0">
               <h2 className="text-[20px] font-semibold tracking-[-0.02em]">{result.passed ? "Вы сдали тест! Курс завершен." : "В этот раз тест не сдан"}</h2>
-              <p className="text-[13.5px] text-neutral-500 mt-1">
+              <p className="text-[13.5px] text-hero-muted mt-1">
                 {result.correct} из {result.total} верно · проходной балл {result.passScore}%. Ваш результат сохранен.
               </p>
             </div>
           </div>
-          <ul className="divide-y divide-neutral-100">
+          <ul className="divide-y divide-hero-border">
             {a.questions.map((q, i) => {
               const ok = result.review.find((r) => r.questionId === q.id)?.correct;
               return (
                 <li key={q.id} className="flex items-start gap-3 px-6 py-3.5">
-                  <span className={["mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-white", ok ? "bg-emerald-600" : "bg-red-600"].join(" ")}>
+                  <span className={["mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-hero-on-foreground", ok ? "bg-primary" : "bg-error"].join(" ")}>
                     {ok ? <CheckIcon size={11} /> : <XIcon size={10} />}
                   </span>
-                  <p className="text-[13.5px] text-neutral-700 leading-snug">
-                    <span className="text-neutral-400 mr-1.5">{i + 1}.</span>
+                  <p className="text-[13.5px] text-hero-foreground leading-snug">
+                    <span className="text-tertiary mr-1.5">{i + 1}.</span>
                     {q.text}
                   </p>
                 </li>
               );
             })}
           </ul>
-          <div className="px-6 py-4 border-t border-neutral-100 flex justify-end gap-2">
+          <div className="px-6 py-4 border-t border-hero-border flex justify-end gap-2">
             {!result.passed && (
               <Button variant="primary" size="sm" onClick={() => { setResult(null); setAnswers({}); }}>
                 Пройти тест повторно
@@ -405,11 +405,11 @@ function TestPanel({ a, isLearner, onChange }: { a: AssignmentDetailView; isLear
       <>
         <Panel padding="p-8" as="div">
           <div className="text-center max-w-sm mx-auto">
-            <div className="w-11 h-11 rounded-xl bg-emerald-600 text-white flex items-center justify-center mx-auto mb-4">
+            <div className="w-11 h-11 rounded-xl bg-primary text-hero-on-foreground flex items-center justify-center mx-auto mb-4">
               <CheckIcon size={20} />
             </div>
             <p className="text-[15px] font-semibold">Тест сдан с результатом {a.bestScore}%</p>
-            <p className="text-[13px] text-neutral-500 mt-1.5">Завершено {a.completedAt ? fmtDateTime(a.completedAt) : ""}.</p>
+            <p className="text-[13px] text-hero-muted mt-1.5">Завершено {a.completedAt ? fmtDateTime(a.completedAt) : ""}.</p>
           </div>
         </Panel>
         {history}
@@ -420,12 +420,12 @@ function TestPanel({ a, isLearner, onChange }: { a: AssignmentDetailView; isLear
   return (
     <>
       <Panel title="Итоговый тест" description={`${a.questions.length} вопросов · проходной балл ${a.course.passScore}% · количество попыток не ограничено`} padding="p-0" as="div">
-        <ol className="divide-y divide-neutral-100">
+        <ol className="divide-y divide-hero-border">
           {a.questions.map((q, i) => (
             <li key={q.id} className="px-6 py-5">
               <fieldset disabled={!isLearner}>
-                <legend className="text-[14px] font-semibold text-neutral-900 leading-snug mb-3.5">
-                  <span className="text-neutral-400 mr-1.5">{i + 1}.</span>
+                <legend className="text-[14px] font-semibold text-hero-foreground leading-snug mb-3.5">
+                  <span className="text-tertiary mr-1.5">{i + 1}.</span>
                   {q.text}
                 </legend>
                 <RadioGroup
@@ -438,12 +438,12 @@ function TestPanel({ a, isLearner, onChange }: { a: AssignmentDetailView; isLear
             </li>
           ))}
         </ol>
-        <div className="px-6 py-4 border-t border-neutral-100 flex flex-wrap items-center justify-between gap-3">
-          <span className="text-[12.5px] text-neutral-500">
+        <div className="px-6 py-4 border-t border-hero-border flex flex-wrap items-center justify-between gap-3">
+          <span className="text-[12.5px] text-hero-muted">
             {isLearner ? `Отвечено на ${answered} из ${a.questions.length}` : "Проходить тест может только назначенный сотрудник."}
           </span>
           <div className="flex items-center gap-3">
-            {error && <span role="alert" className="text-[12.5px] text-red-600 font-medium">{error}</span>}
+            {error && <span role="alert" className="text-[12.5px] text-error font-medium">{error}</span>}
             <Button variant="primary" size="sm" disabled={!isLearner || busy || answered < a.questions.length} onClick={() => void submit()}>
               {busy ? "Проверка…" : "Сдать тест"}
             </Button>

@@ -7,7 +7,7 @@ import { Avatar } from "../components/ui/Avatar";
 import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
-import { ArrowRightIcon } from "../components/portal/icons";
+import { ArrowRightIcon, LogoMark } from "../components/portal/icons";
 import { Panel } from "../components/portal/Panel";
 
 interface Persona {
@@ -58,12 +58,12 @@ export function LoginForm({
     <div className="min-h-screen flex flex-col items-center px-4 py-10 sm:py-16">
       <div className="w-full max-w-md flex flex-col gap-6">
         <div className="flex flex-col items-center text-center gap-3">
-          <span className="w-11 h-11 rounded-xl bg-neutral-900 text-white flex items-center justify-center text-[18px] font-semibold shadow-md">
-            J
+          <span className="w-11 h-11 rounded-xl bg-logo text-hero-on-foreground flex items-center justify-center shadow-md">
+            <LogoMark size={22} />
           </span>
           <div>
             <h1 className="text-[28px] font-semibold tracking-[-0.03em] leading-tight">Digital HR</h1>
-            <p className="text-[14px] text-neutral-500 mt-1 leading-relaxed">
+            <p className="text-[14px] text-hero-muted mt-1 leading-relaxed">
               Заявки, обучение и ответы на вопросы.
               <br />
               Единый портал вместо пяти систем.
@@ -101,7 +101,7 @@ export function LoginForm({
               />
             )}
             {error && (
-              <p role="alert" className="text-[12.5px] text-red-600 font-medium">
+              <p role="alert" className="text-[12.5px] text-error font-medium">
                 {error}
               </p>
             )}
@@ -109,7 +109,7 @@ export function LoginForm({
               {busy === email ? "Вход…" : "Войти"}
               <ArrowRightIcon size={13} />
             </Button>
-            <p className="text-[11.5px] text-neutral-400 leading-relaxed text-center">
+            <p className="text-[11.5px] text-tertiary leading-relaxed text-center">
               {passwordRequired
                 ? "Тестовый SSO с общим демо-паролем."
                 : "Тестовый SSO: пароли не требуются в прототипе. В рабочей среде используется корпоративный Identity Provider."}
@@ -119,10 +119,10 @@ export function LoginForm({
 
         <section aria-labelledby="demo-accounts" className="flex flex-col gap-2.5">
           <div className="flex items-center justify-between px-1">
-            <h2 id="demo-accounts" className="text-[12px] font-semibold uppercase tracking-widest text-neutral-400">
+            <h2 id="demo-accounts" className="text-[12px] font-semibold uppercase tracking-widest text-tertiary">
               Демо-аккаунты
             </h2>
-            <span className="text-[11.5px] text-neutral-400">демо-пользователи</span>
+            <span className="text-[11.5px] text-tertiary">демо-пользователи</span>
           </div>
           <ul className="flex flex-col gap-2">
             {personas.map((p) => (
@@ -131,7 +131,7 @@ export function LoginForm({
                   type="button"
                   disabled={busy !== null}
                   onClick={() => void signIn(p.email, passwordRequired ? password : undefined)}
-                  className="group/p w-full flex items-center gap-3 text-left bg-white rounded-2xl px-4 py-3 cursor-pointer transition-all duration-200 hover:shadow-md active:scale-[0.99] disabled:opacity-50"
+                  className="group/p w-full flex items-center gap-3 text-left bg-hero-elevated rounded-2xl px-4 py-3 cursor-pointer transition-all duration-200 hover:shadow-md active:scale-[0.99] disabled:opacity-50"
                   style={{
                     boxShadow:
                       "0 1px 2px rgba(17,17,17,0.04), 0 2px 8px -2px rgba(17,17,17,0.04), 0 0 0 1px rgba(17,17,17,0.05), inset 0 1px 0 rgba(255,255,255,0.9)",
@@ -140,23 +140,23 @@ export function LoginForm({
                   <Avatar name={p.name} size="md" />
                   <span className="flex-1 min-w-0">
                     <span className="flex items-center gap-2">
-                      <span className="text-[13.5px] font-semibold text-neutral-900 truncate">{p.name}</span>
+                      <span className="text-[13.5px] font-semibold text-hero-foreground truncate">{p.name}</span>
                       <Badge variant={p.label.startsWith("Employee") ? "muted" : p.label.startsWith("Manager") ? "accent" : "default"}>
                         {PERSONA_LABELS[p.label] ?? p.label}
                       </Badge>
                     </span>
-                    <span className="block text-[12px] text-neutral-400 truncate mt-0.5">{PERSONA_HINTS[p.email] ?? p.hint}</span>
+                    <span className="block text-[12px] text-tertiary truncate mt-0.5">{PERSONA_HINTS[p.email] ?? p.hint}</span>
                   </span>
                   <ArrowRightIcon
                     size={14}
-                    className="text-neutral-300 transition-all duration-200 group-hover/p:text-neutral-700 group-hover/p:translate-x-0.5"
+                    className="text-tertiary transition-all duration-200 group-hover/p:text-hero-foreground group-hover/p:translate-x-0.5"
                   />
                 </button>
               </li>
             ))}
           </ul>
           {passwordRequired && (
-            <p className="text-[11.5px] text-neutral-400 px-1">Сначала введите демо-пароль выше, затем выберите аккаунт.</p>
+            <p className="text-[11.5px] text-tertiary px-1">Сначала введите демо-пароль выше, затем выберите аккаунт.</p>
           )}
         </section>
       </div>

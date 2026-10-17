@@ -46,7 +46,7 @@ export default function TeamPage() {
           <li key={m.id}>
             <Link
               href={`/team/${m.id}`}
-              className="group/t block bg-white rounded-2xl p-5 transition-shadow duration-300 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900"
+              className="group/t block bg-hero-elevated rounded-2xl p-5 transition-shadow duration-300 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900"
               style={{ boxShadow: SHADOW }}
             >
               <div className="flex items-start gap-3.5">
@@ -56,12 +56,12 @@ export default function TeamPage() {
                     <p className="text-[15px] font-semibold tracking-[-0.01em] truncate">{m.fullName}</p>
                     {m.role !== "employee" && <Badge variant={m.role === "hr" ? "default" : "accent"}>{m.role === "hr" ? "HR" : "Руководитель"}</Badge>}
                   </div>
-                  <p className="text-[12.5px] text-neutral-500 truncate">{m.position}</p>
-                  {isHr && <p className="text-[11.5px] text-neutral-400 truncate">{m.department}{m.managerName ? ` · руководитель: ${m.managerName}` : ""}</p>}
+                  <p className="text-[12.5px] text-hero-muted truncate">{m.position}</p>
+                  {isHr && <p className="text-[11.5px] text-tertiary truncate">{m.department}{m.managerName ? ` · руководитель: ${m.managerName}` : ""}</p>}
                 </div>
-                <ArrowRightIcon size={14} className="text-neutral-300 mt-1 transition-all duration-200 group-hover/t:text-neutral-700 group-hover/t:translate-x-0.5" />
+                <ArrowRightIcon size={14} className="text-tertiary mt-1 transition-all duration-200 group-hover/t:text-hero-foreground group-hover/t:translate-x-0.5" />
               </div>
-              <dl className="mt-4 grid grid-cols-3 gap-3 pt-4 border-t border-neutral-100">
+              <dl className="mt-4 grid grid-cols-3 gap-3 pt-4 border-t border-hero-border">
                 <Metric label="Остаток отпуска" value={`${m.vacationRemaining} дн.`} />
                 <Metric label="Открытые заявки" value={m.openRequests} />
                 <Metric label="Обучение" value={`${m.coursesCompleted}/${m.coursesAssigned}`} />
@@ -82,7 +82,7 @@ export default function TeamPage() {
 function Metric({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
-      <dt className="text-[10.5px] font-semibold uppercase tracking-widest text-neutral-400">{label}</dt>
+      <dt className="text-[10.5px] font-semibold uppercase tracking-widest text-tertiary">{label}</dt>
       <dd className="mt-0.5 text-[16px] font-semibold tabular-nums tracking-[-0.02em]">{value}</dd>
     </div>
   );

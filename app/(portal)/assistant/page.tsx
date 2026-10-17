@@ -80,19 +80,19 @@ export default function AssistantPage() {
 
       <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-6 items-start">
         <Panel padding="p-0" as="div" className="min-w-0">
-          <div className="flex items-center gap-3 px-5 py-3.5 border-b border-neutral-100">
-            <span className="w-9 h-9 rounded-xl bg-neutral-900 text-white flex items-center justify-center shrink-0">
+          <div className="flex items-center gap-3 px-5 py-3.5 border-b border-hero-border">
+            <span className="w-9 h-9 rounded-xl bg-hero-foreground text-hero-on-foreground flex items-center justify-center shrink-0">
               <SparkleIcon size={17} />
             </span>
             <div className="min-w-0">
               <p className="text-[14px] font-semibold tracking-[-0.01em] leading-tight">Al Jana</p>
-              <p className="text-[12px] text-neutral-400">Ответы только из базы знаний HR</p>
+              <p className="text-[12px] text-tertiary">Ответы только из базы знаний HR</p>
             </div>
           </div>
 
           <div role="log" aria-live="polite" aria-label="Диалог" className="px-4 sm:px-5 py-5 flex flex-col gap-5 min-h-[380px] max-h-[62vh] overflow-y-auto">
             <BotBubble>
-              <p className="text-[14px] leading-relaxed text-neutral-800">
+              <p className="text-[14px] leading-relaxed text-hero-foreground">
                 Здравствуйте! Спросите меня об отпуске, авансе, больничных, рабочем времени, льготах или обучении. Я отвечаю только по нашей базе знаний HR и всегда показываю источник. Если точного ответа нет, я честно сообщу об этом и предложу передать вопрос в HR.
               </p>
               <Chips label="Попробуйте спросить" items={STARTERS} onPick={ask} disabled={thinking} />
@@ -111,7 +111,7 @@ export default function AssistantPage() {
               <BotBubble>
                 <span className="inline-flex gap-1 py-1" aria-label="Al Jana ищет ответ в базе знаний">
                   {[0, 1, 2].map((i) => (
-                    <span key={i} className="w-1.5 h-1.5 rounded-full bg-neutral-400 animate-bounce" style={{ animationDelay: `${i * 120}ms` }} />
+                    <span key={i} className="w-1.5 h-1.5 rounded-full bg-additional animate-bounce" style={{ animationDelay: `${i * 120}ms` }} />
                   ))}
                 </span>
               </BotBubble>
@@ -120,7 +120,7 @@ export default function AssistantPage() {
           </div>
 
           <form
-            className="flex items-start gap-2 px-4 sm:px-5 py-4 border-t border-neutral-100 bg-neutral-50/60"
+            className="flex items-start gap-2 px-4 sm:px-5 py-4 border-t border-hero-border bg-hero-cell-bg/60"
             onSubmit={(e) => {
               e.preventDefault();
               void ask(draft);
@@ -145,28 +145,28 @@ export default function AssistantPage() {
 
         <div className="flex flex-col gap-6 min-w-0">
           <Panel title="Как работает Al Jana" padding="p-5">
-            <ul className="flex flex-col gap-3 text-[13px] text-neutral-600 leading-snug">
-              <Point>Ответы составлены HR и отображаются <strong className="text-neutral-900">слово в слово</strong>. Ничего не генерируется и не додумывается.</Point>
-              <Point>Каждый ответ содержит ссылку на <strong className="text-neutral-900">исходный документ и раздел</strong>.</Point>
-              <Point>Нет надежного совпадения? Ассистент скажет об этом и предложит <strong className="text-neutral-900">передать вопрос в HR</strong>.</Point>
+            <ul className="flex flex-col gap-3 text-[13px] text-hero-muted leading-snug">
+              <Point>Ответы составлены HR и отображаются <strong className="text-hero-foreground">слово в слово</strong>. Ничего не генерируется и не додумывается.</Point>
+              <Point>Каждый ответ содержит ссылку на <strong className="text-hero-foreground">исходный документ и раздел</strong>.</Point>
+              <Point>Нет надежного совпадения? Ассистент скажет об этом и предложит <strong className="text-hero-foreground">передать вопрос в HR</strong>.</Point>
             </ul>
           </Panel>
 
           <Panel title="Мои вопросы в HR" description="Передано из Al Jana" padding="p-0">
             {!esc || esc.escalations.length === 0 ? (
-              <p className="p-5 text-[13px] text-neutral-500">Пока вопросов нет. Если Al Jana не сможет ответить, вы сможете отправить вопрос в HR.</p>
+              <p className="p-5 text-[13px] text-hero-muted">Пока вопросов нет. Если Al Jana не сможет ответить, вы сможете отправить вопрос в HR.</p>
             ) : (
-              <ul className="divide-y divide-neutral-100">
+              <ul className="divide-y divide-hero-border">
                 {esc.escalations.map((e) => (
                   <li key={e.id} className="px-5 py-3.5">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-[11.5px] text-neutral-400 tabular-nums">{e.id} · {fmtRelative(e.createdAt)}</span>
+                      <span className="text-[11.5px] text-tertiary tabular-nums">{e.id} · {fmtRelative(e.createdAt)}</span>
                       <Pill tone={e.status === "answered" ? "good" : "warn"}>{e.status === "answered" ? "Отвечено" : "Ожидает HR"}</Pill>
                     </div>
-                    <p className="text-[13px] font-medium text-neutral-900 mt-1.5 leading-snug">{e.question}</p>
+                    <p className="text-[13px] font-medium text-hero-foreground mt-1.5 leading-snug">{e.question}</p>
                     {e.answer && (
-                      <p className="mt-2 text-[13px] text-neutral-600 leading-relaxed bg-neutral-50 rounded-lg px-3 py-2.5">
-                        <span className="block text-[10.5px] font-semibold uppercase tracking-widest text-neutral-400 mb-1">HR ответил(а)</span>
+                      <p className="mt-2 text-[13px] text-hero-muted leading-relaxed bg-hero-cell-bg rounded-lg px-3 py-2.5">
+                        <span className="block text-[10.5px] font-semibold uppercase tracking-widest text-tertiary mb-1">HR ответил(а)</span>
                         {e.answer}
                       </p>
                     )}
@@ -184,7 +184,7 @@ export default function AssistantPage() {
 function Point({ children }: { children: React.ReactNode }) {
   return (
     <li className="flex items-start gap-2.5">
-      <span className="mt-0.5 w-4 h-4 rounded-full bg-neutral-900 text-white flex items-center justify-center shrink-0">
+      <span className="mt-0.5 w-4 h-4 rounded-full bg-hero-foreground text-hero-on-foreground flex items-center justify-center shrink-0">
         <CheckIcon size={10} />
       </span>
       <span>{children}</span>
@@ -196,7 +196,7 @@ function UserBubble({ text }: { text: string }) {
   return (
     <div className="flex justify-end">
       <p
-        className="max-w-[85%] bg-neutral-900 text-white rounded-2xl rounded-br-md px-4 py-2.5 text-[14px] leading-relaxed"
+        className="max-w-[85%] bg-hero-foreground text-hero-on-foreground rounded-2xl rounded-br-md px-4 py-2.5 text-[14px] leading-relaxed"
         style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.08)" }}
       >
         {text}
@@ -208,11 +208,11 @@ function UserBubble({ text }: { text: string }) {
 function BotBubble({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex items-start gap-2.5">
-      <span className="w-7 h-7 rounded-lg bg-neutral-900 text-white flex items-center justify-center shrink-0 mt-0.5">
+      <span className="w-7 h-7 rounded-lg bg-hero-foreground text-hero-on-foreground flex items-center justify-center shrink-0 mt-0.5">
         <SparkleIcon size={14} />
       </span>
       <div
-        className="max-w-[92%] min-w-0 flex flex-col gap-3 bg-white rounded-2xl rounded-tl-md px-4 py-3"
+        className="max-w-[92%] min-w-0 flex flex-col gap-3 bg-hero-elevated rounded-2xl rounded-tl-md px-4 py-3"
         style={{ boxShadow: "0 1px 2px rgba(17,17,17,0.04), 0 0 0 1px rgba(17,17,17,0.07), inset 0 1px 0 rgba(255,255,255,0.9)" }}
       >
         {children}
@@ -225,7 +225,7 @@ function Chips({ label, items, onPick, disabled, subtle }: { label: string; item
   if (items.length === 0) return null;
   return (
     <div>
-      <p className="text-[10.5px] font-semibold uppercase tracking-widest text-neutral-400 mb-1.5">{label}</p>
+      <p className="text-[10.5px] font-semibold uppercase tracking-widest text-tertiary mb-1.5">{label}</p>
       <div className="flex flex-wrap gap-1.5">
         {items.map((q) => (
           <button
@@ -234,7 +234,7 @@ function Chips({ label, items, onPick, disabled, subtle }: { label: string; item
             onClick={() => onPick(q)}
             className={[
               "text-left text-[12.5px] font-medium rounded-lg px-2.5 py-1.5 cursor-pointer transition-colors disabled:opacity-40",
-              subtle ? "bg-white text-neutral-500 hover:text-neutral-900 border border-dashed border-neutral-300" : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200",
+              subtle ? "bg-hero-elevated text-hero-muted hover:text-hero-foreground border border-dashed border-neutral-300" : "bg-hero-cell-bg text-hero-foreground hover:bg-hero-border",
             ].join(" ")}
           >
             {q}
@@ -263,21 +263,21 @@ function BotMessage({
     const relatedItems = r.related.map((x) => RU_QUESTIONS[x.entryId] ?? x.question);
     return (
       <BotBubble>
-        <p className="text-[14.5px] leading-[1.7] text-neutral-900">{text}</p>
+        <p className="text-[14.5px] leading-[1.7] text-hero-foreground">{text}</p>
 
         <aside
           aria-label="Источник"
-          className="rounded-xl bg-neutral-50 px-3.5 py-3 flex items-start gap-3 ring-1 ring-inset ring-neutral-900/5"
+          className="rounded-xl bg-hero-cell-bg px-3.5 py-3 flex items-start gap-3 ring-1 ring-inset ring-hero-foreground/5"
         >
-          <span className="w-7 h-7 rounded-lg bg-white text-neutral-700 flex items-center justify-center shrink-0 ring-1 ring-inset ring-neutral-900/8">
+          <span className="w-7 h-7 rounded-lg bg-hero-elevated text-hero-foreground flex items-center justify-center shrink-0 ring-1 ring-inset ring-hero-foreground/8">
             <BookIcon size={14} />
           </span>
           <div className="min-w-0">
-            <p className="text-[10.5px] font-semibold uppercase tracking-widest text-neutral-400">Источник</p>
-            <p className="text-[13px] font-semibold text-neutral-900 leading-snug mt-0.5">
-              {r.source.docTitle} <span className="text-neutral-400 font-medium">· {r.source.docId}</span>
+            <p className="text-[10.5px] font-semibold uppercase tracking-widest text-tertiary">Источник</p>
+            <p className="text-[13px] font-semibold text-hero-foreground leading-snug mt-0.5">
+              {r.source.docTitle} <span className="text-tertiary font-medium">· {r.source.docId}</span>
             </p>
-            <p className="text-[12px] text-neutral-500 leading-snug mt-0.5">
+            <p className="text-[12px] text-hero-muted leading-snug mt-0.5">
               {r.source.section} · {r.source.revision} · {r.source.owner}
             </p>
           </div>
@@ -303,24 +303,24 @@ function BotMessage({
     return (
       <BotBubble>
         <div className="flex items-start gap-3">
-          <span className="w-6 h-6 rounded-md bg-amber-500 text-white flex items-center justify-center shrink-0 text-[13px] font-semibold mt-0.5">?</span>
+          <span className="w-6 h-6 rounded-md bg-warning text-hero-foreground flex items-center justify-center shrink-0 text-[13px] font-semibold mt-0.5">?</span>
           <div>
-            <p className="text-[14px] font-semibold text-neutral-900 leading-snug">Надежный ответ не найден</p>
-            <p className="text-[13.5px] leading-relaxed text-neutral-600 mt-1">{message}</p>
+            <p className="text-[14px] font-semibold text-hero-foreground leading-snug">Надежный ответ не найден</p>
+            <p className="text-[13.5px] leading-relaxed text-hero-muted mt-1">{message}</p>
           </div>
         </div>
 
         {msg.escalation ? (
-          <div className="rounded-xl bg-emerald-50 text-emerald-800 px-3.5 py-3 text-[13px] leading-snug ring-1 ring-inset ring-emerald-600/15">
+          <div className="rounded-xl bg-pr-bg text-hero-foreground px-3.5 py-3 text-[13px] leading-snug border border-hero-border">
             <p className="font-semibold">Передано в HR · {msg.escalation.id}</p>
-            <p className="mt-0.5 text-emerald-700">Вы получите уведомление, когда HR ответит. Отслеживать можно в разделе «Мои вопросы в HR».</p>
+            <p className="mt-0.5 text-hero-muted">Вы получите уведомление, когда HR ответит. Отслеживать можно в разделе «Мои вопросы в HR».</p>
           </div>
         ) : (
           <div className="flex flex-wrap items-center gap-2">
             <Button variant="primary" size="sm" disabled={msg.escalating} onClick={onEscalate}>
               {msg.escalating ? "Отправка…" : "Передать этот вопрос в HR"}
             </Button>
-            <span className="text-[12px] text-neutral-400">Сотрудник HR подготовит ответ.</span>
+            <span className="text-[12px] text-tertiary">Сотрудник HR подготовит ответ.</span>
           </div>
         )}
 
@@ -332,7 +332,7 @@ function BotMessage({
   const smalltalkMessage = MESSAGES_RU[r.kind as keyof typeof MESSAGES_RU] ?? MESSAGES_RU.greeting;
   return (
     <BotBubble>
-      <p className="text-[14px] leading-relaxed text-neutral-800">{smalltalkMessage}</p>
+      <p className="text-[14px] leading-relaxed text-hero-foreground">{smalltalkMessage}</p>
       <Chips label="Попробуйте спросить" items={STARTERS.slice(0, 4)} onPick={onAsk} disabled={disabled} />
     </BotBubble>
   );

@@ -118,7 +118,7 @@ export function RequestActions({
           />
         )}
         {error && (
-          <p role="alert" className="text-[12.5px] text-red-600 font-medium mt-2">
+          <p role="alert" className="text-[12.5px] text-error font-medium mt-2">
             {error}
           </p>
         )}

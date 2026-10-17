@@ -15,9 +15,9 @@ import { useUser } from "../../../components/portal/UserContext";
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-start justify-between gap-6 px-5 py-3 border-b border-neutral-100 last:border-0">
-      <dt className="text-[12px] font-semibold uppercase tracking-widest text-neutral-400 pt-0.5 shrink-0">{label}</dt>
-      <dd className="text-[13.5px] font-medium text-neutral-900 text-right min-w-0 break-words">{children}</dd>
+    <div className="flex items-start justify-between gap-6 px-5 py-3 border-b border-hero-border last:border-0">
+      <dt className="text-[12px] font-semibold uppercase tracking-widest text-tertiary pt-0.5 shrink-0">{label}</dt>
+      <dd className="text-[13.5px] font-medium text-hero-foreground text-right min-w-0 break-words">{children}</dd>
     </div>
   );
 }
@@ -50,13 +50,13 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
       <BackLink to={mine ? "/requests" : "/approvals"} label={mine ? "Мои заявки" : "Согласования"} />
 
       <Panel padding="p-0">
-        <div className="p-5 sm:p-6 flex flex-wrap items-start justify-between gap-4 border-b border-neutral-100">
+        <div className="p-5 sm:p-6 flex flex-wrap items-start justify-between gap-4 border-b border-hero-border">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2.5">
               <h1 className="text-[22px] font-semibold tracking-[-0.025em]">Заявка: {TYPE_LABEL[r.type]}</h1>
               <StatusBadge status={r.status} />
             </div>
-            <p className="text-[13px] text-neutral-500 mt-1">
+            <p className="text-[13px] text-hero-muted mt-1">
               {r.id} · {mine ? "Подана вами" : r.employee.fullName} · {fmtDateTime(r.createdAt)}
             </p>
           </div>
@@ -70,8 +70,8 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
         </div>
 
         {r.allowedActions.length > 0 && (
-          <div className="px-5 sm:px-6 py-4 border-t border-neutral-100 bg-neutral-50/60 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-[12.5px] text-neutral-500">
+          <div className="px-5 sm:px-6 py-4 border-t border-hero-border bg-hero-cell-bg/60 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-[12.5px] text-hero-muted">
               {mine ? "Вы можете отозвать эту заявку, пока она открыта." : "Эта заявка ожидает вашего решения."}
             </p>
             <RequestActions request={r} onDone={reload} />
@@ -111,21 +111,21 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
             <Row label="Documentolog">
               {r.integration.documentolog ? (
                 <span className="inline-flex flex-col items-end gap-0.5">
-                  <span className="inline-flex items-center gap-1.5"><LinkIcon size={13} className="text-neutral-400" />{r.integration.documentolog.ref}</span>
-                  <span className="text-[11.5px] font-normal text-neutral-400">{r.integration.documentolog.state}</span>
+                  <span className="inline-flex items-center gap-1.5"><LinkIcon size={13} className="text-tertiary" />{r.integration.documentolog.ref}</span>
+                  <span className="text-[11.5px] font-normal text-tertiary">{r.integration.documentolog.state}</span>
                 </span>
               ) : (
-                <span className="text-neutral-400 font-normal">Не запущено</span>
+                <span className="text-tertiary font-normal">Не запущено</span>
               )}
             </Row>
             <Row label="1C:ЗУП">
               {r.integration.zup ? (
                 <span className="inline-flex flex-col items-end gap-0.5">
-                  <span className="inline-flex items-center gap-1.5"><LinkIcon size={13} className="text-neutral-400" />{r.integration.zup.ref}</span>
-                  <span className="text-[11.5px] font-normal text-neutral-400">{r.integration.zup.state}</span>
+                  <span className="inline-flex items-center gap-1.5"><LinkIcon size={13} className="text-tertiary" />{r.integration.zup.ref}</span>
+                  <span className="text-[11.5px] font-normal text-tertiary">{r.integration.zup.state}</span>
                 </span>
               ) : (
-                <span className="text-neutral-400 font-normal">{r.status === "approved" ? "-" : "Регистрация после одобрения"}</span>
+                <span className="text-tertiary font-normal">{r.status === "approved" ? "-" : "Регистрация после одобрения"}</span>
               )}
             </Row>
           </dl>
@@ -149,7 +149,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
 
 function BackLink({ to, label }: { to: string; label: string }) {
   return (
-    <Link href={to} className="inline-flex items-center gap-1.5 text-[13px] text-neutral-500 hover:text-neutral-900 transition-colors w-fit">
+    <Link href={to} className="inline-flex items-center gap-1.5 text-[13px] text-hero-muted hover:text-hero-foreground transition-colors w-fit">
       <ArrowLeftIcon size={13} /> {label}
     </Link>
   );

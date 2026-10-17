@@ -46,14 +46,14 @@ export function RequestTracker({
         const isCurrent = i === current && !terminal;
         const last = i === stages.length - 1;
 
-        let node = "bg-neutral-100 text-neutral-400";
+        let node = "bg-hero-cell-bg text-tertiary";
         let icon: React.ReactNode = <span className="text-[12px] font-semibold">{i + 1}</span>;
-        if (done || isCurrent) node = "bg-neutral-900 text-white";
+        if (done || isCurrent) node = "bg-hero-foreground text-hero-on-foreground";
         if (done) icon = <CheckIcon size={14} />;
         if (last && terminal) {
-          if (status === "approved") node = "bg-emerald-600 text-white";
-          if (status === "rejected") node = "bg-red-600 text-white";
-          if (status === "cancelled") node = "bg-neutral-500 text-white";
+          if (status === "approved") node = "bg-primary text-hero-on-foreground";
+          if (status === "rejected") node = "bg-error text-hero-on-foreground";
+          if (status === "cancelled") node = "bg-hero-cell-bg0 text-hero-on-foreground";
           icon = status === "approved" ? <CheckIcon size={14} /> : <XIcon size={13} />;
         }
 
@@ -65,7 +65,7 @@ export function RequestTracker({
                 aria-hidden
                 className={[
                   "absolute top-4 right-1/2 w-full h-px -translate-y-1/2 transition-colors duration-500",
-                  i <= current || terminal ? "bg-neutral-900" : "bg-neutral-200",
+                  i <= current || terminal ? "bg-hero-foreground" : "bg-hero-border",
                 ].join(" ")}
               />
             )}
@@ -74,7 +74,7 @@ export function RequestTracker({
               className={[
                 "relative z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300",
                 node,
-                isCurrent ? "ring-4 ring-neutral-900/10" : "",
+                isCurrent ? "ring-4 ring-hero-foreground/10" : "",
               ].join(" ")}
               style={{
                 boxShadow:
@@ -84,19 +84,19 @@ export function RequestTracker({
               }}
             >
               {isCurrent && (
-                <span aria-hidden className="absolute inset-0 rounded-full bg-neutral-900/30 animate-ping" />
+                <span aria-hidden className="absolute inset-0 rounded-full bg-hero-foreground/30 animate-ping" />
               )}
               <span className="relative">{icon}</span>
             </span>
             <span
               className={[
                 "mt-2 text-[12px] font-medium leading-tight",
-                done || isCurrent ? "text-neutral-900" : "text-neutral-400",
+                done || isCurrent ? "text-hero-foreground" : "text-tertiary",
               ].join(" ")}
             >
               {s.label}
             </span>
-            <span className="mt-0.5 text-[10.5px] text-neutral-400 tabular-nums min-h-[14px]">
+            <span className="mt-0.5 text-[10.5px] text-tertiary tabular-nums min-h-[14px]">
               {s.time && (done || isCurrent) ? fmtDateTime(s.time) : ""}
             </span>
             <span className="sr-only">{lineDone ? "завершено" : ""}</span>
@@ -112,16 +112,16 @@ export function MiniTracker({ status }: { status: RequestStatus }) {
   const current = stageIndex(status);
   const terminal = TERMINAL.includes(status);
   const finalColor =
-    status === "approved" ? "bg-emerald-500" : status === "rejected" ? "bg-red-500" : status === "cancelled" ? "bg-neutral-400" : "bg-neutral-900";
+    status === "approved" ? "bg-primary" : status === "rejected" ? "bg-error" : status === "cancelled" ? "bg-additional" : "bg-hero-foreground";
   return (
     <div className="flex gap-1 w-full max-w-[140px]" aria-hidden>
       {[0, 1, 2].map((i) => {
         const filled = i < current || (i === current && (terminal || i < 2));
-        const color = i === 2 && terminal ? finalColor : "bg-neutral-900";
+        const color = i === 2 && terminal ? finalColor : "bg-hero-foreground";
         return (
           <span
             key={i}
-            className={["h-1 flex-1 rounded-full", filled ? color : "bg-neutral-200", i === current && !terminal ? "animate-pulse" : ""].join(" ")}
+            className={["h-1 flex-1 rounded-full", filled ? color : "bg-hero-border", i === current && !terminal ? "animate-pulse" : ""].join(" ")}
           />
         );
       })}

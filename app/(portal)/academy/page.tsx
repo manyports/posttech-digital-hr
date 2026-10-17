@@ -54,7 +54,7 @@ function Section({ title, count, items }: { title: string; count: number; items:
   return (
     <section className="flex flex-col gap-3" aria-label={title}>
       <h2 className="text-[14px] font-semibold">
-        {title} <span className="text-neutral-400 font-normal ml-1">{count}</span>
+        {title} <span className="text-tertiary font-normal ml-1">{count}</span>
       </h2>
       <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {items.map((a) => (
@@ -70,7 +70,7 @@ function Section({ title, count, items }: { title: string; count: number; items:
 function CourseCard({ a }: { a: AssignmentView }) {
   const cta = a.status === "completed" ? "Повторить" : a.status === "assigned" ? "Начать курс" : "Продолжить";
   return (
-    <article className="h-full rounded-[22px] bg-white p-6 flex flex-col gap-4" style={{ boxShadow: SHADOW }}>
+    <article className="h-full rounded-[22px] bg-hero-elevated p-6 flex flex-col gap-4" style={{ boxShadow: SHADOW }}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2">
           <Badge variant="muted">{a.course.category}</Badge>
@@ -81,10 +81,10 @@ function CourseCard({ a }: { a: AssignmentView }) {
 
       <div className="min-w-0">
         <h3 className="text-[17px] font-semibold tracking-[-0.015em] leading-snug">{a.course.title}</h3>
-        <p className="text-[13px] text-neutral-500 mt-1.5 leading-relaxed line-clamp-2">{a.course.description}</p>
+        <p className="text-[13px] text-hero-muted mt-1.5 leading-relaxed line-clamp-2">{a.course.description}</p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-neutral-400">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-tertiary">
         <span className="inline-flex items-center gap-1.5"><ClockIcon size={13} /> {a.course.durationMin} мин.</span>
         <span>{pluralLessons(a.course.lessonCount)} + тест</span>
         {a.status === "completed" ? <span>Результат {a.bestScore}%</span> : <span>Срок до {fmtDate(a.dueDate)}</span>}

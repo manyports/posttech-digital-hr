@@ -137,7 +137,7 @@ export function NewRequestModal({
               <Input label="Дата окончания" type="date" min={startDate || info?.today} value={endDate} onChange={(e) => setEndDate(e.target.value)} error={f.endDate} fullWidth />
             </div>
             <div
-              className="rounded-xl bg-neutral-50 px-4 py-3 text-[12.5px] text-neutral-600 flex flex-wrap items-center justify-between gap-x-4 gap-y-1"
+              className="rounded-xl bg-hero-cell-bg px-4 py-3 text-[12.5px] text-hero-muted flex flex-wrap items-center justify-between gap-x-4 gap-y-1"
               aria-live="polite"
             >
               <span>
@@ -145,12 +145,12 @@ export function NewRequestModal({
                   "Выберите даты, чтобы рассчитать рабочие дни."
                 ) : (
                   <>
-                    <strong className="text-neutral-900 tabular-nums">{pluralDays(days)}</strong> (без учета выходных)
+                    <strong className="text-hero-foreground tabular-nums">{pluralDays(days)}</strong> (без учета выходных)
                   </>
                 )}
               </span>
               {info && (
-                <span className={days !== null && days > info.vacation.available ? "text-red-600 font-medium" : "text-neutral-500"}>
+                <span className={days !== null && days > info.vacation.available ? "text-error font-medium" : "text-hero-muted"}>
                   {info.vacation.available} доступно
                   {info.vacation.pending > 0 && ` (${info.vacation.pending} на рассмотрении)`}
                 </span>
@@ -174,7 +174,7 @@ export function NewRequestModal({
               fullWidth
             />
             {info?.advance.alreadyRequestedThisMonth && (
-              <p className="text-[12.5px] text-amber-700 bg-amber-50 rounded-xl px-4 py-2.5">
+              <p className="text-[12.5px] text-hero-foreground bg-hero-cell-bg border border-hero-border rounded-xl px-4 py-2.5">
                 В этом месяце вы уже запрашивали аванс, повторный запрос недоступен.
               </p>
             )}
@@ -183,7 +183,7 @@ export function NewRequestModal({
         )}
 
         {generalError && (
-          <p role="alert" className="text-[12.5px] text-red-600 font-medium">
+          <p role="alert" className="text-[12.5px] text-error font-medium">
             {generalError}
           </p>
         )}

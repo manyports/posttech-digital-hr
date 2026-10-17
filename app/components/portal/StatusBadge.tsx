@@ -8,13 +8,15 @@ interface Tone {
   ring: string;
 }
 
+const chip = "bg-hero-elevated text-hero-foreground border border-hero-border";
+
 const tones: Record<string, Tone> = {
-  neutral: { chip: "bg-neutral-100 text-neutral-600", dot: "bg-neutral-400", ring: "rgba(17,17,17,0.10)" },
-  info: { chip: "bg-sky-50 text-sky-700", dot: "bg-sky-500", ring: "rgba(14,165,233,0.25)" },
-  warn: { chip: "bg-amber-50 text-amber-700", dot: "bg-amber-500", ring: "rgba(245,158,11,0.28)" },
-  good: { chip: "bg-emerald-50 text-emerald-700", dot: "bg-emerald-500", ring: "rgba(16,185,129,0.25)" },
-  bad: { chip: "bg-red-50 text-red-700", dot: "bg-red-500", ring: "rgba(239,68,68,0.25)" },
-  dark: { chip: "bg-neutral-900 text-white", dot: "bg-white/70", ring: "rgba(255,255,255,0.08)" },
+  neutral: { chip, dot: "bg-additional", ring: "transparent" },
+  info: { chip, dot: "bg-additional", ring: "transparent" },
+  warn: { chip, dot: "bg-warning", ring: "transparent" },
+  good: { chip, dot: "bg-primary", ring: "transparent" },
+  bad: { chip, dot: "bg-error", ring: "transparent" },
+  dark: { chip: "bg-hero-foreground text-hero-on-foreground border border-hero-foreground", dot: "bg-hero-on-foreground", ring: "transparent" },
 };
 
 export function Pill({
