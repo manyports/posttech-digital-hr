@@ -1,6 +1,7 @@
 import React from "react";
 import type { RequestEvent, RequestStatus } from "@/lib/domain/types";
 import { fmtDateTime } from "@/lib/client/format";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 import { CheckIcon, XIcon } from "./icons";
 
 const TERMINAL: RequestStatus[] = ["approved", "rejected", "cancelled"];
@@ -27,20 +28,21 @@ export function RequestTracker({
   status: RequestStatus;
   history: RequestEvent[];
 }) {
+  const { m, locale } = useI18n();
   const current = stageIndex(status);
   const terminal = TERMINAL.includes(status);
 
   const decisionLabel =
-    status === "approved" ? "Одобрено" : status === "rejected" ? "Отклонено" : status === "cancelled" ? "Отменено" : "Решение";
+    status === "approved" ? m.requestStatus.approved : status === "rejected" ? m.requestStatus.rejected : status === "cancelled" ? m.requestStatus.cancelled : m.requestStatus.decision;
 
   const stages = [
-    { label: "Подано", time: at(history, "submitted") },
-    { label: "На рассмотрении", time: at(history, "in_review") },
+    { label: m.requestStatus.filed, time: at(history, "submitted") },
+    { label: m.requestStatus.in_review, time: at(history, "in_review") },
     { label: decisionLabel, time: at(history, "approved", "rejected", "cancelled") },
   ];
 
   return (
-    <ol className="grid grid-cols-3" aria-label="Прогресс заявки">
+    <ol className="grid grid-cols-3" aria-label={m.request.progress}>
       {stages.map((s, i) => {
         const done = i < current || (i === current && terminal);
         const isCurrent = i === current && !terminal;
@@ -97,9 +99,9 @@ export function RequestTracker({
               {s.label}
             </span>
             <span className="mt-0.5 text-[10.5px] text-tertiary tabular-nums min-h-[14px]">
-              {s.time && (done || isCurrent) ? fmtDateTime(s.time) : ""}
+              {s.time && (done || isCurrent) ? fmtDateTime(s.time, locale) : ""}
             </span>
-            <span className="sr-only">{lineDone ? "завершено" : ""}</span>
+            <span className="sr-only">{lineDone ? m.request.stepDone : ""}</span>
           </li>
         );
       })}

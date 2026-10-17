@@ -1,6 +1,6 @@
 import React from "react";
 import type { AssignmentStatus, RequestStatus } from "@/lib/domain/types";
-import { STATUS_LABEL } from "@/lib/client/format";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 
 interface Tone {
   chip: string;
@@ -55,18 +55,14 @@ const requestTone: Record<RequestStatus, keyof typeof tones> = {
 };
 
 export function StatusBadge({ status }: { status: RequestStatus }) {
+  const { m } = useI18n();
   return (
     <Pill tone={requestTone[status]} pulse={status === "in_review"}>
-      {STATUS_LABEL[status]}
+      {m.requestStatus[status]}
     </Pill>
   );
 }
 
-const courseLabel: Record<AssignmentStatus, string> = {
-  assigned: "Не начато",
-  in_progress: "В процессе",
-  completed: "Завершено",
-};
 const courseTone: Record<AssignmentStatus, keyof typeof tones> = {
   assigned: "neutral",
   in_progress: "warn",
@@ -74,6 +70,7 @@ const courseTone: Record<AssignmentStatus, keyof typeof tones> = {
 };
 
 export function CourseStatusBadge({ status, overdue }: { status: AssignmentStatus; overdue?: boolean }) {
-  if (overdue) return <Pill tone="bad">Просрочено</Pill>;
-  return <Pill tone={courseTone[status]}>{courseLabel[status]}</Pill>;
+  const { m } = useI18n();
+  if (overdue) return <Pill tone="bad">{m.courseStatus.overdue}</Pill>;
+  return <Pill tone={courseTone[status]}>{m.courseStatus[status]}</Pill>;
 }

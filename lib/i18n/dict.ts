@@ -1,0 +1,1242 @@
+import type { Locale } from "./locale";
+
+export interface Dict {
+  switchLabel: string;
+  ru: string;
+  kz: string;
+  nav: {
+    aria: string;
+    main: string;
+    home: string;
+    profile: string;
+    requests: string;
+    academy: string;
+    assistant: string;
+    notifications: string;
+    myTeam: string;
+    approvals: string;
+    team: string;
+    hr: string;
+    allRequests: string;
+    employees: string;
+    inbox: string;
+    prototype: string;
+    account: string;
+    signOut: string;
+    openMenu: string;
+    unread: string;
+  };
+  roles: { employee: string; manager: string; hr: string };
+  requestType: { vacation: string; salary_advance: string };
+  requestStatus: {
+    submitted: string;
+    in_review: string;
+    approved: string;
+    rejected: string;
+    cancelled: string;
+    decision: string;
+    filed: string;
+  };
+  courseStatus: { assigned: string; in_progress: string; completed: string; overdue: string };
+  common: {
+    errorTitle: string;
+    retry: string;
+    loading: string;
+    deniedTitle: string;
+    deniedBody: string;
+    deniedNote: string;
+    cancel: string;
+    back: string;
+    working: string;
+    failed: string;
+    daysShort: string;
+    due: string;
+    score: string;
+    mandatory: string;
+    noManager: string;
+    read: string;
+    unread: string;
+    done: string;
+    live: string;
+  };
+  login: {
+    title: string;
+    lead: string;
+    email: string;
+    password: string;
+    enter: string;
+    entering: string;
+    fail: string;
+    sso: string;
+    ssoPassword: string;
+    demos: string;
+    demoHint: string;
+    passwordFirst: string;
+    roles: Record<string, string>;
+    hints: Record<string, string>;
+  };
+  dashboard: {
+    welcome: string;
+    ask: string;
+    newRequest: string;
+    summary: string;
+    vacationDays: string;
+    availableOf: string;
+    pendingBit: string;
+    openRequests: string;
+    waiting: string;
+    noOpen: string;
+    training: string;
+    overdueN: string;
+    coursesDone: string;
+    unread: string;
+    needsAttention: string;
+    allRead: string;
+    team: string;
+    teamHint: string;
+    goTeam: string;
+    people: string;
+    awaiting: string;
+    overdueTraining: string;
+    company: string;
+    companyHint: string;
+    hrInbox: string;
+    questions: string;
+    mandatory: string;
+    recent: string;
+    allRequests: string;
+    empty: string;
+    first: string;
+    academy: string;
+    noCourse: string;
+    due: string;
+    progress: string;
+    start: string;
+    continue: string;
+    allDone: string;
+  };
+  requests: {
+    title: string;
+    description: string;
+    new: string;
+    all: string;
+    open: string;
+    approved: string;
+    rejected: string;
+    empty: string;
+    emptyHint: string;
+    none: string;
+    noneHint: string;
+    filed: string;
+  };
+  request: {
+    mine: string;
+    approvals: string;
+    heading: string;
+    byYou: string;
+    live: string;
+    canCancel: string;
+    awaitsYou: string;
+    details: string;
+    employee: string;
+    approver: string;
+    dates: string;
+    workDays: string;
+    comment: string;
+    amount: string;
+    reason: string;
+    updated: string;
+    systems: string;
+    systemsHint: string;
+    notStarted: string;
+    afterApprove: string;
+    history: string;
+    historyHint: string;
+    progress: string;
+    stepDone: string;
+  };
+  actions: {
+    start: string;
+    startTitle: string;
+    startDone: string;
+    approve: string;
+    approveTitle: string;
+    approveDone: string;
+    reject: string;
+    rejectTitle: string;
+    rejectDone: string;
+    cancel: string;
+    cancelTitle: string;
+    cancelDone: string;
+    fail: string;
+    reason: string;
+    note: string;
+  };
+  modal: {
+    title: string;
+    description: string;
+    send: string;
+    sending: string;
+    sent: string;
+    sentTo: string;
+    network: string;
+    start: string;
+    end: string;
+    pickDates: string;
+    weekends: string;
+    available: string;
+    pending: string;
+    comment: string;
+    amount: string;
+    amountHint: string;
+    already: string;
+    reason: string;
+  };
+  profile: {
+    title: string;
+    description: string;
+    name: string;
+    company: string;
+    position: string;
+    department: string;
+    manager: string;
+    hired: string;
+    number: string;
+    city: string;
+    vacation: string;
+    entitlement: string;
+    left: string;
+    used: string;
+    pending: string;
+    available: string;
+    remainingOf: string;
+    request: string;
+    training: string;
+    finished: string;
+    academy: string;
+    noCourses: string;
+    notices: string;
+    unreadN: string;
+    allRead: string;
+    allNotices: string;
+    noNotices: string;
+  };
+  academy: {
+    description: string;
+    empty: string;
+    emptyHint: string;
+    todo: string;
+    done: string;
+    minutes: string;
+    plusTest: string;
+    result: string;
+    due: string;
+    lessonsOf: string;
+    review: string;
+    start: string;
+    continue: string;
+  };
+  lesson: {
+    saved: string;
+    saveFail: string;
+    assignedBy: string;
+    passScore: string;
+    overall: string;
+    contents: string;
+    finishNext: string;
+    finishTest: string;
+    next: string;
+    toTest: string;
+    passedTitle: string;
+    passedBody: string;
+    failedTitle: string;
+    failedBody: string;
+    submitFail: string;
+    attempts: string;
+    attemptsHint: string;
+    passed: string;
+    failed: string;
+    youPassed: string;
+    youFailed: string;
+    quiz: string;
+    quizHint: string;
+    answered: string;
+    learnerOnly: string;
+    checking: string;
+    submit: string;
+    completedAt: string;
+  };
+  team: {
+    title: string;
+    employees: string;
+    all: string;
+    reports: string;
+    managerOf: string;
+    vacation: string;
+    open: string;
+    training: string;
+    overdueOne: string;
+    overdueMany: string;
+    back: string;
+    since: string;
+    assign: string;
+    pending: string;
+    yearly: string;
+    requests: string;
+    noRequests: string;
+    trainingPanel: string;
+    finished: string;
+    noCourses: string;
+    assignTitle: string;
+    assignHint: string;
+    assigning: string;
+    assignBtn: string;
+    assigned: string;
+    assignFail: string;
+    course: string;
+    pickCourse: string;
+    mandatory: string;
+    dueOptional: string;
+  };
+  approvals: {
+    title: string;
+    allTitle: string;
+    hrHint: string;
+    mgrHint: string;
+    action: string;
+    decided: string;
+    all: string;
+    emptyIn: string;
+    emptyInHint: string;
+    empty: string;
+    emptyHint: string;
+  };
+  notices: {
+    title: string;
+    description: string;
+    markAll: string;
+    empty: string;
+    emptyHint: string;
+    request: string;
+    course: string;
+    assistant: string;
+    system: string;
+  };
+  hr: {
+    title: string;
+    denied: string;
+    description: string;
+    open: string;
+    answered: string;
+    noneOpen: string;
+    noneOpenHint: string;
+    noneDone: string;
+    noneDoneHint: string;
+    waiting: string;
+    replied: string;
+    yourReply: string;
+    reply: string;
+    sent: string;
+    sentHint: string;
+    sendFail: string;
+    resetOk: string;
+    resetOkHint: string;
+    resetFail: string;
+    queue: string;
+    insights: string;
+    insightsHint: string;
+    asked: string;
+    fromKb: string;
+    gaps: string;
+    noGaps: string;
+    demo: string;
+    demoHint: string;
+    demoBody: string;
+    reset: string;
+    replyTitle: string;
+    askedBy: string;
+    yourAnswer: string;
+    sending: string;
+    send: string;
+    resetTitle: string;
+    resetBody: string;
+    resetting: string;
+  };
+  assistant: {
+    description: string;
+    kbOnly: string;
+    dialog: string;
+    hello: string;
+    try: string;
+    outside: string;
+    outsideQ: string;
+    askLabel: string;
+    placeholder: string;
+    ask: string;
+    how: string;
+    point1: string;
+    point2: string;
+    point3: string;
+    mine: string;
+    mineHint: string;
+    none: string;
+    answered: string;
+    waiting: string;
+    hrSaid: string;
+    source: string;
+    related: string;
+    noAnswer: string;
+    sent: string;
+    sentHint: string;
+    escalate: string;
+    escalating: string;
+    hrWill: string;
+    orTry: string;
+    fail: string;
+    escalated: string;
+    escalatedHint: string;
+    escalateFail: string;
+    thinking: string;
+    starters: string[];
+  };
+}
+
+const ru: Dict = {
+  switchLabel: "Язык интерфейса",
+  ru: "RU",
+  kz: "KZ",
+  nav: {
+    aria: "Основная навигация",
+    main: "Основное",
+    home: "Главная",
+    profile: "Мой профиль",
+    requests: "Мои заявки",
+    academy: "Jana Academy",
+    assistant: "Al Jana",
+    notifications: "Уведомления",
+    myTeam: "Моя команда",
+    approvals: "Согласования",
+    team: "Команда",
+    hr: "HR / Админ",
+    allRequests: "Все заявки",
+    employees: "Сотрудники",
+    inbox: "Входящие HR",
+    prototype: "Прототип · все данные вымышлены",
+    account: "Меню аккаунта",
+    signOut: "Выйти",
+    openMenu: "Открыть меню",
+    unread: "Уведомления ({n} непрочитанных)",
+  },
+  roles: { employee: "Сотрудник", manager: "Руководитель", hr: "HR / Админ" },
+  requestType: { vacation: "Отпуск", salary_advance: "Аванс" },
+  requestStatus: {
+    submitted: "Отправлено",
+    in_review: "На рассмотрении",
+    approved: "Одобрено",
+    rejected: "Отклонено",
+    cancelled: "Отменено",
+    decision: "Решение",
+    filed: "Подано",
+  },
+  courseStatus: { assigned: "Не начато", in_progress: "В процессе", completed: "Завершено", overdue: "Просрочено" },
+  common: {
+    errorTitle: "Что-то пошло не так",
+    retry: "Попробовать снова",
+    loading: "Загрузка",
+    deniedTitle: "Доступ запрещен",
+    deniedBody: "У вас нет доступа к этой странице.",
+    deniedNote: "Ограничение действует на уровне сервера, а не только скрыто в интерфейсе.",
+    cancel: "Отмена",
+    back: "Назад",
+    working: "Обработка…",
+    failed: "Что-то пошло не так.",
+    daysShort: "{n} дн.",
+    due: "срок: {date}",
+    score: "балл: {n}%",
+    mandatory: "Обязательный",
+    noManager: "Нет руководителя (высшее руководство)",
+    read: "прочитано",
+    unread: "не прочитано",
+    done: "завершено",
+    live: "В реальном времени",
+  },
+  login: {
+    title: "Digital HR",
+    lead: "Заявки, обучение и ответы на вопросы.\nЕдиный портал вместо пяти систем.",
+    email: "Рабочий e-mail",
+    password: "Демо-пароль",
+    enter: "Войти",
+    entering: "Вход…",
+    fail: "Не удалось войти.",
+    sso: "Тестовый SSO: пароли не требуются в прототипе. В рабочей среде используется корпоративный Identity Provider.",
+    ssoPassword: "Тестовый SSO с общим демо-паролем.",
+    demos: "Демо-аккаунты",
+    demoHint: "демо-пользователи",
+    passwordFirst: "Сначала введите демо-пароль выше, затем выберите аккаунт.",
+    roles: {
+      Employee: "Сотрудник",
+      Manager: "Руководитель",
+      "HR / Admin": "HR / Админ",
+      "Employee · other team": "Сотрудник · другая команда",
+      "Manager · other team": "Руководитель · другая команда",
+    },
+    hints: {
+      "aruzhan.kassymova@jana.example": "Senior Frontend Developer · Инжиниринг",
+      "daniyar.omarov@jana.example": "Руководитель разработки · 4 подчиненных",
+      "aigerim.sadykova@jana.example": "HR-директор · вся компания",
+      "alikhan.ryskulov@jana.example": "Маркетолог · подчиняется Madina",
+      "madina.tleuova@jana.example": "Руководитель маркетинга · 3 подчиненных",
+    },
+  },
+  dashboard: {
+    welcome: "С возвращением, {name}",
+    ask: "Спросить Al Jana",
+    newRequest: "Новая заявка",
+    summary: "Сводка",
+    vacationDays: "Дни отпуска",
+    availableOf: "доступно из {n} оставшихся",
+    pendingBit: " · {n} на рассмотрении",
+    openRequests: "Открытые заявки",
+    waiting: "ожидают решения",
+    noOpen: "нет открытых заявок",
+    training: "Обучение",
+    overdueN: "{n} просрочено",
+    coursesDone: "курсов пройдено",
+    unread: "Непрочитанные",
+    needsAttention: "требуют внимания",
+    allRead: "все прочитано",
+    team: "Моя команда",
+    teamHint: "Только ваши прямые подчиненные",
+    goTeam: "Перейти к команде",
+    people: "Сотрудников",
+    awaiting: "Ожидают решения",
+    overdueTraining: "Просрочено обучение",
+    company: "Обзор компании",
+    companyHint: "Вид для HR / Администратора",
+    hrInbox: "Входящие HR",
+    questions: "Вопросов к HR",
+    mandatory: "Обязательное обучение",
+    recent: "Недавние заявки",
+    allRequests: "Все заявки",
+    empty: "Заявок пока нет.",
+    first: "Подать первую заявку",
+    academy: "Обучение в Jana Academy",
+    noCourse: "Нет текущих курсов",
+    due: "Срок до {date}",
+    progress: "Прогресс",
+    start: "Начать курс",
+    continue: "Продолжить",
+    allDone: "Все курсы пройдены. Отличная работа!",
+  },
+  requests: {
+    title: "Мои заявки",
+    description: "Все заявки на отпуск и аванс в одном месте с актуальным статусом и полной историей.",
+    new: "Новая заявка",
+    all: "Все · {n}",
+    open: "Открытые · {n}",
+    approved: "Одобренные · {n}",
+    rejected: "Отклоненные / отмененные · {n}",
+    empty: "Заявок пока нет",
+    emptyHint: "Подайте заявку на отпуск или аванс и отслеживайте её статус здесь.",
+    none: "Ничего не найдено",
+    noneHint: "Нет заявок, соответствующих этому фильтру.",
+    filed: "Подано {date}",
+  },
+  request: {
+    mine: "Мои заявки",
+    approvals: "Согласования",
+    heading: "Заявка: {type}",
+    byYou: "Подана вами",
+    live: "В реальном времени",
+    canCancel: "Вы можете отозвать эту заявку, пока она открыта.",
+    awaitsYou: "Эта заявка ожидает вашего решения.",
+    details: "Детали заявки",
+    employee: "Сотрудник",
+    approver: "Согласующий",
+    dates: "Даты",
+    workDays: "Рабочих дней",
+    comment: "Комментарий",
+    amount: "Сумма",
+    reason: "Причина",
+    updated: "Обновлено",
+    systems: "Интегрированные системы",
+    systemsHint: "Тестовые адаптеры (см. архитектурные заметки)",
+    notStarted: "Не запущено",
+    afterApprove: "Регистрация после одобрения",
+    history: "История",
+    historyHint: "Каждое изменение статуса, кто изменил и когда",
+    progress: "Прогресс заявки",
+    stepDone: "завершено",
+  },
+  actions: {
+    start: "Взять в работу",
+    startTitle: "Начать рассмотрение заявки?",
+    startDone: "Рассмотрение начато. Сотрудник уведомлен.",
+    approve: "Одобрить",
+    approveTitle: "Одобрить заявку",
+    approveDone: "Заявка одобрена. Сотрудник уведомлен.",
+    reject: "Отклонить",
+    rejectTitle: "Отклонить заявку",
+    rejectDone: "Заявка отклонена. Сотрудник уведомлен.",
+    cancel: "Отозвать заявку",
+    cancelTitle: "Отозвать эту заявку?",
+    cancelDone: "Заявка отменена.",
+    fail: "Ошибка выполнения действия",
+    reason: "Причина (будет видна сотруднику)",
+    note: "Комментарий (необязательно)",
+  },
+  modal: {
+    title: "Новая заявка",
+    description: "Заявка сначала поступает вашему руководителю. Вы сможете отслеживать каждый этап на странице заявки.",
+    send: "Отправить заявку",
+    sending: "Отправка…",
+    sent: "Заявка отправлена",
+    sentTo: "Заявка {id} направлена: {name}.",
+    network: "Ошибка сети.",
+    start: "Дата начала",
+    end: "Дата окончания",
+    pickDates: "Выберите даты, чтобы рассчитать рабочие дни.",
+    weekends: "(без учета выходных)",
+    available: "{n} доступно",
+    pending: " ({n} на рассмотрении)",
+    comment: "Комментарий (необязательно)",
+    amount: "Сумма (тенге)",
+    amountHint: "До {limit} (50% от месячного оклада). Не более одного аванса в месяц.",
+    already: "В этом месяце вы уже запрашивали аванс, повторный запрос недоступен.",
+    reason: "Причина",
+  },
+  profile: {
+    title: "Мой профиль",
+    description: "Данные сотрудника, баланс отпуска, обучение и последние уведомления.",
+    name: "ФИО",
+    company: "Компания",
+    position: "Должность",
+    department: "Отдел",
+    manager: "Руководитель",
+    hired: "Дата приема",
+    number: "Табельный номер",
+    city: "Город",
+    vacation: "Отпуск",
+    entitlement: "Годовой отпуск: {n} рабочих дней",
+    left: "дней осталось",
+    used: "Использовано: ",
+    pending: "На рассмотрении: ",
+    available: "Доступно для заявки: ",
+    remainingOf: "Остаток от годового отпуска",
+    request: "Запросить отпуск",
+    training: "Назначенное обучение",
+    finished: "{done} из {total} завершено",
+    academy: "В Академию",
+    noCourses: "Нет назначенных курсов.",
+    notices: "Уведомления",
+    unreadN: "{n} непрочитанных",
+    allRead: "Все прочитано",
+    allNotices: "Все уведомления",
+    noNotices: "Уведомлений пока нет.",
+  },
+  academy: {
+    description: "Курсы, назначенные вам. Изучайте материалы, следите за прогрессом и сдавайте тесты для завершения курсов.",
+    empty: "Нет назначенных курсов",
+    emptyHint: "Когда руководитель или HR назначит вам курс, он появится здесь и в ваших уведомлениях.",
+    todo: "К прохождению",
+    done: "Завершено",
+    minutes: "{n} мин.",
+    plusTest: "{lessons} + тест",
+    result: "Результат {n}%",
+    due: "Срок до {date}",
+    lessonsOf: "{done} из {total} уроков",
+    review: "Повторить",
+    start: "Начать курс",
+    continue: "Продолжить",
+  },
+  lesson: {
+    saved: "Урок завершен",
+    saveFail: "Не удалось сохранить прогресс",
+    assignedBy: "Назначил(а) {name} · срок до {date} · проходной балл {score}%",
+    passScore: "проходной балл {n}%",
+    overall: "Общий прогресс",
+    contents: "Содержание курса",
+    finishNext: "Завершить и продолжить",
+    finishTest: "Завершить и перейти к тесту",
+    next: "Следующий урок",
+    toTest: "Перейти к тесту",
+    passedTitle: "Курс завершен",
+    passedBody: "Вы набрали {n}%.",
+    failedTitle: "Тест пока не сдан",
+    failedBody: "Вы набрали {n}%; проходной балл: {pass}%.",
+    submitFail: "Не удалось отправить тест.",
+    attempts: "Попытки",
+    attemptsHint: "История всех попыток сохраняется",
+    passed: "Сдано",
+    failed: "Не сдано",
+    youPassed: "Вы сдали тест! Курс завершен.",
+    youFailed: "В этот раз тест не сдан",
+    quiz: "Итоговый тест",
+    quizHint: "{n} вопросов · проходной балл {score}% · количество попыток не ограничено",
+    answered: "Отвечено на {done} из {total}",
+    learnerOnly: "Проходить тест может только назначенный сотрудник.",
+    checking: "Проверка…",
+    submit: "Сдать тест",
+    completedAt: "Завершено {date}.",
+  },
+  team: {
+    title: "Команда",
+    employees: "Сотрудники",
+    all: "Все сотрудники Jana Group.",
+    reports: "Ваши прямые подчиненные{count}. Доступ к сотрудникам вне вашей команды ограничен.",
+    managerOf: "руководитель: {name}",
+    vacation: "Остаток отпуска",
+    open: "Открытые заявки",
+    training: "Обучение",
+    overdueOne: "курс просрочен",
+    overdueMany: "курса(-ов) просрочено",
+    back: "Команда",
+    since: "в компании с {date}",
+    assign: "Назначить курс",
+    pending: "На рассмотрении",
+    yearly: "Ежегодный отпуск",
+    requests: "Заявки",
+    noRequests: "Нет заявок.",
+    trainingPanel: "Обучение",
+    finished: "{done} из {total} завершено",
+    noCourses: "Нет назначенных курсов.",
+    assignTitle: "Назначить курс",
+    assignHint: "{name} получит уведомление, и курс появится в его Академии.",
+    assigning: "Назначение…",
+    assignBtn: "Назначить",
+    assigned: "Курс назначен",
+    assignFail: "Не удалось назначить курс.",
+    course: "Курс",
+    pickCourse: "Выберите курс…",
+    mandatory: "(обязательный)",
+    dueOptional: "Срок прохождения (необязательно, по умолчанию 30 дней)",
+  },
+  approvals: {
+    title: "Согласования",
+    allTitle: "Все заявки",
+    hrHint: "Просмотр по всей компании. Принятие решений по любым заявкам, кроме собственных.",
+    mgrHint: "Заявки только от ваших прямых подчиненных. Никто вне вашей команды здесь не отображается.",
+    action: "Требуют решения · {n}",
+    decided: "Рассмотрено · {n}",
+    all: "Все · {n}",
+    emptyIn: "Входящих нет",
+    emptyInHint: "Нет заявок, ожидающих вашего решения.",
+    empty: "Ничего не найдено",
+    emptyHint: "В этом разделе нет заявок.",
+  },
+  notices: {
+    title: "Уведомления",
+    description: "Изменения статусов ваших заявок, назначение и завершение курсов, ответы от HR.",
+    markAll: "Прочитать все",
+    empty: "Все уведомления прочитаны",
+    emptyHint: "Новые оповещения появляются здесь и во всплывающих уведомлениях в момент события.",
+    request: "Заявка",
+    course: "Обучение",
+    assistant: "Al Jana",
+    system: "Система",
+  },
+  hr: {
+    title: "Входящие HR",
+    denied: "Только HR / Администратор может открывать входящие HR.",
+    description: "Вопросы, на которые не смогла ответить Al Jana, пробелы в базе знаний и управление демо-данными.",
+    open: "Открытые · {n}",
+    answered: "С ответом · {n}",
+    noneOpen: "Нет открытых вопросов",
+    noneOpenHint: "Когда Al Jana не может найти ответ и сотрудник передает вопрос в HR, он появляется здесь.",
+    noneDone: "Ответов пока нет",
+    noneDoneHint: "Отправленные вами ответы отображаются здесь.",
+    waiting: "Ожидает ответа",
+    replied: "Отвечено",
+    yourReply: "Ваш ответ",
+    reply: "Ответить",
+    sent: "Ответ отправлен",
+    sentHint: "{name} получил(а) уведомление.",
+    sendFail: "Не удалось отправить ответ.",
+    resetOk: "Демо-данные восстановлены",
+    resetOkHint: "Все демонстрационные данные возвращены к исходному состоянию.",
+    resetFail: "Сброс не удался",
+    queue: "Переданные вопросы",
+    insights: "Аналитика Al Jana",
+    insightsHint: "Помогает улучшать базу знаний",
+    asked: "Вопросов задано",
+    fromKb: "Ответов из базы",
+    gaps: "Без ответа, последние",
+    noGaps: "Нет. База знаний покрыла все заданные вопросы.",
+    demo: "Управление демо",
+    demoHint: "Только для прототипа",
+    demoBody: "Сбросьте все заявки, курсы, уведомления и вопросы до исходного состояния демо-данных, чтобы пройти сценарии заново.",
+    reset: "Сбросить демо-данные",
+    replyTitle: "Ответить сотруднику",
+    askedBy: "{name} спросил(а): «{question}»",
+    yourAnswer: "Ваш ответ",
+    sending: "Отправка…",
+    send: "Отправить ответ",
+    resetTitle: "Сбросить демо-данные?",
+    resetBody: "Это удалит все созданные во время демонстрации данные (новые заявки, назначения, уведомления, вопросы в HR) и восстановит исходные данные. Текущие сессии останутся активными.",
+    resetting: "Сброс…",
+  },
+  assistant: {
+    description: "Ваш HR-ассистент. Отвечает строго по корпоративной базе знаний HR, всегда указывает источник и не выдумывает факты.",
+    kbOnly: "Ответы только из базы знаний HR",
+    dialog: "Диалог",
+    hello: "Здравствуйте! Спросите меня об отпуске, авансе, больничных, рабочем времени, льготах или обучении. Я отвечаю только по нашей базе знаний HR и всегда показываю источник. Если точного ответа нет, я честно сообщу об этом и предложу передать вопрос в HR.",
+    try: "Попробуйте спросить",
+    outside: "Вне базы знаний (пример передачи в HR)",
+    outsideQ: "Есть ли у нас опционы на акции?",
+    askLabel: "Задать вопрос HR",
+    placeholder: "Задайте вопрос HR…",
+    ask: "Спросить",
+    how: "Как работает Al Jana",
+    point1: "Ответы составлены HR и отображаются слово в слово. Ничего не генерируется и не додумывается.",
+    point2: "Каждый ответ содержит ссылку на исходный документ и раздел.",
+    point3: "Нет надежного совпадения? Ассистент скажет об этом и предложит передать вопрос в HR.",
+    mine: "Мои вопросы в HR",
+    mineHint: "Передано из Al Jana",
+    none: "Пока вопросов нет. Если Al Jana не сможет ответить, вы сможете отправить вопрос в HR.",
+    answered: "Отвечено",
+    waiting: "Ожидает HR",
+    hrSaid: "HR ответил(а)",
+    source: "Источник",
+    related: "Похожие вопросы",
+    noAnswer: "Надежный ответ не найден",
+    sent: "Передано в HR · {id}",
+    sentHint: "Вы получите уведомление, когда HR ответит. Отслеживать можно в разделе «Мои вопросы в HR».",
+    escalate: "Передать этот вопрос в HR",
+    escalating: "Отправка…",
+    hrWill: "Сотрудник HR подготовит ответ.",
+    orTry: "Или попробуйте один из этих вопросов",
+    fail: "Al Jana не смогла ответить",
+    escalated: "Вопрос передан в HR",
+    escalatedHint: "Обращение {id}. Вы получите уведомление, когда HR ответит.",
+    escalateFail: "Не удалось связаться с HR",
+    thinking: "Al Jana ищет ответ в базе знаний",
+    starters: [
+      "Сколько дней отпуска мне положено?",
+      "Как запросить аванс по зарплате?",
+      "Что делать, если я заболел?",
+      "Могу ли я работать из дома?",
+      "В какой день выплачивается зарплата?",
+    ],
+  },
+};
+
+const kk: Dict = {
+  switchLabel: "Интерфейс тілі",
+  ru: "RU",
+  kz: "KZ",
+  nav: {
+    aria: "Негізгі навигация",
+    main: "Негізгі",
+    home: "Басты бет",
+    profile: "Менің профилім",
+    requests: "Менің өтінімдерім",
+    academy: "Jana Academy",
+    assistant: "Al Jana",
+    notifications: "Хабарламалар",
+    myTeam: "Менің командам",
+    approvals: "Келісу",
+    team: "Команда",
+    hr: "HR / Әкімші",
+    allRequests: "Барлық өтінім",
+    employees: "Қызметкерлер",
+    inbox: "HR кіріс жәшігі",
+    prototype: "Прототип · барлық дерек ойдан шығарылған",
+    account: "Аккаунт мәзірі",
+    signOut: "Шығу",
+    openMenu: "Мәзірді ашу",
+    unread: "Хабарламалар ({n} оқылмаған)",
+  },
+  roles: { employee: "Қызметкер", manager: "Басшы", hr: "HR / Әкімші" },
+  requestType: { vacation: "Демалыс", salary_advance: "Аванс" },
+  requestStatus: {
+    submitted: "Жіберілді",
+    in_review: "Қаралуда",
+    approved: "Мақұлданды",
+    rejected: "Қабылданбады",
+    cancelled: "Болдырылмады",
+    decision: "Шешім",
+    filed: "Берілді",
+  },
+  courseStatus: { assigned: "Басталмаған", in_progress: "Жүріп жатыр", completed: "Аяқталды", overdue: "Мерзімі өтті" },
+  common: {
+    errorTitle: "Бірдеңе дұрыс болмады",
+    retry: "Қайта көру",
+    loading: "Жүктелуде",
+    deniedTitle: "Қол жеткізу жабық",
+    deniedBody: "Бұл бетке рұқсатыңыз жоқ.",
+    deniedNote: "Шектеу серверде қолданылады, тек интерфейсте жасырылмайды.",
+    cancel: "Болдырмау",
+    back: "Артқа",
+    working: "Орындалуда…",
+    failed: "Бірдеңе дұрыс болмады.",
+    daysShort: "{n} күн",
+    due: "мерзімі: {date}",
+    score: "балл: {n}%",
+    mandatory: "Міндетті",
+    noManager: "Басшы жоқ (жоғары басшылық)",
+    read: "оқылды",
+    unread: "оқылмаған",
+    done: "аяқталды",
+    live: "Нақты уақытта",
+  },
+  login: {
+    title: "Digital HR",
+    lead: "Өтінімдер, оқыту және сұрақтарға жауап.\nБес жүйенің орнына бір портал.",
+    email: "Жұмыс e-mail",
+    password: "Демо-құпиясөз",
+    enter: "Кіру",
+    entering: "Кіру…",
+    fail: "Кіру мүмкін болмады.",
+    sso: "Сынақ SSO: прототипте құпиясөз керек емес. Жұмыс ортасында корпоративтік Identity Provider қолданылады.",
+    ssoPassword: "Ортақ демо-құпиясөзі бар сынақ SSO.",
+    demos: "Демо-аккаунттар",
+    demoHint: "демо-пайдаланушылар",
+    passwordFirst: "Алдымен жоғарыдағы демо-құпиясөзді енгізіп, содан кейін аккаунтты таңдаңыз.",
+    roles: {
+      Employee: "Қызметкер",
+      Manager: "Басшы",
+      "HR / Admin": "HR / Әкімші",
+      "Employee · other team": "Қызметкер · басқа команда",
+      "Manager · other team": "Басшы · басқа команда",
+    },
+    hints: {
+      "aruzhan.kassymova@jana.example": "Senior Frontend Developer · Инжиниринг",
+      "daniyar.omarov@jana.example": "Әзірлеу басшысы · 4 бағынышты",
+      "aigerim.sadykova@jana.example": "HR-директор · бүкіл компания",
+      "alikhan.ryskulov@jana.example": "Маркетолог · Madina-ға бағынады",
+      "madina.tleuova@jana.example": "Маркетинг басшысы · 3 бағынышты",
+    },
+  },
+  dashboard: {
+    welcome: "Қош келдіңіз, {name}",
+    ask: "Al Jana-дан сұрау",
+    newRequest: "Жаңа өтінім",
+    summary: "Жиынтық",
+    vacationDays: "Демалыс күндері",
+    availableOf: "{n} қалғаннан қолжетімді",
+    pendingBit: " · {n} қаралуда",
+    openRequests: "Ашық өтінімдер",
+    waiting: "шешім күтуде",
+    noOpen: "ашық өтінім жоқ",
+    training: "Оқыту",
+    overdueN: "{n} мерзімі өтті",
+    coursesDone: "курс аяқталды",
+    unread: "Оқылмаған",
+    needsAttention: "назар керек",
+    allRead: "бәрі оқылды",
+    team: "Менің командам",
+    teamHint: "Тек тікелей бағыныштылар",
+    goTeam: "Командаға өту",
+    people: "Қызметкер",
+    awaiting: "Шешім күтуде",
+    overdueTraining: "Мерзімі өткен оқыту",
+    company: "Компания шолуы",
+    companyHint: "HR / Әкімші көрінісі",
+    hrInbox: "HR кіріс жәшігі",
+    questions: "HR-ға сұрақ",
+    mandatory: "Міндетті оқыту",
+    recent: "Соңғы өтінімдер",
+    allRequests: "Барлық өтінім",
+    empty: "Өтінім әлі жоқ.",
+    first: "Алғашқы өтінім беру",
+    academy: "Jana Academy оқуы",
+    noCourse: "Ағымдағы курс жоқ",
+    due: "Мерзімі {date}",
+    progress: "Прогресс",
+    start: "Курсты бастау",
+    continue: "Жалғастыру",
+    allDone: "Барлық курс аяқталды.",
+  },
+  requests: {
+    title: "Менің өтінімдерім",
+    description: "Демалыс пен аванс өтінімдері бір жерде: күйі мен толық тарихы.",
+    new: "Жаңа өтінім",
+    all: "Барлығы · {n}",
+    open: "Ашық · {n}",
+    approved: "Мақұлданған · {n}",
+    rejected: "Қабылданбаған / болдырылмаған · {n}",
+    empty: "Өтінім әлі жоқ",
+    emptyHint: "Демалыс немесе аванс өтінімін беріп, күйін осында бақылаңыз.",
+    none: "Ештеңе табылмады",
+    noneHint: "Бұл сүзгіге сай өтінім жоқ.",
+    filed: "Берілді {date}",
+  },
+  request: {
+    mine: "Менің өтінімдерім",
+    approvals: "Келісу",
+    heading: "Өтінім: {type}",
+    byYou: "Сіз бердіңіз",
+    live: "Нақты уақытта",
+    canCancel: "Өтінім ашық тұрғанда оны кері қайтара аласыз.",
+    awaitsYou: "Бұл өтінім сіздің шешіміңізді күтуде.",
+    details: "Өтінім мәліметі",
+    employee: "Қызметкер",
+    approver: "Келісуші",
+    dates: "Күндер",
+    workDays: "Жұмыс күні",
+    comment: "Пікір",
+    amount: "Сома",
+    reason: "Себебі",
+    updated: "Жаңартылды",
+    systems: "Байланысқан жүйелер",
+    systemsHint: "Сынақ адаптерлері",
+    notStarted: "Басталмаған",
+    afterApprove: "Мақұлданғаннан кейін тіркеледі",
+    history: "Тарих",
+    historyHint: "Әр күй өзгерісі: кім және қашан",
+    progress: "Өтінім барысы",
+    stepDone: "аяқталды",
+  },
+  actions: {
+    start: "Жұмысқа алу",
+    startTitle: "Өтінімді қарауды бастау керек пе?",
+    startDone: "Қарау басталды. Қызметкерге хабар жіберілді.",
+    approve: "Мақұлдау",
+    approveTitle: "Өтінімді мақұлдау",
+    approveDone: "Өтінім мақұлданды. Қызметкерге хабар жіберілді.",
+    reject: "Қабылдамау",
+    rejectTitle: "Өтінімді қабылдамау",
+    rejectDone: "Өтінім қабылданбады. Қызметкерге хабар жіберілді.",
+    cancel: "Өтінімді кері қайтару",
+    cancelTitle: "Осы өтінімді кері қайтару керек пе?",
+    cancelDone: "Өтінім болдырылмады.",
+    fail: "Әрекет орындалмады",
+    reason: "Себебі (қызметкер көреді)",
+    note: "Пікір (міндетті емес)",
+  },
+  modal: {
+    title: "Жаңа өтінім",
+    description: "Өтінім алдымен басшыңызға түседі. Әр кезеңді өтінім бетінде көресіз.",
+    send: "Өтінім жіберу",
+    sending: "Жіберілуде…",
+    sent: "Өтінім жіберілді",
+    sentTo: "{id} өтінімі {name} адамға жіберілді.",
+    network: "Желі қатесі.",
+    start: "Басталу күні",
+    end: "Аяқталу күні",
+    pickDates: "Жұмыс күндерін есептеу үшін күндерді таңдаңыз.",
+    weekends: "(демалыс күндерін есептемегенде)",
+    available: "{n} қолжетімді",
+    pending: " ({n} қаралуда)",
+    comment: "Пікір (міндетті емес)",
+    amount: "Сома (теңге)",
+    amountHint: "{limit} дейін (айлықтың 50%). Айына бір аванс.",
+    already: "Осы айда аванс сұралған, қайта сұрауға болмайды.",
+    reason: "Себебі",
+  },
+  profile: {
+    title: "Менің профилім",
+    description: "Қызметкер деректері, демалыс қалдығы, оқыту және соңғы хабарламалар.",
+    name: "Аты-жөні",
+    company: "Компания",
+    position: "Лауазым",
+    department: "Бөлім",
+    manager: "Басшы",
+    hired: "Қабылданған күні",
+    number: "Табель нөмірі",
+    city: "Қала",
+    vacation: "Демалыс",
+    entitlement: "Жылдық демалыс: {n} жұмыс күні",
+    left: "күн қалды",
+    used: "Пайдаланылды: ",
+    pending: "Қаралуда: ",
+    available: "Өтінімге қолжетімді: ",
+    remainingOf: "Жылдық демалыстан қалғаны",
+    request: "Демалыс сұрау",
+    training: "Тағайындалған оқыту",
+    finished: "{done} / {total} аяқталды",
+    academy: "Академияға",
+    noCourses: "Тағайындалған курс жоқ.",
+    notices: "Хабарламалар",
+    unreadN: "{n} оқылмаған",
+    allRead: "Бәрі оқылды",
+    allNotices: "Барлық хабарлама",
+    noNotices: "Хабарлама әлі жоқ.",
+  },
+  academy: {
+    description: "Сізге тағайындалған курстар. Материалды оқып, прогресті көріп, тест тапсырыңыз.",
+    empty: "Тағайындалған курс жоқ",
+    emptyHint: "Басшы немесе HR курс тағайындаса, ол осында және хабарламада көрінеді.",
+    todo: "Өту керек",
+    done: "Аяқталды",
+    minutes: "{n} мин.",
+    plusTest: "{lessons} + тест",
+    result: "Нәтиже {n}%",
+    due: "Мерзімі {date}",
+    lessonsOf: "{done} / {total} сабақ",
+    review: "Қайталау",
+    start: "Курсты бастау",
+    continue: "Жалғастыру",
+  },
+  lesson: {
+    saved: "Сабақ аяқталды",
+    saveFail: "Прогресті сақтау мүмкін болмады",
+    assignedBy: "Тағайындаған {name} · мерзімі {date} · өту балы {score}%",
+    passScore: "өту балы {n}%",
+    overall: "Жалпы прогресс",
+    contents: "Курс мазмұны",
+    finishNext: "Аяқтап, жалғастыру",
+    finishTest: "Аяқтап, тестке өту",
+    next: "Келесі сабақ",
+    toTest: "Тестке өту",
+    passedTitle: "Курс аяқталды",
+    passedBody: "Сіз {n}% жинадыңыз.",
+    failedTitle: "Тест әлі тапсырылмады",
+    failedBody: "Сіз {n}% жинадыңыз; өту балы: {pass}%.",
+    submitFail: "Тестті жіберу мүмкін болмады.",
+    attempts: "Әрекеттер",
+    attemptsHint: "Барлық әрекет тарихы сақталады",
+    passed: "Тапсырылды",
+    failed: "Тапсырылмады",
+    youPassed: "Тестті тапсырдыңыз! Курс аяқталды.",
+    youFailed: "Бұл жолы тест тапсырылмады",
+    quiz: "Қорытынды тест",
+    quizHint: "{n} сұрақ · өту балы {score}% · әрекет саны шектелмеген",
+    answered: "{done} / {total} жауап берілді",
+    learnerOnly: "Тестті тек тағайындалған қызметкер тапсыра алады.",
+    checking: "Тексерілуде…",
+    submit: "Тестті тапсыру",
+    completedAt: "Аяқталды {date}.",
+  },
+  team: {
+    title: "Команда",
+    employees: "Қызметкерлер",
+    all: "Jana Group қызметкерлерінің бәрі.",
+    reports: "Тікелей бағыныштылар{count}. Командаңыздан тыс қызметкерлерге қол жеткізу шектелген.",
+    managerOf: "басшы: {name}",
+    vacation: "Демалыс қалдығы",
+    open: "Ашық өтінім",
+    training: "Оқыту",
+    overdueOne: "курс мерзімі өтті",
+    overdueMany: "курс мерзімі өтті",
+    back: "Команда",
+    since: "компанияда {date} бастап",
+    assign: "Курс тағайындау",
+    pending: "Қаралуда",
+    yearly: "Жылдық демалыс",
+    requests: "Өтінімдер",
+    noRequests: "Өтінім жоқ.",
+    trainingPanel: "Оқыту",
+    finished: "{done} / {total} аяқталды",
+    noCourses: "Тағайындалған курс жоқ.",
+    assignTitle: "Курс тағайындау",
+    assignHint: "{name} хабарлама алады, курс оның Академиясында көрінеді.",
+    assigning: "Тағайындалуда…",
+    assignBtn: "Тағайындау",
+    assigned: "Курс тағайындалды",
+    assignFail: "Курсты тағайындау мүмкін болмады.",
+    course: "Курс",
+    pickCourse: "Курсты таңдаңыз…",
+    mandatory: "(міндетті)",
+    dueOptional: "Өту мерзімі (міндетті емес, әдепкі 30 күн)",
+  },
+  approvals: {
+    title: "Келісу",
+    allTitle: "Барлық өтінім",
+    hrHint: "Бүкіл компания. Өз өтініміңізден басқа кез келгені бойынша шешім.",
+    mgrHint: "Тек тікелей бағыныштылардың өтінімдері. Командаңыздан тыс ешкім мұнда жоқ.",
+    action: "Шешім керек · {n}",
+    decided: "Қаралды · {n}",
+    all: "Барлығы · {n}",
+    emptyIn: "Кіріс жоқ",
+    emptyInHint: "Шешіміңізді күткен өтінім жоқ.",
+    empty: "Ештеңе табылмады",
+    emptyHint: "Бұл бөлімде өтінім жоқ.",
+  },
+  notices: {
+    title: "Хабарламалар",
+    description: "Өтінім күйі, курс тағайындау мен аяқтау, HR жауаптары.",
+    markAll: "Барлығын оқу",
+    empty: "Барлық хабарлама оқылды",
+    emptyHint: "Жаңа хабарлама осында және оқиға сәтінде қалқыма хабарда көрінеді.",
+    request: "Өтінім",
+    course: "Оқыту",
+    assistant: "Al Jana",
+    system: "Жүйе",
+  },
+  hr: {
+    title: "HR кіріс жәшігі",
+    denied: "HR кіріс жәшігін тек HR / Әкімші аша алады.",
+    description: "Al Jana жауап бере алмаған сұрақтар, білім базасындағы олқылық және демо-дерек.",
+    open: "Ашық · {n}",
+    answered: "Жауап бар · {n}",
+    noneOpen: "Ашық сұрақ жоқ",
+    noneOpenHint: "Al Jana жауап таппай, қызметкер сұрақты HR-ға жіберсе, ол осында шығады.",
+    noneDone: "Жауап әлі жоқ",
+    noneDoneHint: "Жіберген жауаптарыңыз осында көрінеді.",
+    waiting: "Жауап күтуде",
+    replied: "Жауап берілді",
+    yourReply: "Сіздің жауабыңыз",
+    reply: "Жауап беру",
+    sent: "Жауап жіберілді",
+    sentHint: "{name} хабарлама алды.",
+    sendFail: "Жауап жіберу мүмкін болмады.",
+    resetOk: "Демо-дерек қалпына келтірілді",
+    resetOkHint: "Барлық демо-дерек бастапқы күйге қайтты.",
+    resetFail: "Қалпына келтіру сәтсіз",
+    queue: "Жіберілген сұрақтар",
+    insights: "Al Jana талдауы",
+    insightsHint: "Білім базасын жақсартуға көмектеседі",
+    asked: "Қойылған сұрақ",
+    fromKb: "Базадан жауап",
+    gaps: "Жауапсыз, соңғылары",
+    noGaps: "Жоқ. Білім базасы барлық сұрақты жапты.",
+    demo: "Демоны басқару",
+    demoHint: "Тек прототип үшін",
+    demoBody: "Сценарийді қайта өту үшін өтінім, курс, хабарлама және сұрақтарды бастапқы демо-күйге қайтарыңыз.",
+    reset: "Демо-деректі қалпына келтіру",
+    replyTitle: "Қызметкерге жауап",
+    askedBy: "{name} сұрады: «{question}»",
+    yourAnswer: "Сіздің жауабыңыз",
+    sending: "Жіберілуде…",
+    send: "Жауап жіберу",
+    resetTitle: "Демо-деректі қалпына келтіру керек пе?",
+    resetBody: "Көрсетілімде жасалған дерек (жаңа өтінім, тағайындау, хабарлама, HR сұрақтары) жойылып, бастапқы дерек қайтады. Сессиялар ашық қалады.",
+    resetting: "Қалпына келтіру…",
+  },
+  assistant: {
+    description: "HR көмекшісі. Тек HR білім базасы бойынша жауап береді, дереккөзді көрсетеді және ойдан шығармайды.",
+    kbOnly: "Жауап тек HR білім базасынан",
+    dialog: "Диалог",
+    hello: "Сәлеметсіз бе! Демалыс, аванс, сырқатнама, жұмыс уақыты, жеңілдік немесе оқыту туралы сұраңыз. Мен тек HR білім базасы бойынша жауап беремін және дереккөзді көрсетемін. Нақты жауап болмаса, оны айтып, сұрақты HR-ға жіберуді ұсынамын.",
+    try: "Мынаны сұрап көріңіз",
+    outside: "Базадан тыс (HR-ға жіберу мысалы)",
+    outsideQ: "Бізде акция опционы бар ма?",
+    askLabel: "HR-ға сұрақ қою",
+    placeholder: "HR-ға сұрақ қойыңыз…",
+    ask: "Сұрау",
+    how: "Al Jana қалай жұмыс істейді",
+    point1: "Жауаптарды HR дайындаған және олар сөзбе-сөз көрсетіледі. Ештеңе генерацияланбайды.",
+    point2: "Әр жауапта бастапқы құжат пен бөлімге сілтеме бар.",
+    point3: "Сенімді сәйкестік жоқ па? Көмекші оны айтып, сұрақты HR-ға жіберуді ұсынады.",
+    mine: "HR-ға менің сұрақтарым",
+    mineHint: "Al Jana арқылы жіберілді",
+    none: "Сұрақ әлі жоқ. Al Jana жауап бере алмаса, сұрақты HR-ға жібере аласыз.",
+    answered: "Жауап берілді",
+    waiting: "HR күтуде",
+    hrSaid: "HR жауап берді",
+    source: "Дереккөз",
+    related: "Ұқсас сұрақтар",
+    noAnswer: "Сенімді жауап табылмады",
+    sent: "HR-ға жіберілді · {id}",
+    sentHint: "HR жауап бергенде хабарлама аласыз. «HR-ға менің сұрақтарым» бөлімінде бақылайсыз.",
+    escalate: "Осы сұрақты HR-ға жіберу",
+    escalating: "Жіберілуде…",
+    hrWill: "HR қызметкері жауап дайындайды.",
+    orTry: "Немесе мына сұрақтардың бірін көріңіз",
+    fail: "Al Jana жауап бере алмады",
+    escalated: "Сұрақ HR-ға жіберілді",
+    escalatedHint: "Өтініш {id}. HR жауап бергенде хабарлама аласыз.",
+    escalateFail: "HR-мен байланысу мүмкін болмады",
+    thinking: "Al Jana білім базасынан жауап іздеп жатыр",
+    starters: [
+      "Сколько дней отпуска мне положено?",
+      "Как запросить аванс по зарплате?",
+      "Что делать, если я заболел?",
+      "Могу ли я работать из дома?",
+      "В какой день выплачивается зарплата?",
+    ],
+  },
+};
+
+export const DICT: Record<Locale, Dict> = { ru, kk };

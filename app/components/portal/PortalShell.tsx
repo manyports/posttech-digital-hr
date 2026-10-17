@@ -5,7 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { SessionUser } from "@/lib/domain/types";
 import { post } from "@/lib/client/api";
-import { ROLE_LABEL } from "@/lib/client/format";
+import { LocaleSwitch, useI18n } from "@/lib/i18n/I18nProvider";
+import { tx } from "@/lib/i18n/locale";
 import { Avatar } from "../ui/Avatar";
 import { Drawer } from "../ui/Drawer";
 import { DropdownMenu } from "../ui/DropdownMenu";
@@ -33,32 +34,32 @@ interface NavItem {
   badge?: number;
 }
 
-function navFor(user: SessionUser, unread: number): { title?: string; items: NavItem[] }[] {
+function navFor(user: SessionUser, unread: number, m: ReturnType<typeof useI18n>["m"]): { title?: string; items: NavItem[] }[] {
   const mine: NavItem[] = [
-    { href: "/dashboard", label: "Главная", icon: <HomeIcon /> },
-    { href: "/profile", label: "Мой профиль", icon: <UserIcon /> },
-    { href: "/requests", label: "Мои заявки", icon: <DocIcon /> },
-    { href: "/academy", label: "Jana Academy", icon: <BookIcon /> },
-    { href: "/assistant", label: "Al Jana", icon: <SparkleIcon /> },
-    { href: "/notifications", label: "Уведомления", icon: <BellIcon />, badge: unread || undefined },
+    { href: "/dashboard", label: m.nav.home, icon: <HomeIcon /> },
+    { href: "/profile", label: m.nav.profile, icon: <UserIcon /> },
+    { href: "/requests", label: m.nav.requests, icon: <DocIcon /> },
+    { href: "/academy", label: m.nav.academy, icon: <BookIcon /> },
+    { href: "/assistant", label: m.nav.assistant, icon: <SparkleIcon /> },
+    { href: "/notifications", label: m.nav.notifications, icon: <BellIcon />, badge: unread || undefined },
   ];
-  const sections: { title?: string; items: NavItem[] }[] = [{ title: "Основное", items: mine }];
+  const sections: { title?: string; items: NavItem[] }[] = [{ title: m.nav.main, items: mine }];
   if (user.role === "manager") {
     sections.push({
-      title: "Моя команда",
+      title: m.nav.myTeam,
       items: [
-        { href: "/approvals", label: "Согласования", icon: <CheckCircleIcon /> },
-        { href: "/team", label: "Команда", icon: <UsersIcon /> },
+        { href: "/approvals", label: m.nav.approvals, icon: <CheckCircleIcon /> },
+        { href: "/team", label: m.nav.team, icon: <UsersIcon /> },
       ],
     });
   }
   if (user.role === "hr") {
     sections.push({
-      title: "HR / Админ",
+      title: m.nav.hr,
       items: [
-        { href: "/approvals", label: "Все заявки", icon: <CheckCircleIcon /> },
-        { href: "/team", label: "Сотрудники", icon: <UsersIcon /> },
-        { href: "/hr", label: "Входящие HR", icon: <InboxIcon /> },
+        { href: "/approvals", label: m.nav.allRequests, icon: <CheckCircleIcon /> },
+        { href: "/team", label: m.nav.employees, icon: <UsersIcon /> },
+        { href: "/hr", label: m.nav.inbox, icon: <InboxIcon /> },
       ],
     });
   }
@@ -68,7 +69,8 @@ function navFor(user: SessionUser, unread: number): { title?: string; items: Nav
 function NavList({ user, onNavigate }: { user: SessionUser; onNavigate?: () => void }) {
   const pathname = usePathname();
   const { unread } = useNotifications();
-  const sections = navFor(user, unread);
+  const { m } = useI18n();
+  const sections = navFor(user, unread, m);
 
   // Longest matching href wins (e.g. /requests/REQ-1 lights up /requests).
   const allHrefs = sections.flatMap((s) => s.items.map((i) => i.href));
@@ -77,7 +79,7 @@ function NavList({ user, onNavigate }: { user: SessionUser; onNavigate?: () => v
     .sort((a, b) => b.length - a.length)[0];
 
   return (
-    <nav aria-label="Основная навигация" className="flex flex-col gap-4">
+    <nav aria-label={m.nav.aria} className="flex flex-col gap-4">
       {sections.map((section, si) => (
         <div key={si} className="flex flex-col gap-0.5">
           {section.title && (
@@ -150,6 +152,7 @@ function Brand() {
 function Shell({ user, children }: { user: SessionUser; children: React.ReactNode }) {
   const router = useRouter();
   const { unread } = useNotifications();
+  const { m } = useI18n();
   const [navOpen, setNavOpen] = useState(false);
 
   async function signOut() {
@@ -171,7 +174,7 @@ function Shell({ user, children }: { user: SessionUser; children: React.ReactNod
             <button
               className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg text-hero-foreground hover-wipe transition-colors cursor-pointer"
               onClick={() => setNavOpen(true)}
-              aria-label="Открыть меню"
+              aria-label={m.nav.openMenu}
             >
               <MenuIcon size={17} />
             </button>
@@ -179,9 +182,10 @@ function Shell({ user, children }: { user: SessionUser; children: React.ReactNod
           </div>
 
           <div className="flex items-center gap-1.5">
+            <LocaleSwitch />
             <Link
               href="/notifications"
-              aria-label={unread ? `Уведомления (${unread} непрочитанных)` : "Уведомления"}
+              aria-label={unread ? tx(m.nav.unread, { n: unread }) : m.nav.notifications}
               className="relative w-8 h-8 flex items-center justify-center rounded-lg text-hero-muted hover:text-hero-foreground hover-wipe transition-colors"
             >
               <BellIcon size={17} />
@@ -199,19 +203,19 @@ function Shell({ user, children }: { user: SessionUser; children: React.ReactNod
                 if (key === "signout") void signOut();
               }}
               items={[
-                { key: "profile", label: "Мой профиль", icon: <UserIcon size={14} /> },
+                { key: "profile", label: m.nav.profile, icon: <UserIcon size={14} /> },
                 { key: "div", label: "", divider: true },
-                { key: "signout", label: "Выйти", icon: <LogoutIcon size={14} />, danger: true },
+                { key: "signout", label: m.nav.signOut, icon: <LogoutIcon size={14} />, danger: true },
               ]}
               trigger={
                 <button
                   className="flex items-center gap-2.5 pl-1 pr-2 py-1 rounded-xl hover-wipe transition-colors cursor-pointer"
-                  aria-label="Меню аккаунта"
+                  aria-label={m.nav.account}
                 >
                   <Avatar name={user.fullName} size="sm" />
                   <span className="hidden sm:flex flex-col items-start leading-tight">
                     <span className="text-[12.5px] font-semibold text-hero-foreground">{user.fullName}</span>
-                    <span className="text-[10.5px] text-tertiary">{ROLE_LABEL[user.role]}</span>
+                    <span className="text-[10.5px] text-tertiary">{m.roles[user.role]}</span>
                   </span>
                 </button>
               }
@@ -232,7 +236,7 @@ function Shell({ user, children }: { user: SessionUser; children: React.ReactNod
             <NavList user={user} />
           </div>
           <p className="text-[11px] text-tertiary mt-3 px-2 leading-relaxed">
-            Прототип · все данные вымышлены
+            {m.nav.prototype}
           </p>
         </aside>
 
@@ -241,7 +245,7 @@ function Shell({ user, children }: { user: SessionUser; children: React.ReactNod
         </main>
       </div>
 
-      <Drawer open={navOpen} onClose={() => setNavOpen(false)} side="left" size="sm" title="Digital HR" description={`${user.fullName} · ${ROLE_LABEL[user.role]}`}>
+      <Drawer open={navOpen} onClose={() => setNavOpen(false)} side="left" size="sm" title="Digital HR" description={`${user.fullName} · ${m.roles[user.role]}`}>
         <NavList user={user} onNavigate={() => setNavOpen(false)} />
       </Drawer>
     </div>

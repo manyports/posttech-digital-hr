@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { cookies } from "next/headers";
 import { Providers } from "./components/Providers";
+import { parseLocale } from "@/lib/i18n/locale";
 import "./globals.css";
 
 const archivo = localFont({
@@ -22,11 +24,13 @@ export const metadata: Metadata = {
   description: "Единый портал для всего, что связано с HR: заявки, обучение и ответы на вопросы.",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const jar = await cookies();
+  const locale = parseLocale(jar.get("hr-locale")?.value);
   return (
-    <html lang="ru" className={`${archivo.variable} h-full antialiased`}>
+    <html lang={locale} className={`${archivo.variable} h-full antialiased`}>
       <body className="page-matte min-h-full font-sans tracking-[-0.05em] selection:bg-primary/10 selection:text-primary">
-        <Providers>{children}</Providers>
+        <Providers locale={locale}>{children}</Providers>
       </body>
     </html>
   );

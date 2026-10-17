@@ -3,22 +3,24 @@
 import { useRouter } from "next/navigation";
 import type { NotificationKind, NotificationView } from "@/lib/domain/types";
 import { fmtRelative } from "@/lib/client/format";
+import { useI18n } from "@/lib/i18n/I18nProvider";
+import { localizeTitle } from "@/lib/i18n/notices";
 import { Button } from "../../components/ui/Button";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { BellIcon, BookIcon, DocIcon, InboxIcon, SparkleIcon } from "../../components/portal/icons";
 import { useNotifications } from "../../components/portal/NotificationsProvider";
 import { LoadingBlock, PageHeader, Panel } from "../../components/portal/Panel";
 
-const KIND: Record<NotificationKind, { icon: React.ReactNode; label: string }> = {
-  request: { icon: <DocIcon size={15} />, label: "Заявка" },
-  course: { icon: <BookIcon size={15} />, label: "Обучение" },
-  escalation: { icon: <SparkleIcon size={15} />, label: "Al Jana" },
-  system: { icon: <InboxIcon size={15} />, label: "Система" },
-};
-
 export default function NotificationsPage() {
   const router = useRouter();
+  const { m, locale } = useI18n();
   const { notifications, unread, loading, markRead, markAllRead } = useNotifications();
+  const KIND: Record<NotificationKind, { icon: React.ReactNode; label: string }> = {
+    request: { icon: <DocIcon size={15} />, label: m.notices.request },
+    course: { icon: <BookIcon size={15} />, label: m.notices.course },
+    escalation: { icon: <SparkleIcon size={15} />, label: m.notices.assistant },
+    system: { icon: <InboxIcon size={15} />, label: m.notices.system },
+  };
 
   async function open(n: NotificationView) {
     if (!n.readAt) await markRead([n.id]);
@@ -28,11 +30,11 @@ export default function NotificationsPage() {
   return (
     <>
       <PageHeader
-        title="Уведомления"
-        description="Изменения статусов ваших заявок, назначение и завершение курсов, ответы от HR."
+        title={m.notices.title}
+        description={m.notices.description}
         actions={
           <Button variant="secondary" size="sm" disabled={unread === 0} onClick={() => void markAllRead()}>
-            Прочитать все
+            {m.notices.markAll}
           </Button>
         }
       />
@@ -40,7 +42,7 @@ export default function NotificationsPage() {
       {loading && notifications.length === 0 && <LoadingBlock rows={3} />}
 
       {!loading && notifications.length === 0 && (
-        <EmptyState icon={<BellIcon size={20} />} title="Все уведомления прочитаны" description="Новые оповещения появляются здесь и во всплывающих уведомлениях в момент события." />
+        <EmptyState icon={<BellIcon size={20} />} title={m.notices.empty} description={m.notices.emptyHint} />
       )}
 
       {notifications.length > 0 && (
@@ -64,12 +66,12 @@ export default function NotificationsPage() {
                     </span>
                     <span className="flex-1 min-w-0">
                       <span className="flex items-center gap-2">
-                        <span className={["text-[13.5px] leading-snug", n.readAt ? "font-medium text-hero-foreground" : "font-semibold text-hero-foreground"].join(" ")}>{n.title}</span>
-                        {!n.readAt && <span className="w-1.5 h-1.5 rounded-full bg-hero-foreground" aria-label="не прочитано" />}
+                        <span className={["text-[13.5px] leading-snug", n.readAt ? "font-medium text-hero-foreground" : "font-semibold text-hero-foreground"].join(" ")}>{localizeTitle(n.title, locale)}</span>
+                        {!n.readAt && <span className="w-1.5 h-1.5 rounded-full bg-hero-foreground" aria-label={m.common.unread} />}
                       </span>
                       <span className="block text-[13px] text-hero-muted mt-0.5 leading-relaxed">{n.body}</span>
                       <span className="block text-[11.5px] text-tertiary mt-1.5">
-                        {k.label} · {fmtRelative(n.createdAt)}
+                        {k.label} · {fmtRelative(n.createdAt, Date.now(), locale)}
                       </span>
                     </span>
                   </button>

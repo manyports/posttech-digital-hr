@@ -6,6 +6,8 @@ import type { AssistantReply, EscalationView } from "@/lib/domain/types";
 import { ApiError, post } from "@/lib/client/api";
 import { fmtRelative } from "@/lib/client/format";
 import { useApi } from "@/lib/client/hooks";
+import { useI18n } from "@/lib/i18n/I18nProvider";
+import { tx } from "@/lib/i18n/locale";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { useToast } from "../../components/ui/Toast";
@@ -18,17 +20,12 @@ type Msg =
   | { id: number; role: "user"; text: string }
   | { id: number; role: "bot"; reply: AssistantReply; escalation?: EscalationView; escalating?: boolean };
 
-const STARTERS = [
-  "Сколько дней отпуска мне положено?",
-  "Как запросить аванс по зарплате?",
-  "Что делать, если я заболел?",
-  "Могу ли я работать из дома?",
-  "В какой день выплачивается зарплата?",
-];
 const OUTSIDE_KB = ["Есть ли у нас опционы на акции?"];
 
 export default function AssistantPage() {
   const { toast } = useToast();
+  const { m, locale } = useI18n();
+  const starters = m.assistant.starters;
   const [messages, setMessages] = useState<Msg[]>([]);
   const [draft, setDraft] = useState("");
   const [thinking, setThinking] = useState(false);
@@ -52,7 +49,7 @@ export default function AssistantPage() {
       await new Promise((r) => setTimeout(r, 350));
       setMessages((m) => [...m, { id: nextId.current++, role: "bot", reply }]);
     } catch (e) {
-      toast({ title: "Al Jana не смогла ответить", description: e instanceof ApiError ? e.message : undefined, variant: "error" });
+      toast({ title: m.assistant.fail, description: e instanceof ApiError ? e.message : undefined, variant: "error" });
     } finally {
       setThinking(false);
     }
@@ -63,11 +60,11 @@ export default function AssistantPage() {
     try {
       const { escalation } = await post<{ escalation: EscalationView }>("/api/assistant/escalate", { question });
       setMessages((m) => m.map((x) => (x.id === msgId && x.role === "bot" ? { ...x, escalating: false, escalation } : x)));
-      toast({ title: "Вопрос передан в HR", description: `Обращение ${escalation.id}. Вы получите уведомление, когда HR ответит.`, variant: "success" });
+      toast({ title: m.assistant.escalated, description: tx(m.assistant.escalatedHint, { id: escalation.id }), variant: "success" });
       reloadEsc();
     } catch (e) {
       setMessages((m) => m.map((x) => (x.id === msgId && x.role === "bot" ? { ...x, escalating: false } : x)));
-      toast({ title: "Не удалось связаться с HR", description: e instanceof ApiError ? e.message : undefined, variant: "error" });
+      toast({ title: m.assistant.escalateFail, description: e instanceof ApiError ? e.message : undefined, variant: "error" });
     }
   }
 
@@ -75,7 +72,7 @@ export default function AssistantPage() {
     <>
       <PageHeader
         title="Al Jana"
-        description="Ваш HR-ассистент. Отвечает строго по корпоративной базе знаний HR, всегда указывает источник и не выдумывает факты."
+        description={m.assistant.description}
       />
 
       <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-6 items-start">
@@ -86,30 +83,28 @@ export default function AssistantPage() {
             </span>
             <div className="min-w-0">
               <p className="text-[14px] font-semibold tracking-[-0.01em] leading-tight">Al Jana</p>
-              <p className="text-[12px] text-tertiary">Ответы только из базы знаний HR</p>
+              <p className="text-[12px] text-tertiary">{m.assistant.kbOnly}</p>
             </div>
           </div>
 
-          <div role="log" aria-live="polite" aria-label="Диалог" className="px-4 sm:px-5 py-5 flex flex-col gap-5 min-h-[380px] max-h-[62vh] overflow-y-auto">
+          <div role="log" aria-live="polite" aria-label={m.assistant.dialog} className="px-4 sm:px-5 py-5 flex flex-col gap-5 min-h-[380px] max-h-[62vh] overflow-y-auto">
             <BotBubble>
-              <p className="text-[14px] leading-relaxed text-hero-foreground">
-                Здравствуйте! Спросите меня об отпуске, авансе, больничных, рабочем времени, льготах или обучении. Я отвечаю только по нашей базе знаний HR и всегда показываю источник. Если точного ответа нет, я честно сообщу об этом и предложу передать вопрос в HR.
-              </p>
-              <Chips label="Попробуйте спросить" items={STARTERS} onPick={ask} disabled={thinking} />
-              <Chips label="Вне базы знаний (пример передачи в HR)" items={OUTSIDE_KB} onPick={ask} disabled={thinking} subtle />
+              <p className="text-[14px] leading-relaxed text-hero-foreground">{m.assistant.hello}</p>
+              <Chips label={m.assistant.try} items={starters} onPick={ask} disabled={thinking} />
+              <Chips label={m.assistant.outside} items={[m.assistant.outsideQ]} onPick={ask} disabled={thinking} subtle />
             </BotBubble>
 
-            {messages.map((m) =>
-              m.role === "user" ? (
-                <UserBubble key={m.id} text={m.text} />
+            {messages.map((item) =>
+              item.role === "user" ? (
+                <UserBubble key={item.id} text={item.text} />
               ) : (
-                <BotMessage key={m.id} msg={m} onAsk={ask} onEscalate={() => void escalate(m.id, m.reply.question)} disabled={thinking} />
+                <BotMessage key={item.id} msg={item} onAsk={ask} onEscalate={() => void escalate(item.id, item.reply.question)} disabled={thinking} copy={m} starters={starters} />
               ),
             )}
 
             {thinking && (
               <BotBubble>
-                <span className="inline-flex gap-1 py-1" aria-label="Al Jana ищет ответ в базе знаний">
+                <span className="inline-flex gap-1 py-1" aria-label={m.assistant.thinking}>
                   {[0, 1, 2].map((i) => (
                     <span key={i} className="w-1.5 h-1.5 rounded-full bg-additional animate-bounce" style={{ animationDelay: `${i * 120}ms` }} />
                   ))}
@@ -128,8 +123,8 @@ export default function AssistantPage() {
           >
             <div className="flex-1">
               <Input
-                aria-label="Задать вопрос HR"
-                placeholder="Задайте вопрос HR…"
+                aria-label={m.assistant.askLabel}
+                placeholder={m.assistant.placeholder}
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 maxLength={500}
@@ -138,35 +133,35 @@ export default function AssistantPage() {
               />
             </div>
             <Button type="submit" variant="primary" size="md" disabled={thinking || !draft.trim()}>
-              <SendIcon size={15} /> Спросить
+              <SendIcon size={15} /> {m.assistant.ask}
             </Button>
           </form>
         </Panel>
 
         <div className="flex flex-col gap-6 min-w-0">
-          <Panel title="Как работает Al Jana" padding="p-5">
+          <Panel title={m.assistant.how} padding="p-5">
             <ul className="flex flex-col gap-3 text-[13px] text-hero-muted leading-snug">
-              <Point>Ответы составлены HR и отображаются <strong className="text-hero-foreground">слово в слово</strong>. Ничего не генерируется и не додумывается.</Point>
-              <Point>Каждый ответ содержит ссылку на <strong className="text-hero-foreground">исходный документ и раздел</strong>.</Point>
-              <Point>Нет надежного совпадения? Ассистент скажет об этом и предложит <strong className="text-hero-foreground">передать вопрос в HR</strong>.</Point>
+              <Point>{m.assistant.point1}</Point>
+              <Point>{m.assistant.point2}</Point>
+              <Point>{m.assistant.point3}</Point>
             </ul>
           </Panel>
 
-          <Panel title="Мои вопросы в HR" description="Передано из Al Jana" padding="p-0">
+          <Panel title={m.assistant.mine} description={m.assistant.mineHint} padding="p-0">
             {!esc || esc.escalations.length === 0 ? (
-              <p className="p-5 text-[13px] text-hero-muted">Пока вопросов нет. Если Al Jana не сможет ответить, вы сможете отправить вопрос в HR.</p>
+              <p className="p-5 text-[13px] text-hero-muted">{m.assistant.none}</p>
             ) : (
               <ul className="divide-y divide-hero-border">
                 {esc.escalations.map((e) => (
                   <li key={e.id} className="px-5 py-3.5">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-[11.5px] text-tertiary tabular-nums">{e.id} · {fmtRelative(e.createdAt)}</span>
-                      <Pill tone={e.status === "answered" ? "good" : "warn"}>{e.status === "answered" ? "Отвечено" : "Ожидает HR"}</Pill>
+                      <span className="text-[11.5px] text-tertiary tabular-nums">{e.id} · {fmtRelative(e.createdAt, Date.now(), locale)}</span>
+                      <Pill tone={e.status === "answered" ? "good" : "warn"}>{e.status === "answered" ? m.assistant.answered : m.assistant.waiting}</Pill>
                     </div>
                     <p className="text-[13px] font-medium text-hero-foreground mt-1.5 leading-snug">{e.question}</p>
                     {e.answer && (
                       <p className="mt-2 text-[13px] text-hero-muted leading-relaxed bg-hero-cell-bg rounded-lg px-3 py-2.5">
-                        <span className="block text-[10.5px] font-semibold uppercase tracking-widest text-tertiary mb-1">HR ответил(а)</span>
+                        <span className="block text-[10.5px] font-semibold uppercase tracking-widest text-tertiary mb-1">{m.assistant.hrSaid}</span>
                         {e.answer}
                       </p>
                     )}
@@ -250,11 +245,15 @@ function BotMessage({
   onAsk,
   onEscalate,
   disabled,
+  copy,
+  starters,
 }: {
   msg: Extract<Msg, { role: "bot" }>;
   onAsk: (q: string) => void;
   onEscalate: () => void;
   disabled: boolean;
+  copy: ReturnType<typeof useI18n>["m"];
+  starters: string[];
 }) {
   const r = msg.reply;
 
@@ -266,14 +265,14 @@ function BotMessage({
         <p className="text-[14.5px] leading-[1.7] text-hero-foreground">{text}</p>
 
         <aside
-          aria-label="Источник"
+          aria-label={copy.assistant.source}
           className="rounded-xl bg-hero-cell-bg px-3.5 py-3 flex items-start gap-3 ring-1 ring-inset ring-hero-foreground/5"
         >
           <span className="w-7 h-7 rounded-lg bg-hero-elevated text-hero-foreground flex items-center justify-center shrink-0 ring-1 ring-inset ring-hero-foreground/8">
             <BookIcon size={14} />
           </span>
           <div className="min-w-0">
-            <p className="text-[10.5px] font-semibold uppercase tracking-widest text-tertiary">Источник</p>
+            <p className="text-[10.5px] font-semibold uppercase tracking-widest text-tertiary">{copy.assistant.source}</p>
             <p className="text-[13px] font-semibold text-hero-foreground leading-snug mt-0.5">
               {r.source.docTitle} <span className="text-tertiary font-medium">· {r.source.docId}</span>
             </p>
@@ -293,7 +292,7 @@ function BotMessage({
           </div>
         )}
 
-        <Chips label="Похожие вопросы" items={relatedItems} onPick={onAsk} disabled={disabled} />
+        <Chips label={copy.assistant.related} items={relatedItems} onPick={onAsk} disabled={disabled} />
       </BotBubble>
     );
   }
@@ -305,26 +304,26 @@ function BotMessage({
         <div className="flex items-start gap-3">
           <span className="w-6 h-6 rounded-md bg-warning text-hero-foreground flex items-center justify-center shrink-0 text-[13px] font-semibold mt-0.5">?</span>
           <div>
-            <p className="text-[14px] font-semibold text-hero-foreground leading-snug">Надежный ответ не найден</p>
+            <p className="text-[14px] font-semibold text-hero-foreground leading-snug">{copy.assistant.noAnswer}</p>
             <p className="text-[13.5px] leading-relaxed text-hero-muted mt-1">{message}</p>
           </div>
         </div>
 
         {msg.escalation ? (
           <div className="rounded-xl bg-pr-bg text-hero-foreground px-3.5 py-3 text-[13px] leading-snug border border-hero-border">
-            <p className="font-semibold">Передано в HR · {msg.escalation.id}</p>
-            <p className="mt-0.5 text-hero-muted">Вы получите уведомление, когда HR ответит. Отслеживать можно в разделе «Мои вопросы в HR».</p>
+            <p className="font-semibold">{tx(copy.assistant.sent, { id: msg.escalation.id })}</p>
+            <p className="mt-0.5 text-hero-muted">{copy.assistant.sentHint}</p>
           </div>
         ) : (
           <div className="flex flex-wrap items-center gap-2">
             <Button variant="primary" size="sm" disabled={msg.escalating} onClick={onEscalate}>
-              {msg.escalating ? "Отправка…" : "Передать этот вопрос в HR"}
+              {msg.escalating ? copy.assistant.escalating : copy.assistant.escalate}
             </Button>
-            <span className="text-[12px] text-tertiary">Сотрудник HR подготовит ответ.</span>
+            <span className="text-[12px] text-tertiary">{copy.assistant.hrWill}</span>
           </div>
         )}
 
-        <Chips label="Или попробуйте один из этих вопросов" items={STARTERS.slice(0, 4)} onPick={onAsk} disabled={disabled} />
+        <Chips label={copy.assistant.orTry} items={OUTSIDE_KB.length ? starters.slice(0, 4) : starters} onPick={onAsk} disabled={disabled} />
       </BotBubble>
     );
   }
@@ -333,7 +332,7 @@ function BotMessage({
   return (
     <BotBubble>
       <p className="text-[14px] leading-relaxed text-hero-foreground">{smalltalkMessage}</p>
-      <Chips label="Попробуйте спросить" items={STARTERS.slice(0, 4)} onPick={onAsk} disabled={disabled} />
+      <Chips label={copy.assistant.try} items={starters.slice(0, 4)} onPick={onAsk} disabled={disabled} />
     </BotBubble>
   );
 }

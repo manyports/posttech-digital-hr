@@ -4,6 +4,8 @@ import { Suspense, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { RequestStatus, RequestView } from "@/lib/domain/types";
 import { useApi } from "@/lib/client/hooks";
+import { useI18n } from "@/lib/i18n/I18nProvider";
+import { tx } from "@/lib/i18n/locale";
 import { Button } from "../../components/ui/Button";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { Tabs } from "../../components/ui/Tabs";
@@ -23,6 +25,7 @@ const matchers: Record<Filter, (s: RequestStatus) => boolean> = {
 
 function RequestsInner() {
   const router = useRouter();
+  const { m } = useI18n();
   const params = useSearchParams();
   const newParam = params.get("new");
   const [manualOpen, setManualOpen] = useState(false);
@@ -53,21 +56,21 @@ function RequestsInner() {
   return (
     <>
       <PageHeader
-        title="Мои заявки"
-        description="Все заявки на отпуск и аванс в одном месте с актуальным статусом и полной историей."
+        title={m.requests.title}
+        description={m.requests.description}
         actions={
           <Button variant="primary" size="sm" onClick={() => setManualOpen(true)}>
-            <PlusIcon size={14} /> Новая заявка
+            <PlusIcon size={14} /> {m.requests.new}
           </Button>
         }
       />
 
       <Tabs
         tabs={[
-          { key: "all", label: `Все · ${counts.all}` },
-          { key: "open", label: `Открытые · ${counts.open}` },
-          { key: "approved", label: `Одобренные · ${counts.approved}` },
-          { key: "rejected", label: `Отклоненные / отмененные · ${counts.rejected}` },
+          { key: "all", label: tx(m.requests.all, { n: counts.all }) },
+          { key: "open", label: tx(m.requests.open, { n: counts.open }) },
+          { key: "approved", label: tx(m.requests.approved, { n: counts.approved }) },
+          { key: "rejected", label: tx(m.requests.rejected, { n: counts.rejected }) },
         ]}
         onChange={(k) => setFilter(k as Filter)}
       />
@@ -78,12 +81,12 @@ function RequestsInner() {
       {data && visible.length === 0 && (
         <EmptyState
           icon={<DocIcon size={20} />}
-          title={filter === "all" ? "Заявок пока нет" : "Ничего не найдено"}
-          description={filter === "all" ? "Подайте заявку на отпуск или аванс и отслеживайте её статус здесь." : "Нет заявок, соответствующих этому фильтру."}
+          title={filter === "all" ? m.requests.empty : m.requests.none}
+          description={filter === "all" ? m.requests.emptyHint : m.requests.noneHint}
           action={
             filter === "all" ? (
               <Button variant="primary" size="sm" onClick={() => setManualOpen(true)}>
-                <PlusIcon size={14} /> Новая заявка
+                <PlusIcon size={14} /> {m.requests.new}
               </Button>
             ) : undefined
           }

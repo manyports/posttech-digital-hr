@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import type { AssignmentView } from "@/lib/domain/types";
-import { fmtDate } from "@/lib/client/format";
+import { fmtDate, pluralLessons } from "@/lib/client/format";
 import { useApi } from "@/lib/client/hooks";
+import { useI18n } from "@/lib/i18n/I18nProvider";
+import { tx } from "@/lib/i18n/locale";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
 import { EmptyState } from "../../components/ui/EmptyState";
@@ -15,16 +17,8 @@ import { CourseStatusBadge } from "../../components/portal/StatusBadge";
 const SHADOW =
   "0 1px 3px rgba(17,17,17,0.02), 0 4px 12px -2px rgba(17,17,17,0.05), 0 0 0 1px rgba(17,17,17,0.06), inset 0 1.5px 0 rgba(255,255,255,0.95)";
 
-function pluralLessons(n: number): string {
-  const abs = Math.abs(n) % 100;
-  const rem = abs % 10;
-  if (abs > 10 && abs < 20) return `${n} уроков`;
-  if (rem > 1 && rem < 5) return `${n} урока`;
-  if (rem === 1) return `${n} урок`;
-  return `${n} уроков`;
-}
-
 export default function AcademyPage() {
+  const { m } = useI18n();
   const { data, error, loading, reload } = useApi<{ assignments: AssignmentView[] }>("/api/academy", { interval: 10000 });
   const list = data?.assignments ?? [];
   const todo = list.filter((a) => a.status !== "completed");
@@ -34,18 +28,18 @@ export default function AcademyPage() {
     <>
       <PageHeader
         title="Jana Academy"
-        description="Курсы, назначенные вам. Изучайте материалы, следите за прогрессом и сдавайте тесты для завершения курсов."
+        description={m.academy.description}
       />
 
       {loading && !data && <LoadingBlock rows={2} />}
       {error && !data && <ErrorBlock message={error.message} onRetry={reload} />}
 
       {data && list.length === 0 && (
-        <EmptyState icon={<BookIcon size={20} />} title="Нет назначенных курсов" description="Когда руководитель или HR назначит вам курс, он появится здесь и в ваших уведомлениях." />
+        <EmptyState icon={<BookIcon size={20} />} title={m.academy.empty} description={m.academy.emptyHint} />
       )}
 
-      {todo.length > 0 && <Section title="К прохождению" count={todo.length} items={todo} />}
-      {done.length > 0 && <Section title="Завершено" count={done.length} items={done} />}
+      {todo.length > 0 && <Section title={m.academy.todo} count={todo.length} items={todo} />}
+      {done.length > 0 && <Section title={m.academy.done} count={done.length} items={done} />}
     </>
   );
 }
@@ -68,13 +62,14 @@ function Section({ title, count, items }: { title: string; count: number; items:
 }
 
 function CourseCard({ a }: { a: AssignmentView }) {
-  const cta = a.status === "completed" ? "Повторить" : a.status === "assigned" ? "Начать курс" : "Продолжить";
+  const { m, locale } = useI18n();
+  const cta = a.status === "completed" ? m.academy.review : a.status === "assigned" ? m.academy.start : m.academy.continue;
   return (
     <article className="h-full rounded-[22px] bg-hero-elevated p-6 flex flex-col gap-4" style={{ boxShadow: SHADOW }}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2">
           <Badge variant="muted">{a.course.category}</Badge>
-          {a.course.mandatory && <Badge variant="accent">Обязательный</Badge>}
+          {a.course.mandatory && <Badge variant="accent">{m.common.mandatory}</Badge>}
         </div>
         <CourseStatusBadge status={a.status} overdue={a.overdue} />
       </div>
@@ -85,12 +80,12 @@ function CourseCard({ a }: { a: AssignmentView }) {
       </div>
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-tertiary">
-        <span className="inline-flex items-center gap-1.5"><ClockIcon size={13} /> {a.course.durationMin} мин.</span>
-        <span>{pluralLessons(a.course.lessonCount)} + тест</span>
-        {a.status === "completed" ? <span>Результат {a.bestScore}%</span> : <span>Срок до {fmtDate(a.dueDate)}</span>}
+        <span className="inline-flex items-center gap-1.5"><ClockIcon size={13} /> {tx(m.academy.minutes, { n: a.course.durationMin })}</span>
+        <span>{tx(m.academy.plusTest, { lessons: pluralLessons(a.course.lessonCount, locale) })}</span>
+        {a.status === "completed" ? <span>{tx(m.academy.result, { n: a.bestScore ?? 0 })}</span> : <span>{tx(m.academy.due, { date: fmtDate(a.dueDate, locale) })}</span>}
       </div>
 
-      <Progress value={a.progress} showValue label={`${a.completedLessons} из ${a.course.lessonCount} уроков`} />
+      <Progress value={a.progress} showValue label={tx(m.academy.lessonsOf, { done: a.completedLessons, total: a.course.lessonCount })} />
 
       <div className="mt-auto pt-1">
         <Link href={`/academy/${a.id}`}>

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ApiError, post } from "@/lib/client/api";
+import { LocaleSwitch, useI18n } from "@/lib/i18n/I18nProvider";
 import { Avatar } from "../components/ui/Avatar";
 import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
@@ -25,21 +26,14 @@ export function LoginForm({
   passwordRequired: boolean;
 }) {
   const router = useRouter();
+  const { m } = useI18n();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const PERSONA_LABELS: Record<string, string> = {
-    "Employee": "Сотрудник",
-    "Manager": "Руководитель",
-    "HR / Admin": "HR / Админ",
-  };
-  const PERSONA_HINTS: Record<string, string> = {
-    "aruzhan.kassymova@jana.example": "Senior Frontend Developer · Инжиниринг",
-    "daniyar.omarov@jana.example": "Руководитель разработки · 4 подчиненных",
-    "aigerim.sadykova@jana.example": "HR-директор · вся компания",
-  };
+  const PERSONA_LABELS = m.login.roles;
+  const PERSONA_HINTS = m.login.hints;
 
   async function signIn(address: string, pwd?: string) {
     setBusy(address);
@@ -49,7 +43,7 @@ export function LoginForm({
       router.replace("/dashboard");
       router.refresh();
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "Не удалось войти.");
+      setError(e instanceof ApiError ? e.message : m.login.fail);
       setBusy(null);
     }
   }
@@ -58,16 +52,15 @@ export function LoginForm({
     <div className="min-h-screen flex flex-col items-center px-4 py-10 sm:py-16">
       <div className="w-full max-w-md flex flex-col gap-6">
         <div className="flex flex-col items-center text-center gap-3">
+          <div className="self-end">
+            <LocaleSwitch />
+          </div>
           <span className="w-11 h-11 rounded-xl bg-logo text-hero-on-foreground flex items-center justify-center shadow-md">
             <LogoMark size={22} />
           </span>
           <div>
-            <h1 className="text-[28px] font-semibold tracking-[-0.03em] leading-tight">Digital HR</h1>
-            <p className="text-[14px] text-hero-muted mt-1 leading-relaxed">
-              Заявки, обучение и ответы на вопросы.
-              <br />
-              Единый портал вместо пяти систем.
-            </p>
+            <h1 className="text-[28px] font-semibold tracking-[-0.03em] leading-tight">{m.login.title}</h1>
+            <p className="text-[14px] text-hero-muted mt-1 leading-relaxed whitespace-pre-line">{m.login.lead}</p>
           </div>
         </div>
 
@@ -80,7 +73,7 @@ export function LoginForm({
             }}
           >
             <Input
-              label="Рабочий e-mail"
+              label={m.login.email}
               type="email"
               autoComplete="username"
               placeholder="name@jana.example"
@@ -91,7 +84,7 @@ export function LoginForm({
             />
             {passwordRequired && (
               <Input
-                label="Демо-пароль"
+                label={m.login.password}
                 type="password"
                 autoComplete="current-password"
                 value={password}
@@ -106,13 +99,11 @@ export function LoginForm({
               </p>
             )}
             <Button type="submit" variant="primary" fullWidth disabled={busy !== null || !email}>
-              {busy === email ? "Вход…" : "Войти"}
+              {busy === email ? m.login.entering : m.login.enter}
               <ArrowRightIcon size={13} />
             </Button>
             <p className="text-[11.5px] text-tertiary leading-relaxed text-center">
-              {passwordRequired
-                ? "Тестовый SSO с общим демо-паролем."
-                : "Тестовый SSO: пароли не требуются в прототипе. В рабочей среде используется корпоративный Identity Provider."}
+              {passwordRequired ? m.login.ssoPassword : m.login.sso}
             </p>
           </form>
         </Panel>
@@ -120,9 +111,9 @@ export function LoginForm({
         <section aria-labelledby="demo-accounts" className="flex flex-col gap-2.5">
           <div className="flex items-center justify-between px-1">
             <h2 id="demo-accounts" className="text-[12px] font-semibold uppercase tracking-widest text-tertiary">
-              Демо-аккаунты
+              {m.login.demos}
             </h2>
-            <span className="text-[11.5px] text-tertiary">демо-пользователи</span>
+            <span className="text-[11.5px] text-tertiary">{m.login.demoHint}</span>
           </div>
           <ul className="flex flex-col gap-2">
             {personas.map((p) => (
@@ -156,7 +147,7 @@ export function LoginForm({
             ))}
           </ul>
           {passwordRequired && (
-            <p className="text-[11.5px] text-tertiary px-1">Сначала введите демо-пароль выше, затем выберите аккаунт.</p>
+            <p className="text-[11.5px] text-tertiary px-1">{m.login.passwordFirst}</p>
           )}
         </section>
       </div>

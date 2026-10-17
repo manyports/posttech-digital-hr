@@ -1,7 +1,9 @@
 import React from "react";
 import Link from "next/link";
 import type { RequestView } from "@/lib/domain/types";
-import { fmtDate, payloadSummary, TYPE_LABEL } from "@/lib/client/format";
+import { fmtDate, payloadSummary } from "@/lib/client/format";
+import { useI18n } from "@/lib/i18n/I18nProvider";
+import { tx } from "@/lib/i18n/locale";
 import { DocIcon, ArrowRightIcon } from "./icons";
 import { MiniTracker } from "./RequestTracker";
 import { StatusBadge } from "./StatusBadge";
@@ -19,6 +21,7 @@ export function RequestCard({
   showEmployee?: boolean;
   footer?: React.ReactNode;
 }) {
+  const { m, locale } = useI18n();
   const href = `/requests/${request.id}`;
   return (
     <article className="group/rc bg-hero-elevated rounded-2xl transition-shadow duration-300 hover:shadow-md" style={{ boxShadow: SHADOW }}>
@@ -36,14 +39,14 @@ export function RequestCard({
           <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
             <p className="text-[14px] font-semibold tracking-[-0.01em] text-hero-foreground">
               {showEmployee ? `${request.employee.fullName} · ` : ""}
-              {TYPE_LABEL[request.type]}
+              {m.requestType[request.type]}
             </p>
             <span className="text-[11.5px] text-tertiary tabular-nums">{request.id}</span>
           </div>
-          <p className="text-[13px] text-hero-muted mt-0.5 truncate">{payloadSummary(request.payload)}</p>
+          <p className="text-[13px] text-hero-muted mt-0.5 truncate">{payloadSummary(request.payload, locale)}</p>
           <div className="mt-2.5 flex items-center gap-3">
             <MiniTracker status={request.status} />
-            <span className="text-[11.5px] text-tertiary hidden sm:inline">Подано {fmtDate(request.createdAt)}</span>
+            <span className="text-[11.5px] text-tertiary hidden sm:inline">{tx(m.requests.filed, { date: fmtDate(request.createdAt, locale) })}</span>
           </div>
         </div>
         <div className="flex flex-col items-end gap-2 shrink-0">

@@ -6,6 +6,8 @@ import type { RequestView } from "@/lib/domain/types";
 import { workingDays, isValidDate } from "@/lib/domain/dates";
 import { ApiError, api, post } from "@/lib/client/api";
 import { fmtKzt, pluralDays } from "@/lib/client/format";
+import { useI18n } from "@/lib/i18n/I18nProvider";
+import { tx } from "@/lib/i18n/locale";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { Modal } from "../ui/Modal";
@@ -32,6 +34,7 @@ export function NewRequestModal({
 }) {
   const router = useRouter();
   const { toast } = useToast();
+  const { m, locale } = useI18n();
   const [info, setInfo] = useState<FormInfo | null>(null);
   const [kind, setKind] = useState<Kind>(initialType);
   const [startDate, setStartDate] = useState("");
@@ -67,8 +70,8 @@ export function NewRequestModal({
           : { type: kind, amount: amount === "" ? undefined : Number(amount), reason };
       const { request } = await post<{ request: RequestView }>("/api/requests", body);
       toast({
-        title: "Заявка отправлена",
-        description: `Заявка ${request.id} направлена: ${request.approver.fullName}.`,
+        title: m.modal.sent,
+        description: tx(m.modal.sentTo, { id: request.id, name: request.approver.fullName }),
         variant: "success",
       });
       onClose();
@@ -79,7 +82,7 @@ export function NewRequestModal({
       setReason("");
       router.push(`/requests/${request.id}`);
     } catch (e) {
-      setError(e instanceof ApiError ? e : new ApiError(0, "network", "Ошибка сети."));
+      setError(e instanceof ApiError ? e : new ApiError(0, "network", m.modal.network));
     } finally {
       setBusy(false);
     }
@@ -92,15 +95,15 @@ export function NewRequestModal({
     <Modal
       open={open}
       onClose={onClose}
-      title="Новая заявка"
-      description="Заявка сначала поступает вашему руководителю. Вы сможете отслеживать каждый этап на странице заявки."
+      title={m.modal.title}
+      description={m.modal.description}
       actions={
         <>
           <Button variant="ghost" size="sm" onClick={onClose} disabled={busy}>
-            Отмена
+            {m.common.cancel}
           </Button>
           <Button variant="primary" size="sm" onClick={() => void submit()} disabled={busy}>
-            {busy ? "Отправка…" : "Отправить заявку"}
+            {busy ? m.modal.sending : m.modal.send}
           </Button>
         </>
       }
@@ -110,8 +113,8 @@ export function NewRequestModal({
           key={initialType}
           defaultTab={initialType}
           tabs={[
-            { key: "vacation", label: "Отпуск" },
-            { key: "salary_advance", label: "Аванс" },
+            { key: "vacation", label: m.requestType.vacation },
+            { key: "salary_advance", label: m.requestType.salary_advance },
           ]}
           onChange={(k) => {
             setKind(k as Kind);
@@ -123,7 +126,7 @@ export function NewRequestModal({
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Input
-                label="Дата начала"
+                label={m.modal.start}
                 type="date"
                 min={info?.today}
                 value={startDate}
@@ -134,7 +137,7 @@ export function NewRequestModal({
                 error={f.startDate}
                 fullWidth
               />
-              <Input label="Дата окончания" type="date" min={startDate || info?.today} value={endDate} onChange={(e) => setEndDate(e.target.value)} error={f.endDate} fullWidth />
+              <Input label={m.modal.end} type="date" min={startDate || info?.today} value={endDate} onChange={(e) => setEndDate(e.target.value)} error={f.endDate} fullWidth />
             </div>
             <div
               className="rounded-xl bg-hero-cell-bg px-4 py-3 text-[12.5px] text-hero-muted flex flex-wrap items-center justify-between gap-x-4 gap-y-1"
@@ -142,26 +145,26 @@ export function NewRequestModal({
             >
               <span>
                 {days === null ? (
-                  "Выберите даты, чтобы рассчитать рабочие дни."
+                  m.modal.pickDates
                 ) : (
                   <>
-                    <strong className="text-hero-foreground tabular-nums">{pluralDays(days)}</strong> (без учета выходных)
+                    <strong className="text-hero-foreground tabular-nums">{pluralDays(days, locale)}</strong> {m.modal.weekends}
                   </>
                 )}
               </span>
               {info && (
                 <span className={days !== null && days > info.vacation.available ? "text-error font-medium" : "text-hero-muted"}>
-                  {info.vacation.available} доступно
-                  {info.vacation.pending > 0 && ` (${info.vacation.pending} на рассмотрении)`}
+                  {tx(m.modal.available, { n: info.vacation.available })}
+                  {info.vacation.pending > 0 && tx(m.modal.pending, { n: info.vacation.pending })}
                 </span>
               )}
             </div>
-            <Textarea label="Комментарий (необязательно)" value={comment} onChange={(e) => setComment(e.target.value)} rows={2} maxLength={300} fullWidth />
+            <Textarea label={m.modal.comment} value={comment} onChange={(e) => setComment(e.target.value)} rows={2} maxLength={300} fullWidth />
           </>
         ) : (
           <>
             <Input
-              label="Сумма (тенге)"
+              label={m.modal.amount}
               type="number"
               inputMode="numeric"
               min={info?.advance.minAmount}
@@ -170,15 +173,15 @@ export function NewRequestModal({
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               error={f.amount}
-              hint={info ? `До ${fmtKzt(info.advance.limit)} (50% от месячного оклада). Не более одного аванса в месяц.` : undefined}
+              hint={info ? tx(m.modal.amountHint, { limit: fmtKzt(info.advance.limit) }) : undefined}
               fullWidth
             />
             {info?.advance.alreadyRequestedThisMonth && (
               <p className="text-[12.5px] text-hero-foreground bg-hero-cell-bg border border-hero-border rounded-xl px-4 py-2.5">
-                В этом месяце вы уже запрашивали аванс, повторный запрос недоступен.
+                {m.modal.already}
               </p>
             )}
-            <Textarea label="Причина" value={reason} onChange={(e) => setReason(e.target.value)} rows={2} maxLength={300} error={f.reason} fullWidth />
+            <Textarea label={m.modal.reason} value={reason} onChange={(e) => setReason(e.target.value)} rows={2} maxLength={300} error={f.reason} fullWidth />
           </>
         )}
 

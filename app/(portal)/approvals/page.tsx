@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import type { RequestView } from "@/lib/domain/types";
 import { useApi } from "@/lib/client/hooks";
+import { useI18n } from "@/lib/i18n/I18nProvider";
+import { tx } from "@/lib/i18n/locale";
 import { Tabs } from "../../components/ui/Tabs";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { CheckCircleIcon } from "../../components/portal/icons";
@@ -15,6 +17,7 @@ type Tab = "action" | "decided" | "all";
 
 export default function ApprovalsPage() {
   const user = useUser();
+  const { m } = useI18n();
   const [tab, setTab] = useState<Tab>("action");
   const { data, error, loading, reload } = useApi<{ requests: RequestView[] }>("/api/approvals", { interval: 5000 });
 
@@ -28,7 +31,7 @@ export default function ApprovalsPage() {
   if (error?.status === 403) {
     return (
       <>
-        <PageHeader title="Согласования" />
+        <PageHeader title={m.approvals.title} />
         <AccessDenied message={error.message} />
       </>
     );
@@ -37,19 +40,15 @@ export default function ApprovalsPage() {
   return (
     <>
       <PageHeader
-        title={isHr ? "Все заявки" : "Согласования"}
-        description={
-          isHr
-            ? "Просмотр по всей компании. Принятие решений по любым заявкам, кроме собственных."
-            : "Заявки только от ваших прямых подчиненных. Никто вне вашей команды здесь не отображается."
-        }
+        title={isHr ? m.approvals.allTitle : m.approvals.title}
+        description={isHr ? m.approvals.hrHint : m.approvals.mgrHint}
       />
 
       <Tabs
         tabs={[
-          { key: "action", label: `Требуют решения · ${open.length}` },
-          { key: "decided", label: `Рассмотрено · ${decided.length}` },
-          { key: "all", label: `Все · ${all.length}` },
+          { key: "action", label: tx(m.approvals.action, { n: open.length }) },
+          { key: "decided", label: tx(m.approvals.decided, { n: decided.length }) },
+          { key: "all", label: tx(m.approvals.all, { n: all.length }) },
         ]}
         onChange={(k) => setTab(k as Tab)}
       />
@@ -60,8 +59,8 @@ export default function ApprovalsPage() {
       {data && list.length === 0 && (
         <EmptyState
           icon={<CheckCircleIcon size={20} />}
-          title={tab === "action" ? "Входящих нет" : "Ничего не найдено"}
-          description={tab === "action" ? "Нет заявок, ожидающих вашего решения." : "В этом разделе нет заявок."}
+          title={tab === "action" ? m.approvals.emptyIn : m.approvals.empty}
+          description={tab === "action" ? m.approvals.emptyInHint : m.approvals.emptyHint}
         />
       )}
 

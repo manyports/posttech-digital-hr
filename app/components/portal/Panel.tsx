@@ -1,4 +1,5 @@
 import React from "react";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 
 const SHELL_SHADOW = "var(--surface-shadow)";
 const SHELL_BG = "var(--surface-bg)";
@@ -74,10 +75,11 @@ export function PageHeader({
 }
 
 export function Spinner({ className = "" }: { className?: string }) {
+  const { m } = useI18n();
   return (
     <span
       role="status"
-      aria-label="Загрузка"
+      aria-label={m.common.loading}
       className={["inline-block w-4 h-4 rounded-full border-2 border-hero-border border-t-neutral-700 animate-spin", className].join(" ")}
     />
   );
@@ -94,16 +96,17 @@ export function LoadingBlock({ rows = 3 }: { rows?: number }) {
 }
 
 export function ErrorBlock({ message, onRetry }: { message: string; onRetry?: () => void }) {
+  const { m } = useI18n();
   return (
     <Panel padding="p-6">
       <div className="flex items-start gap-3">
         <div className="w-7 h-7 rounded-lg bg-error text-hero-on-foreground flex items-center justify-center shrink-0 text-[13px] font-semibold">!</div>
         <div className="min-w-0">
-          <p className="text-[13px] font-semibold text-hero-foreground">Что-то пошло не так</p>
+          <p className="text-[13px] font-semibold text-hero-foreground">{m.common.errorTitle}</p>
           <p className="text-[13px] text-hero-muted mt-0.5">{message}</p>
           {onRetry && (
             <button onClick={onRetry} className="mt-2 text-[13px] font-medium text-hero-foreground underline underline-offset-2 cursor-pointer">
-              Попробовать снова
+              {m.common.retry}
             </button>
           )}
         </div>
@@ -112,18 +115,15 @@ export function ErrorBlock({ message, onRetry }: { message: string; onRetry?: ()
   );
 }
 
-export function AccessDenied({
-  message = "У вас нет доступа к этой странице.",
-}: {
-  message?: string;
-}) {
+export function AccessDenied({ message }: { message?: string }) {
+  const { m } = useI18n();
   return (
     <Panel padding="p-10">
       <div className="text-center max-w-sm mx-auto">
         <div className="w-11 h-11 rounded-xl bg-hero-foreground text-hero-on-foreground flex items-center justify-center mx-auto mb-4 text-[15px] font-semibold">403</div>
-        <p className="text-[15px] font-semibold tracking-[-0.01em]">Доступ запрещен</p>
-        <p className="text-[13px] text-hero-muted mt-1.5 leading-relaxed">{message}</p>
-        <p className="text-[11.5px] text-tertiary mt-3">Ограничение действует на уровне сервера, а не только скрыто в интерфейсе.</p>
+        <p className="text-[15px] font-semibold tracking-[-0.01em]">{m.common.deniedTitle}</p>
+        <p className="text-[13px] text-hero-muted mt-1.5 leading-relaxed">{message ?? m.common.deniedBody}</p>
+        <p className="text-[11.5px] text-tertiary mt-3">{m.common.deniedNote}</p>
       </div>
     </Panel>
   );

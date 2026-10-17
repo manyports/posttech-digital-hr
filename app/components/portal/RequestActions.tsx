@@ -3,18 +3,11 @@
 import React, { useState } from "react";
 import type { RequestAction, RequestView } from "@/lib/domain/types";
 import { ApiError, post } from "@/lib/client/api";
-import { TYPE_LABEL } from "@/lib/client/format";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 import { Button } from "../ui/Button";
 import { Modal } from "../ui/Modal";
 import { Textarea } from "../ui/Textarea";
 import { useToast } from "../ui/Toast";
-
-const COPY: Record<RequestAction, { label: string; title: string; done: string; needsComment: boolean; askComment: boolean }> = {
-  start_review: { label: "Взять в работу", title: "Начать рассмотрение заявки?", done: "Рассмотрение начато. Сотрудник уведомлен.", needsComment: false, askComment: false },
-  approve: { label: "Одобрить", title: "Одобрить заявку", done: "Заявка одобрена. Сотрудник уведомлен.", needsComment: false, askComment: true },
-  reject: { label: "Отклонить", title: "Отклонить заявку", done: "Заявка отклонена. Сотрудник уведомлен.", needsComment: true, askComment: true },
-  cancel: { label: "Отозвать заявку", title: "Отозвать эту заявку?", done: "Заявка отменена.", needsComment: false, askComment: false },
-};
 
 /**
  * Buttons for the actions the SERVER says the caller may take right now
@@ -30,6 +23,13 @@ export function RequestActions({
   compact?: boolean;
 }) {
   const { toast } = useToast();
+  const { m } = useI18n();
+  const COPY: Record<RequestAction, { label: string; title: string; done: string; needsComment: boolean; askComment: boolean }> = {
+    start_review: { label: m.actions.start, title: m.actions.startTitle, done: m.actions.startDone, needsComment: false, askComment: false },
+    approve: { label: m.actions.approve, title: m.actions.approveTitle, done: m.actions.approveDone, needsComment: false, askComment: true },
+    reject: { label: m.actions.reject, title: m.actions.rejectTitle, done: m.actions.rejectDone, needsComment: true, askComment: true },
+    cancel: { label: m.actions.cancel, title: m.actions.cancelTitle, done: m.actions.cancelDone, needsComment: false, askComment: false },
+  };
   const [pending, setPending] = useState<RequestAction | null>(null);
   const [comment, setComment] = useState("");
   const [busy, setBusy] = useState(false);
@@ -50,9 +50,9 @@ export function RequestActions({
       setComment("");
       onDone(updated);
     } catch (e) {
-      const msg = e instanceof ApiError ? e.message : "Что-то пошло не так.";
+      const msg = e instanceof ApiError ? e.message : m.common.failed;
       setError(msg);
-      toast({ title: "Ошибка выполнения действия", description: msg, variant: "error" });
+      toast({ title: m.actions.fail, description: msg, variant: "error" });
     } finally {
       setBusy(false);
     }
@@ -90,11 +90,11 @@ export function RequestActions({
         open={pending !== null}
         onClose={() => !busy && setPending(null)}
         title={copy?.title}
-        description={`${TYPE_LABEL[request.type]} · ${request.id} · ${request.employee.fullName}`}
+        description={`${m.requestType[request.type]} · ${request.id} · ${request.employee.fullName}`}
         actions={
           <>
             <Button variant="ghost" size="sm" onClick={() => setPending(null)} disabled={busy}>
-              Назад
+              {m.common.back}
             </Button>
             <Button
               variant={pending === "reject" || pending === "cancel" ? "outline" : "primary"}
@@ -102,14 +102,14 @@ export function RequestActions({
               disabled={busy || (copy?.needsComment === true && comment.trim().length < 3)}
               onClick={() => pending && void run(pending, comment)}
             >
-              {busy ? "Обработка…" : copy?.label}
+              {busy ? m.common.working : copy?.label}
             </Button>
           </>
         }
       >
         {copy?.askComment && (
           <Textarea
-            label={copy.needsComment ? "Причина (будет видна сотруднику)" : "Комментарий (необязательно)"}
+            label={copy.needsComment ? m.actions.reason : m.actions.note}
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             rows={3}
