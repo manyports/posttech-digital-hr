@@ -36,6 +36,7 @@ export interface DashboardView {
   openRequests: number;
   training: { total: number; completed: number; overdue: number; next: AssignmentView | null };
   unread: number;
+  rejected: { id: string; type: RequestView["type"]; comment: string } | null;
   manager?: { teamSize: number; awaitingDecision: number; teamOverdueTraining: number };
   hr?: { employees: number; awaitingDecision: number; openEscalations: number; mandatoryCompletionPct: number };
 }
@@ -55,10 +56,14 @@ export async function getDashboard(actor: Actor): Promise<DashboardView> {
   const next =
     [...pending].sort((a, b) => Number(b.overdue) - Number(a.overdue) || a.dueDate.localeCompare(b.dueDate))[0] ?? null;
 
+  const rejectedReq = requests.find((r) => r.status === "rejected");
+  const rejectedComment = rejectedReq?.history.find((h) => h.status === "rejected" && h.comment)?.comment ?? "";
+
   const view: DashboardView = {
     vacation: profile.vacation,
     recentRequests: requests.slice(0, 3),
     openRequests: requests.filter((r) => r.status === "submitted" || r.status === "in_review").length,
+    rejected: rejectedReq ? { id: rejectedReq.id, type: rejectedReq.type, comment: rejectedComment } : null,
     training: {
       total: training.length,
       completed: training.length - pending.length,
