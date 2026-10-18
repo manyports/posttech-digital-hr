@@ -2,7 +2,7 @@ import type { KbEntry, KnowledgeArticleDoc } from "../../domain/types";
 import { KB as INITIAL_KB } from "../../assistant/knowledge-base";
 import { KB_ANSWERS_RU } from "../../assistant/translations";
 import { withKnowledgeTranslations } from "../../assistant/reference-translations";
-import { getDb } from "../db";
+import { getDb, type Db } from "../db";
 import { badRequest, conflict, forbidden, notFound } from "../errors";
 import { isHr, type Actor } from "../policy";
 
@@ -55,8 +55,22 @@ function validateEntry(value: unknown): KbEntry {
 }
 
 /** Import the shipped starter content once; later starts never overwrite HR edits. */
+const imports = new WeakMap<Db, Promise<void>>();
+
 async function ensureImported() {
   const db = await getDb();
+  let pending = imports.get(db);
+  if (!pending) {
+    pending = importStarterArticles(db).catch((error) => {
+      imports.delete(db);
+      throw error;
+    });
+    imports.set(db, pending);
+  }
+  await pending;
+}
+
+async function importStarterArticles(db: Db) {
   const articles = await db.knowledgeArticles.find();
   const existing = new Set(articles.map((article) => article._id));
   const initialById = new Map(INITIAL_KB.map((entry) => [entry.id, entry]));

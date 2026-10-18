@@ -53,21 +53,24 @@ export async function listNotifications(actor: Actor, limit = 50) {
   return { notifications: docs.map(toView), unread };
 }
 
-export async function markRead(actor: Actor, input: { ids?: string[]; all?: boolean }) {
-  const db = await getDb();
-  const readAt = new Date().toISOString();
-  if (input.all) {
-    const unread = await db.notifications.find({ userId: actor.id, readAt: null });
-    for (const n of unread) {
-      await db.notifications.updateOne({ _id: n._id, userId: actor.id }, { $set: { readAt } });
-    }
-    return;
-  }
-  if (!Array.isArray(input.ids) || input.ids.some((i) => typeof i !== "string")) {
+export async function markRead(actor: Actor, input: unknown) {
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
     throw badRequest("Provide `ids` (string[]) or `all: true`.");
   }
-  for (const id of input.ids) {
-    // userId in the filter: a user can only ever mark their own notifications.
-    await db.notifications.updateOne({ _id: id, userId: actor.id, readAt: null }, { $set: { readAt } });
+  const { ids, all } = input as { ids?: unknown; all?: unknown };
+  const db = await getDb();
+  const readAt = new Date().toISOString();
+  if (all === true) {
+    await db.notifications.updateMany({ userId: actor.id, readAt: null }, { $set: { readAt } });
+    return;
   }
+  if (!Array.isArray(ids) || ids.length > 1000 || ids.some((i) => typeof i !== "string")) {
+    throw badRequest("Provide `ids` (string[]) or `all: true`.");
+  }
+  if (ids.length === 0) return;
+  // userId in the filter: a user can only ever mark their own notifications.
+  await db.notifications.updateMany(
+    { _id: { $in: [...new Set(ids)] }, userId: actor.id, readAt: null },
+    { $set: { readAt } },
+  );
 }

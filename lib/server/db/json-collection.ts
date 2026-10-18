@@ -85,6 +85,16 @@ export class JsonFileCollection<T extends { _id: string }> implements Collection
     return (await this.load()).filter((doc) => matches(doc as Record<string, unknown>, filter)).length;
   }
 
+  async countBy(filter: Filter, field: keyof T & string): Promise<Map<string, number>> {
+    const counts = new Map<string, number>();
+    for (const doc of await this.load()) {
+      if (!matches(doc as Record<string, unknown>, filter)) continue;
+      const key = doc[field];
+      if (typeof key === "string") counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+    return counts;
+  }
+
   async insertOne(doc: T): Promise<void> {
     await this.mutate((docs) => {
       if (docs.some((item) => item._id === doc._id)) throw new Error(`Duplicate _id ${doc._id}`);
@@ -115,6 +125,24 @@ export class JsonFileCollection<T extends { _id: string }> implements Collection
       }
       if (update.$inc) for (const [key, value] of Object.entries(update.$inc)) target[key] = ((target[key] as number | undefined) ?? 0) + value;
       return true;
+    });
+  }
+
+  async updateMany(filter: Filter, update: UpdateOps): Promise<number> {
+    return this.mutate((docs) => {
+      let count = 0;
+      for (const doc of docs) {
+        if (!matches(doc as Record<string, unknown>, filter)) continue;
+        const target = doc as Record<string, unknown>;
+        if (update.$set) Object.assign(target, clone(update.$set));
+        if (update.$push) for (const [key, value] of Object.entries(update.$push)) {
+          const array = (target[key] as unknown[] | undefined) ?? [];
+          array.push(clone(value)); target[key] = array;
+        }
+        if (update.$inc) for (const [key, value] of Object.entries(update.$inc)) target[key] = ((target[key] as number | undefined) ?? 0) + value;
+        count++;
+      }
+      return count;
     });
   }
 

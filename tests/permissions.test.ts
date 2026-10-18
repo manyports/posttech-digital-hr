@@ -151,4 +151,19 @@ describe("notifications are private", () => {
     const after = await listNotifications(e2);
     assert.equal(after.notifications.find((n) => n.id === foreignId)!.readAt, theirs.notifications[0].readAt);
   });
+
+  it("marks own notifications in one update and rejects malformed bulk input", async () => {
+    const e1 = await actor("emp-e1");
+    const e2 = await actor("emp-e2");
+    const foreign = (await listNotifications(e2)).notifications[0];
+    const own = (await listNotifications(e1)).notifications;
+    await rejectsWith(markRead(e1, { all: "false" }), 400);
+    await rejectsWith(markRead(e1, { ids: Array(1001).fill(own[0].id) }), 400);
+    await markRead(e1, { ids: [own[0].id, foreign.id, own[0].id] });
+    assert.ok((await listNotifications(e1)).notifications.find((n) => n.id === own[0].id)?.readAt);
+    assert.equal((await listNotifications(e2)).notifications.find((n) => n.id === foreign.id)?.readAt, foreign.readAt);
+    await markRead(e1, { all: true });
+    assert.equal((await listNotifications(e1)).unread, 0);
+    assert.equal((await listNotifications(e2)).notifications.find((n) => n.id === foreign.id)?.readAt, foreign.readAt);
+  });
 });

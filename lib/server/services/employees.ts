@@ -182,23 +182,32 @@ export async function teamWeek(actor: Actor, days = 14): Promise<TeamWeekPerson[
 export async function listTeam(actor: Actor): Promise<TeamMemberView[]> {
   const db = await getDb();
   const people = await visibleEmployees(db, actor);
-  const names = new Map((await db.employees.find({})).map((e) => [e._id, e]));
+  if (people.length === 0) return [];
+  const ids = people.map((e) => e._id);
+  const managerIds = [...new Set(people.map((e) => e.managerId).filter((id): id is string => Boolean(id)))];
+  const [managers, openByUser, assignments] = await Promise.all([
+    managerIds.length ? db.employees.find({ _id: { $in: managerIds } }) : [],
+    db.requests.countBy({ employeeId: { $in: ids }, status: { $in: [...ACTIVE_REQUEST_STATUSES] } }, "employeeId"),
+    db.assignments.find({ userId: { $in: ids } }),
+  ]);
+  const names = new Map(managers.map((e) => [e._id, e]));
+  const assignmentsByUser = new Map<string, typeof assignments>();
+  for (const assignment of assignments) {
+    const userAssignments = assignmentsByUser.get(assignment.userId) ?? [];
+    userAssignments.push(assignment);
+    assignmentsByUser.set(assignment.userId, userAssignments);
+  }
   const today = new Date().toISOString().slice(0, 10);
 
-  return Promise.all(
-    people.map(async (e) => {
-      const [open, assignments] = await Promise.all([
-        db.requests.count({ employeeId: e._id, status: { $in: [...ACTIVE_REQUEST_STATUSES] } }),
-        db.assignments.find({ userId: e._id }),
-      ]);
-      return {
-        ...toSummary(e, names.get(e.managerId ?? "")),
-        vacationRemaining: e.vacationBalance,
-        openRequests: open,
-        coursesAssigned: assignments.length,
-        coursesCompleted: assignments.filter((a) => a.status === "completed").length,
-        coursesOverdue: assignments.filter((a) => a.status !== "completed" && a.dueDate < today).length,
-      };
-    }),
-  );
+  return people.map((e) => {
+    const personAssignments = assignmentsByUser.get(e._id) ?? [];
+    return {
+      ...toSummary(e, names.get(e.managerId ?? "")),
+      vacationRemaining: e.vacationBalance,
+      openRequests: openByUser.get(e._id) ?? 0,
+      coursesAssigned: personAssignments.length,
+      coursesCompleted: personAssignments.filter((a) => a.status === "completed").length,
+      coursesOverdue: personAssignments.filter((a) => a.status !== "completed" && a.dueDate < today).length,
+    };
+  });
 }

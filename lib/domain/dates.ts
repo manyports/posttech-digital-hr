@@ -37,12 +37,17 @@ export function isWeekend(s: string): boolean {
 
 /** Working days (Mon-Fri) in the inclusive range [start, end]. */
 export function workingDays(start: string, end: string): number {
-  let n = 0;
-  for (let t = parseDate(start).getTime(); t <= parseDate(end).getTime(); t += DAY_MS) {
-    const day = new Date(t).getUTCDay();
-    if (day !== 0 && day !== 6) n++;
+  const startTime = parseDate(start).getTime();
+  const days = Math.floor((parseDate(end).getTime() - startTime) / DAY_MS) + 1;
+  if (days <= 0) return 0;
+  const fullWeeks = Math.floor(days / 7);
+  let weekdays = fullWeeks * 5;
+  const firstDay = new Date(startTime).getUTCDay();
+  for (let i = 0; i < days % 7; i++) {
+    const day = (firstDay + i) % 7;
+    if (day !== 0 && day !== 6) weekdays++;
   }
-  return n;
+  return weekdays;
 }
 
 /**

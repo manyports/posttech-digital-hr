@@ -86,6 +86,24 @@ describe("HR knowledge base editor", () => {
     assert.equal(saved.length, KB.length);
   });
 
+  it("does not rescan article history to import starter content on every read", async () => {
+    await getPublishedKnowledgeBase();
+    const db = await getDb();
+    const originalFind = db.knowledgeArticles.find.bind(db.knowledgeArticles);
+    let reads = 0;
+    db.knowledgeArticles.find = async (...args) => {
+      reads++;
+      return originalFind(...args);
+    };
+    try {
+      await getPublishedKnowledgeBase();
+      await getPublishedKnowledgeBase();
+      assert.equal(reads, 2);
+    } finally {
+      db.knowledgeArticles.find = originalFind;
+    }
+  });
+
   it("keeps draft edits hidden from Al Jana until publication", async () => {
     const hr = await actor("emp-hr1");
     const article = (await listKnowledgeArticles(hr)).find((item) => item.id === KB[0].id)!;
