@@ -70,9 +70,11 @@ describe("model router through the assistant", () => {
     if (reply.kind !== "answer" || !reply.action) return;
     assert.equal(reply.action.label, "draft");
     const id = reply.action.href.split("/").pop() ?? "";
+    assert.equal(reply.action.href, `/requests/${id}`);
     const saved = await getRequest(await actor("emp-e1"), id);
     assert.equal(saved.status, "draft");
     assert.equal(saved.payload.kind, "vacation");
+    assert.ok(saved.allowedActions.includes("submit"), "the request page must let the employee submit the draft");
   });
 
   it("shows the caller's own available days beside the balance article", async () => {

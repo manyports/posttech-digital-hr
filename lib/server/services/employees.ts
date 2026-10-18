@@ -161,7 +161,7 @@ export async function teamCalendar(actor: Actor, start: string, days = 42): Prom
         return request ? [request] : [];
       });
       const pendingRequestIds = [...new Set(hits.filter((request) => request.status !== "approved").map((request) => request._id))];
-      if (hits.length !== members.length || pendingRequestIds.length === 0) continue;
+      if (hits.length !== members.length) continue;
       conflicts.push({
         date,
         groupLabel: key.startsWith("department:") ? key.slice("department:".length) : managers.get(key) ?? actor.fullName,

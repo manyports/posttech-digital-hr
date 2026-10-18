@@ -381,6 +381,7 @@ export interface Dict {
     noConflicts: string;
     coverageConflict: string;
     noAbsences: string;
+    absenceCount: string;
     more: string;
   };
   approvals: {
@@ -975,6 +976,7 @@ const ru: Dict = {
     noConflicts: "В этом месяце конфликтов покрытия нет.",
     coverageConflict: "{date} · {group}: отсутствуют все {n} сотрудника(-ов)",
     noAbsences: "Все на месте",
+    absenceCount: "В отпуске: {n}",
     more: "+ ещё {n}",
   },
   approvals: {
@@ -1584,6 +1586,7 @@ const kk: Dict = {
     noConflicts: "Бұл айда қамту қайшылығы жоқ.",
     coverageConflict: "{date} · {group}: барлық {n} қызметкер жоқ",
     noAbsences: "Барлығы орнында",
+    absenceCount: "Демалыста: {n}",
     more: "+ тағы {n}",
   },
   approvals: {

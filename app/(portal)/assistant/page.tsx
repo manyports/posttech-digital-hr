@@ -545,13 +545,13 @@ function BotBody({
         </Link>
 
         {r.action && (
-          <div>
-            <Link href={r.action.href}>
-              <Button variant="secondary" size="sm">
-                {r.action.label === "draft" ? copy.assistant.openDraft : r.action.label} <ArrowRightIcon size={13} />
-              </Button>
-            </Link>
-          </div>
+          <Link
+            href={r.action.href}
+            aria-label={r.action.label === "draft" ? copy.assistant.openDraft : r.action.label}
+            className="self-start inline-flex h-8 items-center justify-center gap-2 rounded-lg border border-hero-border bg-hero-elevated px-3 text-[12px] font-medium text-hero-foreground shadow-sm transition-colors hover:bg-hero-cell-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-hero-foreground"
+          >
+            {r.action.label === "draft" ? copy.assistant.openDraft : r.action.label} <ArrowRightIcon size={13} />
+          </Link>
         )}
 
         <Feedback msg={msg} onFeedback={onFeedback} onEscalate={onEscalate} copy={copy} />

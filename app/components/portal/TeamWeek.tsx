@@ -137,6 +137,14 @@ export function TeamCalendar({
                             {Number(date.slice(8, 10))}
                           </time>
                           {conflict && <span className="size-1.5 rounded-full bg-warning" title={m.team.conflicts} />}
+                          {absences.length > 0 && (
+                            <span
+                              className="rounded-md bg-hero-cell-bg px-1.5 py-0.5 text-[9.5px] font-medium tabular-nums text-hero-muted"
+                              title={tx(m.team.absenceCount, { n: absences.length })}
+                            >
+                              {absences.length}
+                            </span>
+                          )}
                         </div>
                         {absences.length === 0 ? (
                           <p className="mt-3 text-[10.5px] text-tertiary">{m.team.noAbsences}</p>
@@ -154,7 +162,29 @@ export function TeamCalendar({
                                 </Link>
                               </li>
                             ))}
-                            {absences.length > 3 && <li className="px-1 text-[10.5px] text-tertiary">{tx(m.team.more, { n: absences.length - 3 })}</li>}
+                            {absences.length > 3 && (
+                              <li className="px-1 text-[10.5px] text-tertiary">
+                                <details className="group/overflow">
+                                  <summary className="cursor-pointer list-none hover:text-hero-foreground focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-neutral-900">
+                                    {tx(m.team.more, { n: absences.length - 3 })}
+                                  </summary>
+                                  <ul className="mt-1 space-y-1">
+                                    {absences.slice(3).map(({ person, day }) => (
+                                      <li key={person.id}>
+                                        <Link
+                                          href={day.requestId ? `/requests/${day.requestId}` : `/team/${person.id}`}
+                                          className="flex items-center gap-1.5 rounded-md px-1 py-0.5 text-hero-muted hover:bg-hero-cell-bg hover:text-hero-foreground"
+                                          title={`${person.fullName} · ${day.state === "approved" ? m.team.approvedLeave : m.team.pendingLeave}`}
+                                        >
+                                          <span aria-hidden className={["size-1.5 shrink-0 rounded-full", day.state === "approved" ? "bg-primary" : "bg-warning"].join(" ")} />
+                                          <span className="truncate">{person.fullName}</span>
+                                        </Link>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </details>
+                              </li>
+                            )}
                           </ul>
                         )}
                       </div>
