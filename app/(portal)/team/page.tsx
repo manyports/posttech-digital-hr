@@ -15,9 +15,6 @@ import { TeamCalendar } from "../../components/portal/TeamWeek";
 import { Pill } from "../../components/portal/StatusBadge";
 import { useUser } from "../../components/portal/UserContext";
 
-const SHADOW =
-  "0 1px 2px rgba(17,17,17,0.04), 0 2px 8px -2px rgba(17,17,17,0.04), 0 0 0 1px rgba(17,17,17,0.05), inset 0 1px 0 rgba(255,255,255,0.9)";
-
 export default function TeamPage() {
   const user = useUser();
   const { m } = useI18n();
@@ -62,8 +59,7 @@ export default function TeamPage() {
           <li key={person.id}>
             <Link
               href={`/team/${person.id}`}
-              className="group/t block bg-hero-elevated rounded-2xl p-5 transition-shadow duration-300 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900"
-              style={{ boxShadow: SHADOW }}
+              className="group/t block bg-hero-elevated rounded-2xl p-5 [box-shadow:var(--surface-shadow)] transition-shadow duration-300 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900"
             >
               <div className="flex items-start gap-3.5">
                 <Avatar name={person.fullName} size="lg" />

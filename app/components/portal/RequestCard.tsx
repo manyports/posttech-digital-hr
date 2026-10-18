@@ -9,9 +9,6 @@ import { MiniTracker } from "./RequestTracker";
 import { StatusBadge } from "./StatusBadge";
 import { CoverageNote } from "./TeamWeek";
 
-const SHADOW =
-  "0 1px 2px rgba(17,17,17,0.04), 0 2px 8px -2px rgba(17,17,17,0.04), 0 0 0 1px rgba(17,17,17,0.05), inset 0 1px 0 rgba(255,255,255,0.9)";
-
 /** One request in a list. The whole card links to the detail page. */
 export function RequestCard({
   request,
@@ -25,7 +22,7 @@ export function RequestCard({
   const { m, locale } = useI18n();
   const href = `/requests/${request.id}`;
   return (
-    <article className="group/rc bg-hero-elevated rounded-2xl transition-shadow duration-300 hover:shadow-md" style={{ boxShadow: SHADOW }}>
+    <article className="group/rc bg-hero-elevated rounded-2xl [box-shadow:var(--surface-shadow)] transition-shadow duration-300 hover:shadow-md">
       <Link
         href={href}
         className="flex items-center gap-4 p-4 sm:p-5 rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900"
@@ -56,7 +53,7 @@ export function RequestCard({
           <ArrowRightIcon size={14} className="text-tertiary transition-all duration-200 group-hover/rc:text-hero-foreground group-hover/rc:translate-x-0.5" />
         </div>
       </Link>
-      {footer && <div className="px-4 sm:px-5 pb-4 pt-0 flex flex-wrap items-center gap-2 border-t border-hero-border pt-3">{footer}</div>}
+      {footer && <div className="px-4 sm:px-5 pb-4 pt-3 flex flex-wrap items-center gap-2 border-t border-hero-border">{footer}</div>}
     </article>
   );
 }

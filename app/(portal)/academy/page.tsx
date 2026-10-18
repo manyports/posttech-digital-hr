@@ -14,9 +14,6 @@ import { ArrowRightIcon, BookIcon, ClockIcon } from "../../components/portal/ico
 import { ErrorBlock, LoadingBlock, PageHeader } from "../../components/portal/Panel";
 import { CourseStatusBadge } from "../../components/portal/StatusBadge";
 
-const SHADOW =
-  "0 1px 3px rgba(17,17,17,0.02), 0 4px 12px -2px rgba(17,17,17,0.05), 0 0 0 1px rgba(17,17,17,0.06), inset 0 1.5px 0 rgba(255,255,255,0.95)";
-
 export default function AcademyPage() {
   const { m } = useI18n();
   const { data, error, loading, reload } = useApi<{ assignments: AssignmentView[] }>("/api/academy", { interval: 10000 });
@@ -64,7 +61,7 @@ function CourseCard({ a }: { a: AssignmentView }) {
   const { m, locale } = useI18n();
   const cta = a.status === "completed" ? m.academy.review : a.status === "assigned" ? m.academy.start : m.academy.continue;
   return (
-    <article className="h-full rounded-[22px] bg-hero-elevated p-6 flex flex-col gap-4" style={{ boxShadow: SHADOW }}>
+    <article className="h-full rounded-2xl bg-hero-elevated p-5 flex flex-col gap-4 [box-shadow:var(--surface-shadow)]">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2">
           <Badge variant="muted">{a.course.category}</Badge>
