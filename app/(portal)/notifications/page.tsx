@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import type { NotificationKind, NotificationView } from "@/lib/domain/types";
 import { fmtRelative } from "@/lib/client/format";
 import { useI18n } from "@/lib/i18n/I18nProvider";
+
+const RELATIVE_TIME_REFERENCE = Date.now();
 import { localizeBody, localizeTitle } from "@/lib/i18n/notices";
 import { Button } from "../../components/ui/Button";
 import { EmptyState } from "../../components/ui/EmptyState";
@@ -31,7 +33,6 @@ export default function NotificationsPage() {
     <>
       <PageHeader
         title={m.notices.title}
-        description={m.notices.description}
         actions={
           <Button variant="secondary" size="sm" disabled={unread === 0} onClick={() => void markAllRead()}>
             {m.notices.markAll}
@@ -71,7 +72,7 @@ export default function NotificationsPage() {
                       </span>
                       <span className="block text-[13px] text-hero-muted mt-0.5 leading-relaxed">{localizeBody(n.body, locale)}</span>
                       <span className="block text-[11.5px] text-tertiary mt-1.5">
-                        {k.label} · {fmtRelative(n.createdAt, Date.now(), locale)}
+                        {k.label} · {fmtRelative(n.createdAt, RELATIVE_TIME_REFERENCE, locale)}
                       </span>
                     </span>
                   </button>

@@ -2,6 +2,7 @@ import { describe, it, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { KB } from "../lib/assistant/knowledge-base";
+import type { KbEntry } from "../lib/domain/types";
 import { actor, fresh, rejectsWith } from "./helpers";
 import { ask as askAlJana } from "../lib/server/services/assistant";
 import { getDb, type Db } from "../lib/server/db";
@@ -13,6 +14,20 @@ import {
   restoreKnowledgeVersion,
   saveKnowledgeDraft,
 } from "../lib/server/services/knowledge-base";
+
+function updateAnswers(entry: KbEntry, ru: string, kk: string): KbEntry {
+  const translations = entry.translations!;
+  return {
+    ...entry,
+    answer: ru,
+    answerRu: ru,
+    translations: {
+      ...translations,
+      ru: { ...translations.ru, answer: ru },
+      kk: { ...translations.kk, answer: kk },
+    },
+  };
+}
 
 describe("HR knowledge base editor", () => {
   beforeEach(fresh);
@@ -62,6 +77,11 @@ describe("HR knowledge base editor", () => {
     const visibleInEditor = await listKnowledgeArticles(await actor("emp-hr1"));
     assert.equal(visibleInEditor.length, KB.length);
     assert.equal(visibleInEditor.find((article) => article.id === KB[0].id)?.published?.entry.title, KB[0].title);
+    const storedEntry = (await getPublishedKnowledgeBase()).find((entry) => entry.id === KB[0].id)!;
+    assert.ok(storedEntry.translations?.ru.title);
+    assert.ok(storedEntry.translations?.ru.answer);
+    assert.ok(storedEntry.translations?.kk.title);
+    assert.ok(storedEntry.translations?.kk.answer);
     const saved = JSON.parse(await readFile(process.env.JANA_KB_STORE_PATH!, "utf8")) as unknown[];
     assert.equal(saved.length, KB.length);
   });
@@ -69,7 +89,7 @@ describe("HR knowledge base editor", () => {
   it("keeps draft edits hidden from Al Jana until publication", async () => {
     const hr = await actor("emp-hr1");
     const article = (await listKnowledgeArticles(hr)).find((item) => item.id === KB[0].id)!;
-    const edited = { ...article.published!.entry, answer: "Updated answer for the policy." };
+    const edited = updateAnswers(article.published!.entry, "Обновлённый ответ по политике.", "Саясат бойынша жаңартылған жауап.");
     await saveKnowledgeDraft(hr, article.id, edited);
     assert.equal((await getPublishedKnowledgeBase()).find((item) => item.id === article.id)?.answer, article.published!.entry.answer);
     const pending = (await listKnowledgeArticles(hr)).find((item) => item.id === article.id)!;
@@ -78,11 +98,14 @@ describe("HR knowledge base editor", () => {
     const employee = await actor("emp-e1");
     const beforePublish = await askAlJana(employee, "How many vacation days do I get?");
     assert.equal(beforePublish.kind, "answer");
-    if (beforePublish.kind === "answer") assert.equal(beforePublish.answer, article.published!.entry.answer);
+    if (beforePublish.kind === "answer") assert.equal(beforePublish.answer, article.published!.entry.translations!.ru.answer);
     await publishKnowledgeArticle(hr, article.id);
     const afterPublish = await askAlJana(employee, "How many vacation days do I get?");
     assert.equal(afterPublish.kind, "answer");
-    if (afterPublish.kind === "answer") assert.equal(afterPublish.answer, edited.answer);
+    if (afterPublish.kind === "answer") assert.equal(afterPublish.answer, edited.translations!.ru.answer);
+    const kazakh = await askAlJana(employee, "How many vacation days do I get?", "kk");
+    assert.equal(kazakh.kind, "answer");
+    if (kazakh.kind === "answer") assert.equal(kazakh.answer, edited.translations!.kk.answer);
   });
 
   it("publishes a draft as a new version and supports restoring an old version to draft", async () => {
@@ -92,9 +115,9 @@ describe("HR knowledge base editor", () => {
     const firstVersion = article.history.find((item) => item.version === 1)!.entry;
     const initialHistoryLength = article.history.length;
     const initialVersion = article.published!.version;
-    await saveKnowledgeDraft(hr, article.id, { ...original, answer: "Version two answer." });
+    await saveKnowledgeDraft(hr, article.id, updateAnswers(original, "Ответ второй версии.", "Екінші нұсқаның жауабы."));
     await publishKnowledgeArticle(hr, article.id);
-    assert.equal((await getPublishedKnowledgeBase()).find((item) => item.id === article.id)?.answer, "Version two answer.");
+    assert.equal((await getPublishedKnowledgeBase()).find((item) => item.id === article.id)?.answer, "Ответ второй версии.");
     let updated = (await listKnowledgeArticles(hr)).find((item) => item.id === article.id)!;
     assert.equal(updated.history.length, initialHistoryLength + 1);
     await restoreKnowledgeVersion(hr, article.id, 1);

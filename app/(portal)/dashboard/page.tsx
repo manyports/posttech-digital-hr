@@ -53,7 +53,6 @@ export default function DashboardPage() {
     <>
       <PageHeader
         title={tx(m.dashboard.welcome, { name: first })}
-        description={`${user.position} · ${user.department}`}
         actions={
           <>
             <Link href="/assistant">

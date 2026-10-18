@@ -55,11 +55,11 @@ describe("model router through the assistant", () => {
     process.env.ASSISTANT_MODEL_KEY = ENV.ASSISTANT_MODEL_KEY;
     process.env.ASSISTANT_MODEL_NAME = ENV.ASSISTANT_MODEL_NAME;
     setModelFetch(async () => jsonResponse("annual-leave-entitlement"));
-    const reply = await ask(await actor("emp-e1"), "tell me about leave");
+    const reply = await ask(await actor("emp-e1"), "tell me about leave", "ru");
     assert.equal(reply.kind, "answer");
     if (reply.kind !== "answer") return;
     const entry = KB.find((item) => item.id === "annual-leave-entitlement");
-    assert.equal(reply.answer, entry?.answer);
+    assert.match(reply.answer, /20 оплачиваемых рабочих дней/);
     assert.equal(reply.source.docId, entry?.source.docId);
   });
 
@@ -99,7 +99,7 @@ describe("model router through the assistant", () => {
     process.env.ASSISTANT_MODEL_KEY = ENV.ASSISTANT_MODEL_KEY;
     process.env.ASSISTANT_MODEL_NAME = ENV.ASSISTANT_MODEL_NAME;
     setModelFetch(async () => jsonResponse(null));
-    const reply = await ask(await actor("emp-e1"), "How many vacation days do I get?");
+    const reply = await ask(await actor("emp-e1"), "How many vacation days do I get?", "kk");
     assert.equal(reply.kind, "no_answer");
   });
 });

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "./Button";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 
 interface CarouselProps {
   items: React.ReactNode[];
@@ -22,6 +23,7 @@ export function Carousel({
   interval = 4000,
   className = "",
 }: CarouselProps) {
+  const { m } = useI18n();
   const [slots, setSlots] = useState<Slot[]>([
     { itemIndex: 0, key: "s-0-0", role: "current" },
   ]);
@@ -144,12 +146,12 @@ export function Carousel({
         </div>
 
         <div className="flex gap-1.5">
-          <Button variant="secondary" size="icon" onClick={goPrev} aria-label="Предыдущий слайд">
+          <Button variant="secondary" size="icon" onClick={goPrev} aria-label={m.common.previousSlide}>
             <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
           </Button>
-          <Button variant="secondary" size="icon" onClick={goNext} aria-label="Следующий слайд">
+          <Button variant="secondary" size="icon" onClick={goNext} aria-label={m.common.nextSlide}>
             <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>

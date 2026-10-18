@@ -41,11 +41,6 @@ export default function TeamPage() {
     <>
       <PageHeader
         title={isHr ? m.team.employees : m.nav.myTeam}
-        description={
-          isHr
-            ? m.team.all
-            : tx(m.team.reports, { count: data ? ` (${data.team.length})` : "" })
-        }
       />
 
       {calendar && calendar.people.length > 0 && (

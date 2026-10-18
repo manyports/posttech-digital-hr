@@ -17,6 +17,8 @@ import { AccessDenied, ErrorBlock, LoadingBlock, PageHeader, Panel } from "../..
 import { Pill } from "../../components/portal/StatusBadge";
 import { useUser } from "../../components/portal/UserContext";
 
+const RELATIVE_TIME_REFERENCE = Date.now();
+
 interface Insights {
   total: number;
   answered: number;
@@ -86,7 +88,7 @@ export default function HrPage() {
 
   return (
     <>
-      <PageHeader title={m.hr.title} description={m.hr.description} />
+      <PageHeader title={m.hr.title} />
 
       {esc.loading && !esc.data && <LoadingBlock rows={2} />}
       {esc.error && !esc.data && <ErrorBlock message={esc.error.message} onRetry={esc.reload} />}
@@ -120,7 +122,7 @@ export default function HrPage() {
             <Panel key={e.id} padding="p-5" as="div">
               <div className="flex items-center justify-between gap-3">
                 <span className="text-[12px] text-tertiary tabular-nums">
-                  {e.id} · {e.employee.fullName} · {fmtRelative(e.createdAt, Date.now(), locale)}
+                  {e.id} · {e.employee.fullName} · {fmtRelative(e.createdAt, RELATIVE_TIME_REFERENCE, locale)}
                 </span>
                 <Pill tone={e.status === "answered" ? "good" : "warn"}>{e.status === "answered" ? m.hr.replied : m.hr.waiting}</Pill>
               </div>
@@ -143,7 +145,7 @@ export default function HrPage() {
         </section>
 
         <div className="flex flex-col gap-6 min-w-0">
-          <Panel title={m.hr.insights} description={m.hr.insightsHint} padding="p-0">
+          <Panel title={m.hr.insights} padding="p-0">
             <dl className="grid grid-cols-2 border-b border-hero-border [&>div+div]:border-l [&>div]:border-hero-border">
               <div className="px-5 py-4">
                 <dt className="text-[10.5px] font-semibold uppercase tracking-widest text-tertiary">{m.hr.asked}</dt>
@@ -170,7 +172,7 @@ export default function HrPage() {
             </div>
           </Panel>
 
-          <Panel title={m.hr.demo} description={m.hr.demoHint}>
+          <Panel title={m.hr.demo}>
             <p className="text-[13px] text-hero-muted leading-relaxed">{m.hr.demoBody}</p>
             <div className="mt-3">
               <Button variant="outline" size="sm" onClick={() => setResetOpen(true)}>

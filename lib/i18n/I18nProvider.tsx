@@ -17,6 +17,7 @@ export function I18nProvider({ initial, children }: { initial: Locale; children:
 
   useEffect(() => {
     const stored = readLocaleCookie();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Reconcile the server locale with the persisted browser preference.
     if (stored !== locale) setLocaleState(stored);
   }, [initial]);
 

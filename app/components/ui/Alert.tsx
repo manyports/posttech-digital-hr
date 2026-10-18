@@ -1,4 +1,5 @@
 import React from "react";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 
 type AlertVariant = "default" | "success" | "warning" | "error";
 
@@ -55,6 +56,7 @@ const variantConfig: Record<AlertVariant, {
 };
 
 export function Alert({ variant = "default", title, description, onDismiss, className = "" }: AlertProps) {
+  const { m } = useI18n();
   const { tileBg, tileText, icon } = variantConfig[variant];
 
   return (
@@ -93,7 +95,7 @@ export function Alert({ variant = "default", title, description, onDismiss, clas
           <button
             onClick={onDismiss}
             className="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-tertiary hover:text-hero-muted hover-wipe transition-colors cursor-pointer"
-            aria-label="Закрыть"
+            aria-label={m.common.close}
           >
             <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />

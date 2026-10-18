@@ -62,6 +62,20 @@ export interface Dict {
     unread: string;
     done: string;
     live: string;
+    previous: string;
+    next: string;
+    noResults: string;
+    noResultsDetail: string;
+    navigationLabel: string;
+    previousSlide: string;
+    nextSlide: string;
+    apiBadRequest: string;
+    apiConflict: string;
+    apiNotFound: string;
+    apiForbidden: string;
+    apiUnauthorized: string;
+    apiNetwork: string;
+    apiUnknown: string;
   };
   login: {
     title: string;
@@ -433,6 +447,73 @@ export interface Dict {
     resetBody: string;
     resetting: string;
   };
+  knowledge: {
+    title: string;
+    articles: string;
+    search: string;
+    searchPlaceholder: string;
+    newArticle: string;
+    noArticles: string;
+    chooseArticle: string;
+    chooseOrCreate: string;
+    newTitle: string;
+    content: string;
+    saveDraftFirst: string;
+    titleLabel: string;
+    titleRu: string;
+    titleKk: string;
+    idLabel: string;
+    idHint: string;
+    questionsLabel: string;
+    questionsHint: string;
+    keywordsLabel: string;
+    answerLabel: string;
+    answerHint: string;
+    secondaryAnswerLabel: string;
+    answerRu: string;
+    answerKk: string;
+    source: string;
+    sourceHint: string;
+    documentId: string;
+    documentTitle: string;
+    documentTitleRu: string;
+    documentTitleKk: string;
+    section: string;
+    sectionRu: string;
+    sectionKk: string;
+    sectionHint: string;
+    revision: string;
+    owner: string;
+    ownerRu: string;
+    ownerKk: string;
+    preview: string;
+    previewText: string;
+    articleHeading: string;
+    answerPlaceholder: string;
+    translationsRequired: string;
+    sections: string;
+    sourceLabel: string;
+    history: string;
+    versionLabel: string;
+    historyHint: string;
+    current: string;
+    restore: string;
+    ownerLabel: string;
+    draftSaved: string;
+    published: string;
+    unpublished: string;
+    draft: string;
+    saveDraft: string;
+    saving: string;
+    publish: string;
+    publishing: string;
+    saveFail: string;
+    publishFail: string;
+    restoreFail: string;
+    notFound: string;
+    accessDenied: string;
+    back: string;
+  };
   assistant: {
     description: string;
     kbOnly: string;
@@ -473,6 +554,7 @@ export interface Dict {
     newline: string;
     greet: string;
     botNotice: string;
+    messages: Record<string, string>;
     bot: string;
     helpful: string;
     yes: string;
@@ -485,6 +567,14 @@ export interface Dict {
     openDraft: string;
     balanceLine: string;
     starters: string[];
+    knowledgeEditor: string;
+    history: string;
+    noHistory: string;
+    newChat: string;
+    deleteChat: string;
+    clearHistory: string;
+    restoreHistoryError: string;
+    saveHistoryError: string;
   };
 }
 
@@ -550,6 +640,20 @@ const ru: Dict = {
     unread: "не прочитано",
     done: "завершено",
     live: "В реальном времени",
+    previous: "Назад",
+    next: "Вперед",
+    noResults: "Нет результатов",
+    noResultsDetail: "Пока здесь ничего нет.",
+    navigationLabel: "Навигация",
+    previousSlide: "Предыдущий слайд",
+    nextSlide: "Следующий слайд",
+    apiBadRequest: "Проверьте введённые данные и попробуйте снова.",
+    apiConflict: "Данные изменились. Обновите страницу и повторите действие.",
+    apiNotFound: "Запрошенные данные не найдены.",
+    apiForbidden: "У вас нет доступа к этому действию.",
+    apiUnauthorized: "Сессия завершилась. Войдите в портал снова.",
+    apiNetwork: "Не удалось связаться с сервером. Проверьте подключение.",
+    apiUnknown: "Не удалось выполнить запрос. Попробуйте снова.",
   },
   login: {
     title: "Digital HR",
@@ -933,6 +1037,73 @@ const ru: Dict = {
     resetBody: "Это удалит все созданные во время демонстрации данные (новые заявки, назначения, уведомления, вопросы в HR) и восстановит исходные данные. Текущие сессии останутся активными.",
     resetting: "Сброс…",
   },
+  knowledge: {
+    title: "База знаний Al Jana",
+    articles: "Статьи",
+    search: "Найти статью",
+    searchPlaceholder: "Например, отпуск или аванс",
+    newArticle: "Новая статья",
+    noArticles: "Ничего не найдено.",
+    chooseArticle: "Выберите статью",
+    chooseOrCreate: "Выберите материал слева или создайте новый.",
+    newTitle: "Новая статья",
+    content: "Содержание статьи",
+    saveDraftFirst: "Сначала сохраните черновик. Изменения станут доступны Al Jana только после публикации.",
+    titleLabel: "Заголовок статьи",
+    titleRu: "Заголовок на русском",
+    titleKk: "Заголовок на казахском",
+    idLabel: "ID статьи",
+    idHint: "Латиница, цифры и дефис; после создания не меняется.",
+    questionsLabel: "Примеры вопросов — по одному в строке",
+    questionsHint: "Так Al Jana поймёт, когда показать этот ответ.",
+    keywordsLabel: "Ключевые слова — по одному в строке",
+    answerLabel: "Основной ответ",
+    answerHint: "Введите утверждённый ответ из исходного материала.",
+    secondaryAnswerLabel: "Дополнительный вариант ответа",
+    answerRu: "Ответ на русском",
+    answerKk: "Ответ на казахском",
+    source: "Источник ответа",
+    sourceHint: "Эти данные появятся по ссылке рядом с ответом Al Jana.",
+    documentId: "Код документа",
+    documentTitle: "Название документа",
+    documentTitleRu: "Название документа на русском",
+    documentTitleKk: "Название документа на казахском",
+    section: "Раздел документа",
+    sectionRu: "Раздел на русском",
+    sectionKk: "Раздел на казахском",
+    sectionHint: "Например: §2.1 Ежегодный оплачиваемый отпуск",
+    revision: "Редакция документа",
+    owner: "Владелец исходного документа",
+    ownerRu: "Владелец на русском",
+    ownerKk: "Владелец на казахском",
+    preview: "Предпросмотр для сотрудника",
+    previewText: "Пример отображения материала в базе Al Jana.",
+    articleHeading: "Заголовок статьи",
+    answerPlaceholder: "Текст ответа появится здесь.",
+    translationsRequired: "Заполните русскую и казахскую версии заголовка, ответа и источника.",
+    sections: "Разделы документа",
+    sourceLabel: "Источник",
+    history: "История публикаций",
+    versionLabel: "Версия",
+    historyHint: "Старая версия сначала загружается как черновик — её можно проверить и только потом опубликовать.",
+    current: "текущая",
+    restore: "Загрузить в черновик",
+    ownerLabel: "Владелец статьи",
+    draftSaved: "Черновик сохранён",
+    published: "Опубликована",
+    unpublished: "Не опубликована",
+    draft: "Черновик",
+    saveDraft: "Сохранить черновик",
+    saving: "Сохраняем…",
+    publish: "Опубликовать",
+    publishing: "Публикуем…",
+    saveFail: "Не удалось сохранить статью.",
+    publishFail: "Не удалось опубликовать статью.",
+    restoreFail: "Не удалось восстановить версию.",
+    notFound: "Документ не найден.",
+    accessDenied: "Редактор доступен только сотрудникам HR.",
+    back: "К Al Jana",
+  },
   assistant: {
     description: "Ваш HR-ассистент. Отвечает строго по корпоративной базе знаний HR, всегда указывает источник и не выдумывает факты.",
     kbOnly: "Ответы только из базы знаний HR",
@@ -973,6 +1144,16 @@ const ru: Dict = {
     newline: "новая строка",
     greet: "Здравствуйте, {name}! Чем помочь?",
     botNotice: "Я бот HR. Отвечаю только по базе знаний и всегда показываю источник.",
+    messages: {
+      greeting: "Здравствуйте! Я Al Jana — HR-ассистент Jana Group. Чем я могу помочь?",
+      howareyou: "Спасибо, всё хорошо! Чем могу помочь по вопросам HR?",
+      thanks: "Пожалуйста! Если появятся другие вопросы, обращайтесь.",
+      bye: "До свидания!",
+      identity: "Я Al Jana, HR-ассистент Jana Group.",
+      noAnswer: "В базе знаний HR не найден надёжный ответ. Могу передать вопрос сотруднику HR.",
+      empty: "Введите вопрос или выберите один из примеров ниже.",
+      injection: "Я отвечаю на вопросы по базе знаний HR. Могу передать этот вопрос сотруднику HR.",
+    },
     bot: "БОТ",
     helpful: "Ответ помог?",
     yes: "Да",
@@ -991,6 +1172,14 @@ const ru: Dict = {
       "Могу ли я работать из дома?",
       "В какой день выплачивается зарплата?",
     ],
+    knowledgeEditor: "Редактор базы знаний",
+    history: "История чатов",
+    noHistory: "Сохранённых чатов пока нет.",
+    newChat: "Новый чат",
+    deleteChat: "Удалить чат",
+    clearHistory: "Очистить историю",
+    restoreHistoryError: "Не удалось прочитать историю чата.",
+    saveHistoryError: "Не удалось сохранить историю на этом устройстве.",
   },
 };
 
@@ -1056,6 +1245,20 @@ const kk: Dict = {
     unread: "оқылмаған",
     done: "аяқталды",
     live: "Нақты уақытта",
+    previous: "Артқа",
+    next: "Алға",
+    noResults: "Нәтиже жоқ",
+    noResultsDetail: "Әзірге мұнда ештеңе жоқ.",
+    navigationLabel: "Навигация",
+    previousSlide: "Алдыңғы слайд",
+    nextSlide: "Келесі слайд",
+    apiBadRequest: "Енгізілген деректерді тексеріп, қайталап көріңіз.",
+    apiConflict: "Деректер өзгерді. Бетті жаңартып, әрекетті қайталаңыз.",
+    apiNotFound: "Сұралған дерек табылмады.",
+    apiForbidden: "Бұл әрекетке рұқсатыңыз жоқ.",
+    apiUnauthorized: "Сессия аяқталды. Порталға қайта кіріңіз.",
+    apiNetwork: "Серверге қосылу мүмкін болмады. Байланысты тексеріңіз.",
+    apiUnknown: "Сұрауды орындау мүмкін болмады. Қайталап көріңіз.",
   },
   login: {
     title: "Digital HR",
@@ -1439,6 +1642,73 @@ const kk: Dict = {
     resetBody: "Көрсетілімде жасалған дерек (жаңа өтінім, тағайындау, хабарлама, HR сұрақтары) жойылып, бастапқы дерек қайтады. Сессиялар ашық қалады.",
     resetting: "Қалпына келтіру…",
   },
+  knowledge: {
+    title: "Al Jana білім базасы",
+    articles: "Мақалалар",
+    search: "Мақаланы іздеу",
+    searchPlaceholder: "Мысалы, демалыс немесе аванс",
+    newArticle: "Жаңа мақала",
+    noArticles: "Ештеңе табылмады.",
+    chooseArticle: "Мақаланы таңдаңыз",
+    chooseOrCreate: "Сол жақтан материалды таңдаңыз немесе жаңасын жасаңыз.",
+    newTitle: "Жаңа мақала",
+    content: "Мақала мазмұны",
+    saveDraftFirst: "Алдымен жобаны сақтаңыз. Өзгерістер жарияланғаннан кейін Al Jana жүйесінде қолжетімді болады.",
+    titleLabel: "Мақала тақырыбы",
+    titleRu: "Орыс тіліндегі тақырып",
+    titleKk: "Қазақ тіліндегі тақырып",
+    idLabel: "Мақала ID-і",
+    idHint: "Латын әріптері, сандар және дефис; жасалғаннан кейін өзгермейді.",
+    questionsLabel: "Сұрақ үлгілері — әр жолға біреуден",
+    questionsHint: "Al Jana бұл жауапты қашан көрсету керегін түсінеді.",
+    keywordsLabel: "Түйінді сөздер — әр жолға біреуден",
+    answerLabel: "Негізгі жауап",
+    answerHint: "Бастапқы материалдағы бекітілген жауапты енгізіңіз.",
+    secondaryAnswerLabel: "Жауаптың қосымша нұсқасы",
+    answerRu: "Орыс тіліндегі жауап",
+    answerKk: "Қазақ тіліндегі жауап",
+    source: "Жауап дереккөзі",
+    sourceHint: "Бұл мәліметтер Al Jana жауабының жанындағы сілтемеде көрінеді.",
+    documentId: "Құжат коды",
+    documentTitle: "Құжат атауы",
+    documentTitleRu: "Құжаттың орыс тіліндегі атауы",
+    documentTitleKk: "Құжаттың қазақ тіліндегі атауы",
+    section: "Құжат бөлімі",
+    sectionRu: "Орыс тіліндегі бөлім атауы",
+    sectionKk: "Қазақ тіліндегі бөлім атауы",
+    sectionHint: "Мысалы: §2.1 Жыл сайынғы ақылы демалыс",
+    revision: "Құжат нұсқасы",
+    owner: "Бастапқы құжат иесі",
+    ownerRu: "Орыс тіліндегі иесі",
+    ownerKk: "Қазақ тіліндегі иесі",
+    preview: "Қызметкерге арналған көрініс",
+    previewText: "Материалдың Al Jana білім базасында көріну үлгісі.",
+    articleHeading: "Мақала тақырыбы",
+    answerPlaceholder: "Жауап мәтіні осында көрінеді.",
+    translationsRequired: "Тақырыптың, жауаптың және дереккөздің орысша және қазақша нұсқаларын толтырыңыз.",
+    sections: "Құжат бөлімдері",
+    sourceLabel: "Дереккөз",
+    history: "Жарияланымдар тарихы",
+    versionLabel: "Нұсқа",
+    historyHint: "Ескі нұсқа алдымен жоба ретінде жүктеледі. Оны тексеріп, содан кейін жариялауға болады.",
+    current: "ағымдағы",
+    restore: "Жобаға жүктеу",
+    ownerLabel: "Мақала иесі",
+    draftSaved: "Жоба сақталды",
+    published: "Жарияланған",
+    unpublished: "Жарияланбаған",
+    draft: "Жоба",
+    saveDraft: "Жобаны сақтау",
+    saving: "Сақталуда…",
+    publish: "Жариялау",
+    publishing: "Жариялануда…",
+    saveFail: "Мақаланы сақтау мүмкін болмады.",
+    publishFail: "Мақаланы жариялау мүмкін болмады.",
+    restoreFail: "Нұсқаны қалпына келтіру мүмкін болмады.",
+    notFound: "Құжат табылмады.",
+    accessDenied: "Редакторға тек HR қызметкерлері кіре алады.",
+    back: "Al Jana-ға қайту",
+  },
   assistant: {
     description: "HR көмекшісі. Тек HR білім базасы бойынша жауап береді, дереккөзді көрсетеді және ойдан шығармайды.",
     kbOnly: "Жауап тек HR білім базасынан",
@@ -1479,6 +1749,16 @@ const kk: Dict = {
     newline: "жаңа жол",
     greet: "Сәлеметсіз бе, {name}! Қалай көмектесейін?",
     botNotice: "Мен HR ботымын. Тек білім базасы бойынша жауап беремін және дереккөзді көрсетемін.",
+    messages: {
+      greeting: "Сәлеметсіз бе! Мен Jana Group компаниясының HR көмекшісі Al Jana-мын. Қалай көмектесейін?",
+      howareyou: "Рақмет, бәрі жақсы! HR бойынша қандай сұрағыңыз бар?",
+      thanks: "Оқасы жоқ! Басқа сұрақ болса, жазыңыз.",
+      bye: "Сау болыңыз!",
+      identity: "Мен Jana Group компаниясының HR көмекшісі Al Jana-мын.",
+      noAnswer: "HR білім базасынан сенімді жауап табылмады. Сұрақты HR қызметкеріне жібере аламын.",
+      empty: "Сұрақ енгізіңіз немесе төмендегі үлгілердің бірін таңдаңыз.",
+      injection: "Мен HR білім базасы бойынша жауап беремін. Бұл сұрақты HR қызметкеріне жібере аламын.",
+    },
     bot: "БОТ",
     helpful: "Жауап көмектесті ме?",
     yes: "Иә",
@@ -1497,6 +1777,14 @@ const kk: Dict = {
       "Үйден жұмыс істей аламын ба?",
       "Жалақы қай күні төленеді?",
     ],
+    knowledgeEditor: "Білім базасының редакторы",
+    history: "Чаттар тарихы",
+    noHistory: "Сақталған чаттар жоқ.",
+    newChat: "Жаңа чат",
+    deleteChat: "Чатты жою",
+    clearHistory: "Тарихты тазалау",
+    restoreHistoryError: "Чат тарихын оқу мүмкін болмады.",
+    saveHistoryError: "Тарихты осы құрылғыда сақтау мүмкін болмады.",
   },
 };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { AssistantReply, EscalationView } from "@/lib/domain/types";
 import { ApiError, post } from "@/lib/client/api";
@@ -16,8 +16,8 @@ import { ArrowRightIcon, DocIcon, InboxIcon, RefreshIcon, SendIcon } from "../..
 import { SectionSidebar } from "../../components/portal/PortalShell";
 import { Pill } from "../../components/portal/StatusBadge";
 import { useUser } from "../../components/portal/UserContext";
-import { RU_QUESTIONS, MESSAGES_RU } from "@/lib/assistant/translations";
 import { sourceHref } from "@/lib/assistant/source-links";
+import { newAssistantChatId, readAssistantChats, writeAssistantChats, type StoredAssistantChat } from "@/lib/client/assistant-history";
 
 type BotMsg = {
   id: number;
@@ -29,6 +29,7 @@ type BotMsg = {
   feedback?: "up" | "down";
 };
 type Msg = { id: number; at: number; role: "user"; text: string } | BotMsg;
+type Chat = StoredAssistantChat<Msg>;
 
 type Copy = ReturnType<typeof useI18n>["m"];
 
@@ -44,6 +45,10 @@ export default function AssistantPage() {
   const agent = m.nav.assistant;
   const starters = m.assistant.starters;
   const [messages, setMessages] = useState<Msg[]>([]);
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [activeChatId, setActiveChatId] = useState<string | null>(null);
+  const [historyReady, setHistoryReady] = useState(false);
+  const [historyError, setHistoryError] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [thinking, setThinking] = useState(false);
   const [escOpen, setEscOpen] = useState(false);
@@ -51,6 +56,51 @@ export default function AssistantPage() {
   const endRef = useRef<HTMLDivElement>(null);
   const fieldRef = useRef<HTMLTextAreaElement>(null);
   const { data: esc, reload: reloadEsc } = useApi<{ escalations: EscalationView[] }>("/api/assistant/escalations", { interval: 8000 });
+
+  useEffect(() => {
+    try {
+      const saved = readAssistantChats<Msg>(user.id).sort((a, b) => b.updatedAt - a.updatedAt);
+      const initial = saved.length ? saved : [{ id: newAssistantChatId(), title: "", updatedAt: Date.now(), messages: [] }];
+      const active = initial[0];
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Restore browser storage once the user is known.
+      setChats(initial);
+      setActiveChatId(active.id);
+      setMessages(active.messages);
+      nextId.current = Math.max(0, ...active.messages.map((message) => message.id)) + 1;
+      setHistoryError(null);
+    } catch {
+      const initial = { id: newAssistantChatId(), title: "", updatedAt: Date.now(), messages: [] };
+      setChats([initial]);
+      setActiveChatId(initial.id);
+      setMessages([]);
+      setHistoryError(m.assistant.restoreHistoryError);
+    } finally {
+      setHistoryReady(true);
+    }
+  }, [user.id, m.assistant.restoreHistoryError]);
+
+  useEffect(() => {
+    if (!historyReady || !activeChatId) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Mirror the active transcript into its history entry.
+    setChats((previous) => {
+      const active = previous.find((chat) => chat.id === activeChatId);
+      if (!active || active.messages === messages) return previous;
+      const title = messages.find((message): message is Extract<Msg, { role: "user" }> => message.role === "user")?.text.slice(0, 56) ?? "";
+      return [{ ...active, title, updatedAt: Date.now(), messages: [...messages] }, ...previous.filter((chat) => chat.id !== activeChatId)]
+        .sort((a, b) => b.updatedAt - a.updatedAt)
+        .slice(0, 40);
+    });
+  }, [messages, activeChatId, historyReady]);
+
+  useEffect(() => {
+    if (!historyReady || chats.length === 0) return;
+    try {
+      writeAssistantChats(user.id, chats);
+    } catch {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Report an immediate localStorage write failure.
+      setHistoryError(m.assistant.saveHistoryError);
+    }
+  }, [chats, historyReady, user.id, m.assistant.saveHistoryError]);
 
   useEffect(() => {
     if (messages.length === 0 && !thinking) return;
@@ -75,7 +125,7 @@ export default function AssistantPage() {
     setMessages((prev) => [...prev, { id: nextId.current++, at: Date.now(), role: "user", text: q }]);
     setThinking(true);
     try {
-      const { reply } = await post<{ reply: AssistantReply }>("/api/assistant/ask", { question: q });
+      const { reply } = await post<{ reply: AssistantReply }>("/api/assistant/ask", { question: q, locale });
       setMessages((prev) => [...prev, { id: nextId.current++, at: Date.now(), role: "bot", reply }]);
     } catch (e) {
       toast({ title: m.assistant.fail, description: e instanceof ApiError ? e.message : undefined, variant: "error" });
@@ -99,10 +149,42 @@ export default function AssistantPage() {
   }
 
   function restart() {
+    startChat();
+  }
+
+  function startChat() {
+    const chat = { id: newAssistantChatId(), title: "", updatedAt: Date.now(), messages: [] as Msg[] };
+    setChats((previous) => [chat, ...previous].slice(0, 40));
+    setActiveChatId(chat.id);
     setMessages([]);
     setDraft("");
+    nextId.current = 1;
+    setEscOpen(false);
     fieldRef.current?.focus();
   }
+
+  function openChat(chat: Chat) {
+    setActiveChatId(chat.id);
+    setMessages(chat.messages);
+    setDraft("");
+    nextId.current = Math.max(0, ...chat.messages.map((message) => message.id)) + 1;
+    setEscOpen(false);
+  }
+
+  function deleteChat(chatId: string) {
+    const remaining = chats.filter((chat) => chat.id !== chatId);
+    if (chatId === activeChatId) {
+      const next = remaining[0] ?? { id: newAssistantChatId(), title: "", updatedAt: Date.now(), messages: [] };
+      setChats(remaining.length ? remaining : [next]);
+      setActiveChatId(next.id);
+      setMessages(next.messages);
+      nextId.current = Math.max(0, ...next.messages.map((message) => message.id)) + 1;
+    } else {
+      setChats(remaining);
+    }
+  }
+
+  const orderedChats = useMemo(() => [...chats].sort((a, b) => b.updatedAt - a.updatedAt), [chats]);
 
   const empty = messages.length === 0;
   const escalations = esc?.escalations ?? [];
@@ -113,10 +195,14 @@ export default function AssistantPage() {
     <>
       <SectionSidebar
         mobile="none"
-        title={m.assistant.mine}
-        actions={<span className="pr-1.5 text-[11px] text-tertiary tabular-nums">{escalations.length}</span>}
+        title={m.assistant.history}
+        actions={<button type="button" onClick={startChat} aria-label={m.assistant.newChat} title={m.assistant.newChat} className="rounded-md px-2 py-1 text-[12px] font-semibold text-hero-foreground hover:bg-hero-cell-bg">＋</button>}
       >
-        <Escalations items={escalations} copy={m} relative={relative} />
+        <ConversationList chats={orderedChats} activeId={activeChatId} onSelect={openChat} onDelete={deleteChat} copy={m} locale={locale} />
+        <div className="mt-4 border-t border-hero-border pt-3">
+          <div className="mb-2 flex items-center justify-between px-1"><span className="text-[12px] font-semibold text-hero-foreground">{m.assistant.mine}</span><span className="text-[11px] text-tertiary tabular-nums">{escalations.length}</span></div>
+          <Escalations items={escalations} copy={m} relative={relative} />
+        </div>
       </SectionSidebar>
 
       <div className="surface-matte rounded-2xl p-1.5 h-[calc(100dvh-104px)] min-h-[520px]">
@@ -126,24 +212,22 @@ export default function AssistantPage() {
             <JanaMark size="sm" />
             <span className="text-[13px] font-semibold tracking-[-0.01em] text-hero-foreground">{agent}</span>
             <BotTag label={m.assistant.bot} />
-            <span className="hidden sm:block w-px h-4 bg-hero-border mx-0.5" />
-            <span className="hidden sm:block text-[12px] text-tertiary truncate">{m.assistant.kbOnly}</span>
             <div className="ml-auto flex items-center gap-1 -mr-2">
               {user.role === "hr" && (
                 <Link
                   href="/hr/knowledge"
-                  aria-label="Открыть редактор базы знаний"
+                  aria-label={m.assistant.knowledgeEditor}
                   className="h-8 inline-flex items-center gap-1.5 rounded-lg px-2 text-[12px] font-medium text-hero-muted hover:text-hero-foreground hover:bg-hero-cell-bg transition-colors"
                 >
                   <DocIcon size={14} />
-                  <span className="hidden md:inline">Редактор базы знаний</span>
-                  <span className="md:hidden">База знаний</span>
+                  <span className="hidden md:inline">{m.assistant.knowledgeEditor}</span>
+                  <span className="md:hidden">{m.knowledge.title}</span>
                 </Link>
               )}
               <button
                 onClick={() => setEscOpen((v) => !v)}
                 aria-pressed={escOpen}
-                aria-label={m.assistant.mine}
+                aria-label={m.assistant.history}
                 className={[
                   "lg:hidden h-8 flex items-center gap-1.5 px-2 rounded-lg text-[12px] font-medium transition-colors cursor-pointer",
                   escOpen ? "bg-hero-cell-bg text-hero-foreground" : "text-hero-muted hover:text-hero-foreground hover:bg-hero-cell-bg",
@@ -166,7 +250,9 @@ export default function AssistantPage() {
 
           {escOpen && (
             <div className="lg:hidden max-h-[40%] overflow-y-auto border-b border-hero-border px-3 py-2 animate-chat-in">
-              <Escalations items={escalations} copy={m} relative={relative} />
+              <button type="button" onClick={startChat} className="mb-2 w-full rounded-lg border border-hero-border px-3 py-2 text-left text-[12px] font-medium text-hero-foreground hover:bg-hero-cell-bg">＋ {m.assistant.newChat}</button>
+              <ConversationList chats={orderedChats} activeId={activeChatId} onSelect={openChat} onDelete={deleteChat} copy={m} locale={locale} />
+              <div className="mt-3 border-t border-hero-border pt-3"><Escalations items={escalations} copy={m} relative={relative} /></div>
             </div>
           )}
 
@@ -175,7 +261,6 @@ export default function AssistantPage() {
             <div className="mt-auto pt-6 pb-3">
               <Row avatar={<JanaMark size="md" />} name={agent} tag={m.assistant.bot}>
                 <p className="text-[14px] leading-relaxed text-hero-foreground">{tx(m.assistant.greet, { name: user.fullName.split(" ")[0] })}</p>
-                <p className="-mt-2 text-[12.5px] text-tertiary">{m.assistant.botNotice}</p>
                 {empty && <QuickReplies items={starters} onPick={ask} disabled={thinking} />}
               </Row>
 
@@ -203,6 +288,7 @@ export default function AssistantPage() {
           </div>
 
           {/* Composer */}
+          {historyError && <p role="status" className="mx-5 mb-1 text-[11px] text-warning">{historyError}</p>}
           <form
             className="shrink-0 px-5 pb-2"
             onSubmit={(e) => {
@@ -319,6 +405,37 @@ function Row({ avatar, name, tag, at, children }: { avatar: React.ReactNode; nam
   );
 }
 
+function ConversationList({ chats, activeId, onSelect, onDelete, copy, locale }: {
+  chats: Chat[];
+  activeId: string | null;
+  onSelect: (chat: Chat) => void;
+  onDelete: (id: string) => void;
+  copy: Copy;
+  locale: "ru" | "kk";
+}) {
+  if (chats.length === 0) return <p className="px-2 py-3 text-[12px] text-tertiary">{copy.assistant.noHistory}</p>;
+  return (
+    <ul className="flex flex-col gap-1">
+      {chats.map((chat) => (
+        <li key={chat.id} className="group flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => onSelect(chat)}
+            aria-current={chat.id === activeId ? "page" : undefined}
+            className={["min-w-0 flex-1 rounded-lg px-2.5 py-2 text-left text-[12px] transition-colors", chat.id === activeId ? "bg-hero-cell-bg text-hero-foreground" : "text-hero-muted hover:bg-hero-cell-bg/70 hover:text-hero-foreground"].join(" ")}
+          >
+            <span className="block truncate">{chat.title || copy.assistant.newChat}</span>
+            <span className="mt-0.5 block text-[10px] text-tertiary">{new Intl.DateTimeFormat(locale === "kk" ? "kk-KZ" : "ru-RU", { month: "short", day: "numeric" }).format(new Date(chat.updatedAt))}</span>
+          </button>
+          <button type="button" onClick={() => onDelete(chat.id)} aria-label={`${copy.assistant.deleteChat}: ${chat.title || copy.assistant.newChat}`} title={copy.assistant.deleteChat} className="h-7 w-7 shrink-0 rounded-md text-tertiary sm:opacity-0 transition-opacity hover:bg-error/10 hover:text-error focus:opacity-100 group-hover:opacity-100">
+            ×
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 /** Reply buttons: the low-effort way into a conversation. */
 function QuickReplies({ label, items, onPick, disabled }: { label?: string; items: string[]; onPick: (q: string) => void; disabled: boolean }) {
   if (items.length === 0) return null;
@@ -402,7 +519,8 @@ function BotBody({
 
   if (r.kind === "answer") {
     const text = r.answer;
-    const relatedItems = r.related.map((x) => RU_QUESTIONS[x.entryId] ?? x.question);
+    const source = r.localizedSource ?? r.source;
+    const relatedItems = r.related.map((x) => x.question);
     return (
       <>
         <p className="text-[14px] leading-[1.7] text-hero-foreground">{text}</p>
@@ -412,16 +530,16 @@ function BotBody({
 
         <Link
           href={sourceHref(r.source)}
-          aria-label={`${copy.assistant.source}: ${r.source.docTitle}, ${r.source.section}`}
+          aria-label={`${copy.assistant.source}: ${source.docTitle}, ${source.section}`}
           className="self-start max-w-full flex items-start gap-2.5 rounded-lg border border-hero-border px-3 py-2 hover:bg-hero-cell-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-hero-foreground transition-colors"
         >
           <DocIcon size={14} className="mt-0.5 shrink-0 text-tertiary" />
           <div className="min-w-0">
             <p className="text-[12.5px] font-semibold text-hero-foreground leading-snug">
-              {r.source.docTitle} <span className="font-normal text-tertiary">· {r.source.docId}</span>
+              {source.docTitle} <span className="font-normal text-tertiary">· {r.source.docId}</span>
             </p>
             <p className="text-[11.5px] text-tertiary leading-snug mt-0.5">
-              {r.source.section} · {r.source.revision} · {r.source.owner}
+              {source.section} · {r.source.revision} · {source.owner}
             </p>
           </div>
         </Link>
@@ -447,7 +565,7 @@ function BotBody({
       <>
         <div>
           <p className="text-[14px] font-semibold text-hero-foreground">{copy.assistant.noAnswer}</p>
-          <p className="mt-0.5 text-[14px] leading-relaxed text-hero-muted">{MESSAGES_RU.noAnswer}</p>
+          <p className="mt-0.5 text-[14px] leading-relaxed text-hero-muted">{copy.assistant.messages.noAnswer}</p>
         </div>
         <Handoff msg={msg} onEscalate={onEscalate} copy={copy} />
         <QuickReplies label={copy.assistant.canHelp} items={starters} onPick={onAsk} disabled={disabled} />
@@ -455,7 +573,7 @@ function BotBody({
     );
   }
 
-  const smalltalk = MESSAGES_RU[r.kind as keyof typeof MESSAGES_RU] ?? MESSAGES_RU.greeting;
+  const smalltalk = copy.assistant.messages[r.kind] ?? copy.assistant.messages.greeting;
   return (
     <>
       <p className="text-[14px] leading-relaxed text-hero-foreground">{smalltalk}</p>

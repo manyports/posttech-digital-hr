@@ -1,6 +1,7 @@
 import type { KbEntry, KnowledgeArticleDoc } from "../../domain/types";
 import { KB as INITIAL_KB } from "../../assistant/knowledge-base";
 import { KB_ANSWERS_RU } from "../../assistant/translations";
+import { withKnowledgeTranslations } from "../../assistant/reference-translations";
 import { getDb } from "../db";
 import { badRequest, conflict, forbidden, notFound } from "../errors";
 import { isHr, type Actor } from "../policy";
@@ -25,21 +26,55 @@ function validateEntry(value: unknown): KbEntry {
   if (typeof entry.id !== "string" || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(entry.id)) errors.id = "Use lowercase English letters, numbers and hyphens.";
   if (typeof entry.title !== "string" || !entry.title.trim() || entry.title.length > 120) errors.title = "Add a title (up to 120 characters).";
   if (typeof entry.answer !== "string" || entry.answer.trim().length < 3 || entry.answer.length > 6000) errors.answer = "Add an answer (3–6000 characters).";
+  const translations = entry.translations;
+  for (const locale of ["ru", "kk"] as const) {
+    const copy = translations?.[locale];
+    if (!copy || typeof copy.title !== "string" || !copy.title.trim() || copy.title.length > 120) errors[`title_${locale}`] = `Add the ${locale.toUpperCase()} article title.`;
+    if (!copy || typeof copy.answer !== "string" || copy.answer.trim().length < 3 || copy.answer.length > 6000) errors[`answer_${locale}`] = `Add the ${locale.toUpperCase()} answer.`;
+    if (!copy?.source || [copy.source.docTitle, copy.source.section, copy.source.owner].some((part) => typeof part !== "string" || !part.trim())) errors[`source_${locale}`] = `Complete the ${locale.toUpperCase()} source details.`;
+  }
   if (!Array.isArray(entry.questions) || entry.questions.length < 1 || entry.questions.some((item) => typeof item !== "string" || !item.trim())) errors.questions = "Add at least one example question.";
   if (!Array.isArray(entry.keywords) || entry.keywords.some((item) => typeof item !== "string" || !item.trim())) errors.keywords = "Remove empty keywords.";
   const source = entry.source;
   if (!source || [source.docId, source.docTitle, source.section, source.revision, source.owner].some((part) => typeof part !== "string" || !part.trim())) errors.source = "Complete all source details.";
   if (entry.action && (typeof entry.action.label !== "string" || typeof entry.action.href !== "string" || !/^\/(profile|requests|academy|notifications|assistant)$/.test(entry.action.href))) errors.action = "Choose a valid portal link.";
-  if (errors.id || errors.title || errors.answer || errors.questions || errors.keywords || errors.source || errors.action) {
+  if (errors.id || errors.title || errors.answer || errors.questions || errors.keywords || errors.source || errors.action || Object.keys(errors).some((key) => key.startsWith("title_") || key.startsWith("answer_") || key.startsWith("source_"))) {
     throw badRequest("Check the highlighted article details.", errors);
   }
-  return structuredClone(entry as KbEntry);
+  const valid = structuredClone(entry as KbEntry);
+  const russian = valid.translations!.ru;
+  valid.title = russian.title;
+  valid.answer = russian.answer;
+  valid.answerRu = russian.answer;
+  valid.source = { ...valid.source, ...russian.source };
+  return valid;
 }
 
 /** Import the shipped starter content once; later starts never overwrite HR edits. */
 async function ensureImported() {
   const db = await getDb();
-  const existing = new Set((await db.knowledgeArticles.find()).map((article) => article._id));
+  const articles = await db.knowledgeArticles.find();
+  const existing = new Set(articles.map((article) => article._id));
+  const initialById = new Map(INITIAL_KB.map((entry) => [entry.id, entry]));
+  for (const article of articles) {
+    const initial = initialById.get(article._id);
+    if (!initial) continue;
+    let changed = false;
+    const upgrade = (entry: KbEntry | null) => {
+      if (!entry || entry.translations) return entry;
+      // Only auto-backfill unchanged shipped copy. HR-authored legacy edits are
+      // left intact and can be given both versions in the editor.
+      const isShipped = entry.title === initial.title && entry.answer === initial.answer;
+      if (!isShipped) return entry;
+      changed = true;
+      return withKnowledgeTranslations({ ...entry, answerRu: entry.answerRu ?? KB_ANSWERS_RU[entry.id] });
+    };
+    const draft = upgrade(article.draft);
+    const versions = article.versions.map((version) => ({ ...version, entry: upgrade(version.entry)! }));
+    if (changed) {
+      await db.knowledgeArticles.updateOne({ _id: article._id }, { $set: { draft, versions } });
+    }
+  }
   if (INITIAL_KB.every((entry) => existing.has(entry.id))) return;
   const hr = (await db.employees.find({ role: "hr", active: true }, { limit: 1 }))[0];
   const now = new Date().toISOString();
@@ -51,7 +86,7 @@ async function ensureImported() {
       ownerName: hr?.fullName ?? "HR",
       currentVersion: 1,
       draft: null,
-      versions: [{ version: 1, entry: { ...entry, answerRu: KB_ANSWERS_RU[entry.id] }, editorId: hr?._id ?? "system", editorName: hr?.fullName ?? "HR", savedAt: now, publishedAt: now }],
+      versions: [{ version: 1, entry: withKnowledgeTranslations({ ...entry, answerRu: KB_ANSWERS_RU[entry.id] }), editorId: hr?._id ?? "system", editorName: hr?.fullName ?? "HR", savedAt: now, publishedAt: now }],
       updatedAt: now,
     };
     try { await db.knowledgeArticles.insertOne(doc); }

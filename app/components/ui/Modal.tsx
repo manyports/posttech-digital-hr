@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 
 interface ModalProps {
   open: boolean;
@@ -23,6 +24,7 @@ export function Modal({
   actions,
   className = "",
 }: ModalProps) {
+  const { m } = useI18n();
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -148,7 +150,7 @@ export function Modal({
             </div>
             <button
               onClick={onClose}
-              aria-label="Закрыть диалог"
+              aria-label={m.common.close}
               className="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-tertiary hover:text-hero-muted hover-wipe cursor-pointer transition-colors duration-150"
             >
               <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">

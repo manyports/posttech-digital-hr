@@ -5,6 +5,8 @@ import type { ProfileBundle } from "@/lib/server/services/dashboard";
 import { fmtDate, fmtRelative } from "@/lib/client/format";
 import { useApi } from "@/lib/client/hooks";
 import { useI18n } from "@/lib/i18n/I18nProvider";
+
+const RELATIVE_TIME_REFERENCE = Date.now();
 import { localizeBody, localizeTitle } from "@/lib/i18n/notices";
 import { tx } from "@/lib/i18n/locale";
 import { Avatar } from "../../components/ui/Avatar";
@@ -29,7 +31,7 @@ export default function ProfilePage() {
 
   return (
     <>
-      <PageHeader title={m.profile.title} description={m.profile.description} />
+      <PageHeader title={m.profile.title} />
       {loading && !data && <LoadingBlock rows={3} />}
       {error && !data && <ErrorBlock message={error.message} onRetry={reload} />}
       {data && <ProfileBody bundle={data} />}
@@ -157,7 +159,7 @@ function ProfileBody({ bundle }: { bundle: ProfileBundle }) {
                     <p className="text-[13px] font-semibold text-hero-foreground">{localizeTitle(n.title, locale)}</p>
                     <p className="text-[12.5px] text-hero-muted mt-0.5 line-clamp-2">{localizeBody(n.body, locale)}</p>
                   </div>
-                  <span className="text-[11px] text-tertiary shrink-0 mt-0.5">{fmtRelative(n.createdAt, Date.now(), locale)}</span>
+                  <span className="text-[11px] text-tertiary shrink-0 mt-0.5">{fmtRelative(n.createdAt, RELATIVE_TIME_REFERENCE, locale)}</span>
                 </Link>
               </li>
             ))}

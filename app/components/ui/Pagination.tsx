@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useState, useEffect, useLayoutEffect } from "react";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 
 interface PaginationProps {
   currentPage: number;
@@ -15,6 +16,7 @@ export function Pagination({
   onPageChange,
   className = "",
 }: PaginationProps) {
+  const { m } = useI18n();
   const slots = buildSlots(currentPage, totalPages);
   const [pill, setPill] = useState({ left: 0, width: 0, ready: false });
   const [squash, setSquash] = useState(false);
@@ -79,7 +81,7 @@ export function Pagination({
         <svg className="relative z-10" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
-        <span className="relative z-10 hidden sm:inline">Назад</span>
+        <span className="relative z-10 hidden sm:inline">{m.common.previous}</span>
       </button>
 
       <div ref={containerRef} className="relative flex items-center">
@@ -142,7 +144,7 @@ export function Pagination({
         className="group/nav relative overflow-hidden h-8 px-3 rounded-lg flex items-center gap-1.5 text-[13px] font-medium text-hero-muted hover:text-hero-foreground transition-colors cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
       >
         <span className="pointer-events-none absolute inset-0 origin-bottom scale-y-0 bg-hero-elevated transition-transform duration-300 ease-out group-hover/nav:scale-y-100 rounded-lg" />
-        <span className="relative z-10 hidden sm:inline">Вперед</span>
+        <span className="relative z-10 hidden sm:inline">{m.common.next}</span>
         <svg className="relative z-10" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
         </svg>

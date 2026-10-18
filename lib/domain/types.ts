@@ -11,6 +11,12 @@
 
 export type Role = "employee" | "manager" | "hr";
 
+/** User-facing reference copy stored in both supported interface languages. */
+export interface BilingualText {
+  ru: string;
+  kk: string;
+}
+
 export interface EmployeeDoc {
   _id: string; // e.g. "emp-e1"
   email: string;
@@ -157,6 +163,14 @@ export interface Lesson {
   summary: string; // one sentence
   body: string[]; // paragraphs
   keyPoints: string[];
+  translations?: { ru: LessonText; kk: LessonText };
+}
+
+export interface LessonText {
+  title: string;
+  summary: string;
+  body: string[];
+  keyPoints: string[];
 }
 
 export interface TestQuestion {
@@ -164,6 +178,18 @@ export interface TestQuestion {
   text: string;
   options: string[]; // 3-4 options
   correctIndex: number; // SERVER-ONLY: stripped before sending to clients
+  translations?: { ru: TestQuestionText; kk: TestQuestionText };
+}
+
+export interface TestQuestionText {
+  text: string;
+  options: string[];
+}
+
+export interface CourseText {
+  title: string;
+  description: string;
+  category: string;
 }
 
 export interface CourseDoc {
@@ -175,6 +201,7 @@ export interface CourseDoc {
   mandatory: boolean;
   lessons: Lesson[];
   test: { passScore: number; questions: TestQuestion[] }; // passScore in percent
+  translations?: { ru: CourseText; kk: CourseText };
 }
 
 export type AssignmentStatus = "assigned" | "in_progress" | "completed";
@@ -215,6 +242,7 @@ export interface CourseSummary {
   lessonCount: number;
   questionCount: number;
   passScore: number;
+  translations?: { ru: CourseText; kk: CourseText };
 }
 
 export interface AssignmentView {
@@ -280,6 +308,11 @@ export interface KbEntry {
   answer: string;
   /** Optional Russian text; if omitted, Al Jana uses the legacy translation. */
   answerRu?: string;
+  /** Russian and Kazakh reference copy for the portal and source viewer. */
+  translations?: {
+    ru: { title: string; answer: string; source: { docTitle: string; section: string; owner: string } };
+    kk: { title: string; answer: string; source: { docTitle: string; section: string; owner: string } };
+  };
   source: KbSource;
   /** Optional deep link into the portal. */
   action?: { label: string; href: string };
@@ -314,6 +347,7 @@ export type AssistantReply =
       title: string;
       answer: string;
       source: KbSource;
+      localizedSource?: Pick<KbSource, "docTitle" | "section" | "owner">;
       action?: { label: string; href: string };
       related: { entryId: string; question: string }[];
       confidence: number; // 0-1

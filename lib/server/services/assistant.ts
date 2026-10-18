@@ -14,7 +14,8 @@ import { isHr, type Actor } from "../policy";
 import { notify } from "./notifications";
 import { pendingVacationDays } from "./employees";
 import { createRequest } from "./requests";
-import { KB_ANSWERS_RU, MESSAGES_RU } from "../../assistant/translations";
+import { MESSAGES_RU } from "../../assistant/translations";
+import { localizedKnowledgeQuestion, translateKnowledgeEntry } from "../../assistant/reference-translations";
 import { getPublishedKnowledgeBase } from "./knowledge-base";
 
 const MAX_QUESTION = 500;
@@ -126,7 +127,7 @@ function mapRussianQuery(raw: string): string {
  * Answer from the knowledge base ONLY. The engine is deterministic retrieval;
  * the returned text is the KB entry verbatim, never generated.
  */
-export async function ask(actor: Actor, question: unknown): Promise<AssistantReply> {
+export async function ask(actor: Actor, question: unknown, locale: "ru" | "kk" = "ru"): Promise<AssistantReply> {
   const q = cleanQuestion(question);
   const kb = await getPublishedKnowledgeBase();
   const cyrillic = CYRILLIC.test(q);
@@ -177,16 +178,25 @@ export async function ask(actor: Actor, question: unknown): Promise<AssistantRep
     }
   }
 
-  if (cyrillic) {
-    if (reply.kind === "answer") {
-      const entry = kb.find((item) => item.id === reply.entryId);
-      const ruAnswer = entry?.answerRu ?? KB_ANSWERS_RU[reply.entryId];
-      return {
-        ...reply,
-        question: q,
-        answer: ruAnswer ?? reply.answer,
-      };
-    }
+  if (reply.kind === "answer") {
+    const entry = kb.find((item) => item.id === reply.entryId);
+    const translations = entry ? (entry.translations ?? translateKnowledgeEntry(entry)) : null;
+    const localized = locale === "kk" ? translations?.kk : translations?.ru;
+    const legacyRussian = entry?.answerRu ?? entry?.answer;
+    return {
+      ...reply,
+      question: q,
+      title: localized?.title ?? reply.title,
+      answer: localized?.answer ?? legacyRussian ?? reply.answer,
+      localizedSource: localized?.source,
+      related: reply.related.map((item) => ({
+        ...item,
+        question: localizedKnowledgeQuestion(item.entryId, locale, item.question),
+      })),
+    };
+  }
+
+  if (cyrillic && locale === "ru") {
     if (reply.kind === "no_answer") {
       return {
         ...reply,

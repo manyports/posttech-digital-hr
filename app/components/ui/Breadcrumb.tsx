@@ -1,4 +1,5 @@
 import React from "react";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 
 interface BreadcrumbItem {
   label: string;
@@ -11,8 +12,9 @@ interface BreadcrumbProps {
 }
 
 export function Breadcrumb({ items, className = "" }: BreadcrumbProps) {
+  const { m } = useI18n();
   return (
-    <nav aria-label="Навигация" className={["flex items-center gap-1.5", className].join(" ")}>
+    <nav aria-label={m.common.navigationLabel} className={["flex items-center gap-1.5", className].join(" ")}>
       {items.map((item, i) => {
         const isLast = i === items.length - 1;
 

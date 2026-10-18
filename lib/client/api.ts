@@ -1,4 +1,21 @@
-/** Typed fetch wrapper for the JSON API. Errors carry the server's code/message/fields. */
+import { DICT } from "@/lib/i18n/dict";
+import { parseLocale } from "@/lib/i18n/locale";
+
+function localizedApiMessage(status: number, code: string, message: string): string {
+  if (/[А-Яа-яЁёӘәҒғҚқҢңӨөҰұҮүҺһІі]/.test(message)) return message;
+  const copy = DICT[parseLocale(typeof document === "undefined" ? undefined : document.documentElement.lang)].common;
+  switch (code) {
+    case "bad_request": return copy.apiBadRequest;
+    case "conflict": return copy.apiConflict;
+    case "not_found": return copy.apiNotFound;
+    case "forbidden": return copy.apiForbidden;
+    case "unauthorized": return copy.apiUnauthorized;
+    case "network": return copy.apiNetwork;
+    default: return status >= 500 ? copy.apiUnknown : copy.apiUnknown;
+  }
+}
+
+/** Typed fetch wrapper for the JSON API. Errors carry a localized message and server fields. */
 export class ApiError extends Error {
   constructor(
     public readonly status: number,
@@ -6,7 +23,7 @@ export class ApiError extends Error {
     message: string,
     public readonly fields?: Record<string, string>,
   ) {
-    super(message);
+    super(localizedApiMessage(status, code, message));
   }
 }
 

@@ -9,6 +9,7 @@ import React, {
   useRef,
   useLayoutEffect,
 } from "react";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 
 type ToastVariant = "default" | "success" | "warning" | "error";
 
@@ -112,6 +113,7 @@ function ToastCard({
   onDismiss,
   onMeasure,
 }: ToastCardProps) {
+  const { m } = useI18n();
   const ref = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
   const remainingRef = useRef(item.duration);
@@ -232,7 +234,7 @@ function ToastCard({
           </div>
           <button
             onClick={() => onDismiss(item.id)}
-            aria-label="Закрыть"
+            aria-label={m.common.close}
             className="shrink-0 w-6 h-6 flex items-center justify-center rounded-md text-tertiary hover:text-hero-muted hover-wipe transition-colors cursor-pointer"
           >
             <svg width="8" height="8" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">

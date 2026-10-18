@@ -57,7 +57,6 @@ function RequestsInner() {
     <>
       <PageHeader
         title={m.requests.title}
-        description={m.requests.description}
         actions={
           <Button variant="primary" size="sm" onClick={() => setManualOpen(true)}>
             <PlusIcon size={14} /> {m.requests.new}

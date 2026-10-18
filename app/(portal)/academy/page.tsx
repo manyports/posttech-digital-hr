@@ -28,7 +28,6 @@ export default function AcademyPage() {
     <>
       <PageHeader
         title="Jana Academy"
-        description={m.academy.description}
       />
 
       {loading && !data && <LoadingBlock rows={2} />}

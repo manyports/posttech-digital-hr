@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 
 interface DrawerProps {
   open: boolean;
@@ -34,6 +35,7 @@ export function Drawer({
   size = "md",
   className = "",
 }: DrawerProps) {
+  const { m } = useI18n();
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -201,7 +203,7 @@ export function Drawer({
                 </div>
                 <button
                   onClick={onClose}
-                  aria-label="Закрыть панель"
+                  aria-label={m.common.close}
                   className="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-tertiary hover:text-hero-muted hover-wipe cursor-pointer transition-colors duration-150"
                 >
                   <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
