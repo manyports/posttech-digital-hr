@@ -1,6 +1,6 @@
 import { buildSeed } from "../../seed/seed";
 import { createMongoDb } from "./mongo";
-import { createLocalKnowledgeCollection, MemoryDb } from "./memory";
+import { createLocalKnowledgeCollection, createMemoryAiRateLimitCollection, MemoryDb } from "./memory";
 import { RESETTABLE, type Db } from "./types";
 
 /**
@@ -31,9 +31,10 @@ export function getDb(): Promise<Db> {
       return getDb();
     }
     // Next.js hot reload can retain a DB created before this collection existed.
-    if (db.knowledgeArticles) return db;
+    if (db.knowledgeArticles && db.aiRateLimits) return db;
     if (db.kind === "memory") {
-      db.knowledgeArticles = createLocalKnowledgeCollection();
+      db.knowledgeArticles ??= createLocalKnowledgeCollection();
+      db.aiRateLimits ??= createMemoryAiRateLimitCollection();
       return db;
     }
     g.__hrDb = undefined;

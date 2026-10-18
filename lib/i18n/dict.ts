@@ -489,8 +489,6 @@ export interface Dict {
     sectionHint: string;
     revision: string;
     owner: string;
-    ownerRu: string;
-    ownerKk: string;
     preview: string;
     previewText: string;
     articleHeading: string;
@@ -518,6 +516,19 @@ export interface Dict {
     notFound: string;
     accessDenied: string;
     back: string;
+    aiButton: string;
+    aiTitle: string;
+    aiDescription: string;
+    aiInput: string;
+    aiPlaceholder: string;
+    aiPrivacy: string;
+    aiCancel: string;
+    aiGenerate: string;
+    aiGenerating: string;
+    aiApplied: string;
+    aiError: string;
+    aiRateLimited: string;
+    aiReviewSource: string;
   };
   assistant: {
     description: string;
@@ -1084,8 +1095,6 @@ const ru: Dict = {
     sectionHint: "Например: §2.1 Ежегодный оплачиваемый отпуск",
     revision: "Редакция документа",
     owner: "Владелец исходного документа",
-    ownerRu: "Владелец на русском",
-    ownerKk: "Владелец на казахском",
     preview: "Предпросмотр для сотрудника",
     previewText: "Пример отображения материала в базе Al Jana.",
     articleHeading: "Заголовок статьи",
@@ -1098,7 +1107,7 @@ const ru: Dict = {
     historyHint: "Старая версия сначала загружается как черновик — её можно проверить и только потом опубликовать.",
     current: "текущая",
     restore: "Загрузить в черновик",
-    ownerLabel: "Владелец статьи",
+    ownerLabel: "Последний редактор",
     draftSaved: "Черновик сохранён",
     published: "Опубликована",
     unpublished: "Не опубликована",
@@ -1113,6 +1122,19 @@ const ru: Dict = {
     notFound: "Документ не найден.",
     accessDenied: "Редактор доступен только сотрудникам HR.",
     back: "К Al Jana",
+    aiButton: "Заполнить с ИИ",
+    aiTitle: "Подготовить статью с ИИ",
+    aiDescription: "Вставьте готовый материал на любом языке. ИИ подготовит поля на русском и казахском для вашей проверки.",
+    aiInput: "Исходный материал",
+    aiPlaceholder: "Вставьте утверждённый текст, условия и сведения о документе…",
+    aiPrivacy: "Текст будет отправлен в Gemini. Проверьте результат перед сохранением и публикацией.",
+    aiCancel: "Отмена",
+    aiGenerate: "Заполнить форму",
+    aiGenerating: "Готовим статью…",
+    aiApplied: "Форма заполнена — проверьте текст",
+    aiError: "Не удалось подготовить статью. Проверьте настройки ИИ и попробуйте ещё раз.",
+    aiRateLimited: "Достигнут лимит генерации. Попробуйте позже.",
+    aiReviewSource: "Часть сведений об источнике заполнена как внутренняя статья HR. Проверьте код, название и раздел перед сохранением.",
   },
   assistant: {
     description: "Ваш HR-ассистент. Отвечает строго по корпоративной базе знаний HR, всегда указывает источник и не выдумывает факты.",
@@ -1694,8 +1716,6 @@ const kk: Dict = {
     sectionHint: "Мысалы: §2.1 Жыл сайынғы ақылы демалыс",
     revision: "Құжат нұсқасы",
     owner: "Бастапқы құжат иесі",
-    ownerRu: "Орыс тіліндегі иесі",
-    ownerKk: "Қазақ тіліндегі иесі",
     preview: "Қызметкерге арналған көрініс",
     previewText: "Материалдың Al Jana білім базасында көріну үлгісі.",
     articleHeading: "Мақала тақырыбы",
@@ -1708,7 +1728,7 @@ const kk: Dict = {
     historyHint: "Ескі нұсқа алдымен жоба ретінде жүктеледі. Оны тексеріп, содан кейін жариялауға болады.",
     current: "ағымдағы",
     restore: "Жобаға жүктеу",
-    ownerLabel: "Мақала иесі",
+    ownerLabel: "Соңғы редактор",
     draftSaved: "Жоба сақталды",
     published: "Жарияланған",
     unpublished: "Жарияланбаған",
@@ -1723,6 +1743,19 @@ const kk: Dict = {
     notFound: "Құжат табылмады.",
     accessDenied: "Редакторға тек HR қызметкерлері кіре алады.",
     back: "Al Jana-ға қайту",
+    aiButton: "ЖИ арқылы толтыру",
+    aiTitle: "ЖИ арқылы мақала дайындау",
+    aiDescription: "Дайын материалды кез келген тілде енгізіңіз. ЖИ орысша және қазақша өрістерді тексеруіңіз үшін дайындайды.",
+    aiInput: "Бастапқы материал",
+    aiPlaceholder: "Бекітілген мәтінді, шарттарды және құжат деректерін енгізіңіз…",
+    aiPrivacy: "Мәтін Gemini жүйесіне жіберіледі. Сақтап, жарияламас бұрын нәтижені тексеріңіз.",
+    aiCancel: "Бас тарту",
+    aiGenerate: "Нысанды толтыру",
+    aiGenerating: "Мақала дайындалуда…",
+    aiApplied: "Нысан толтырылды — мәтінді тексеріңіз",
+    aiError: "Мақаланы дайындау мүмкін болмады. ЖИ баптауын тексеріп, қайта көріңіз.",
+    aiRateLimited: "Генерация шегіне жетті. Кейінірек қайталап көріңіз.",
+    aiReviewSource: "Дереккөздің кейбір мәліметі ішкі HR мақаласы ретінде толтырылды. Сақтамас бұрын кодты, атауды және бөлімді тексеріңіз.",
   },
   assistant: {
     description: "HR көмекшісі. Тек HR білім базасы бойынша жауап береді, дереккөзді көрсетеді және ойдан шығармайды.",

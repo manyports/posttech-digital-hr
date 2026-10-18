@@ -9,6 +9,10 @@ export function createLocalKnowledgeCollection() {
   );
 }
 
+export function createMemoryAiRateLimitCollection(): Db["aiRateLimits"] {
+  return new MemoryCollection();
+}
+
 /** Deep-clone so callers can never mutate stored state by accident. */
 const clone = <T>(v: T): T => structuredClone(v);
 
@@ -172,6 +176,7 @@ export class MemoryDb implements Db {
   assistantLog = col<"assistantLog">();
   sessions = col<"sessions">();
   knowledgeArticles = createLocalKnowledgeCollection();
+  aiRateLimits = createMemoryAiRateLimitCollection();
   private seqs = new Map<string, number>();
 
   async nextSeq(name: string): Promise<number> {

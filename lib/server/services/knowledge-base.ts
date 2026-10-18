@@ -19,7 +19,15 @@ function assertHr(actor: Actor) {
   if (!isHr(actor)) throw forbidden("Only HR can manage knowledge-base articles.");
 }
 
-function validateEntry(value: unknown): KbEntry {
+function stampEditor(entry: KbEntry, actor: Actor): KbEntry {
+  entry.source.owner = actor.fullName;
+  for (const locale of ["ru", "kk"] as const) {
+    if (entry.translations?.[locale]) entry.translations[locale].source.owner = actor.fullName;
+  }
+  return entry;
+}
+
+function validateEntry(value: unknown, actor: Actor): KbEntry {
   if (!value || typeof value !== "object") throw badRequest("Complete the article before saving.");
   const entry = value as Partial<KbEntry>;
   const errors: Record<string, string> = {};
@@ -33,12 +41,12 @@ function validateEntry(value: unknown): KbEntry {
     if (!copy || typeof copy.answer !== "string" || copy.answer.trim().length < 3 || copy.answer.length > 6000) errors[`answer_${locale}`] = `Add the ${locale.toUpperCase()} answer.`;
     if (!copy || !Array.isArray(copy.questions) || !copy.questions.length || copy.questions.some((item) => typeof item !== "string" || !item.trim())) errors[`questions_${locale}`] = `Add at least one ${locale.toUpperCase()} example question.`;
     if (!copy || !Array.isArray(copy.keywords) || !copy.keywords.length || copy.keywords.some((item) => typeof item !== "string" || !item.trim())) errors[`keywords_${locale}`] = `Add at least one ${locale.toUpperCase()} keyword.`;
-    if (!copy?.source || [copy.source.docTitle, copy.source.section, copy.source.owner].some((part) => typeof part !== "string" || !part.trim())) errors[`source_${locale}`] = `Complete the ${locale.toUpperCase()} source details.`;
+    if (!copy?.source || [copy.source.docTitle, copy.source.section].some((part) => typeof part !== "string" || !part.trim())) errors[`source_${locale}`] = `Complete the ${locale.toUpperCase()} source details.`;
   }
   if (!Array.isArray(entry.questions) || entry.questions.some((item) => typeof item !== "string")) errors.questions = "Check the example questions.";
   if (!Array.isArray(entry.keywords) || entry.keywords.some((item) => typeof item !== "string")) errors.keywords = "Check the keywords.";
   const source = entry.source;
-  if (!source || [source.docId, source.docTitle, source.section, source.revision, source.owner].some((part) => typeof part !== "string" || !part.trim())) errors.source = "Complete all source details.";
+  if (!source || [source.docId, source.docTitle, source.section, source.revision].some((part) => typeof part !== "string" || !part.trim())) errors.source = "Complete all source details.";
   if (entry.action && (typeof entry.action.label !== "string" || typeof entry.action.href !== "string" || !/^\/(profile|requests|academy|notifications|assistant)$/.test(entry.action.href))) errors.action = "Choose a valid portal link.";
   if (errors.id || errors.title || errors.answer || errors.questions || errors.keywords || errors.source || errors.action || Object.keys(errors).some((key) => key.startsWith("title_") || key.startsWith("answer_") || key.startsWith("questions_") || key.startsWith("keywords_") || key.startsWith("source_"))) {
     throw badRequest("Check the highlighted article details.", errors);
@@ -51,7 +59,7 @@ function validateEntry(value: unknown): KbEntry {
   valid.questions = [...new Set([...valid.questions, ...russian.questions, ...valid.translations!.kk.questions].map((item) => item.trim()).filter(Boolean))];
   valid.keywords = [...new Set([...valid.keywords, ...russian.keywords, ...valid.translations!.kk.keywords].map((item) => item.trim()).filter(Boolean))];
   valid.source = { ...valid.source, ...russian.source };
-  return valid;
+  return stampEditor(valid, actor);
 }
 
 /** Import the shipped starter content once; later starts never overwrite HR edits. */
@@ -141,7 +149,7 @@ export async function listKnowledgeArticles(actor: Actor): Promise<KnowledgeArti
 
 export async function saveKnowledgeDraft(actor: Actor, id: string, value: unknown) {
   assertHr(actor);
-  const entry = validateEntry(value);
+  const entry = validateEntry(value, actor);
   if (entry.id !== id) throw badRequest("The article ID cannot be changed.", { id: "ID does not match." });
   await ensureImported();
   const db = await getDb();
@@ -154,7 +162,7 @@ export async function saveKnowledgeDraft(actor: Actor, id: string, value: unknow
 
 export async function createKnowledgeDraft(actor: Actor, value: unknown) {
   assertHr(actor);
-  const entry = validateEntry(value);
+  const entry = validateEntry(value, actor);
   await ensureImported();
   const db = await getDb();
   if (await db.knowledgeArticles.findOne({ _id: entry.id })) throw conflict("An article with this ID already exists.");
@@ -175,7 +183,7 @@ export async function publishKnowledgeArticle(actor: Actor, id: string) {
   const now = new Date().toISOString();
   const version = doc.currentVersion + 1;
   const won = await db.knowledgeArticles.updateOne({ _id: id, currentVersion: doc.currentVersion }, {
-    $set: { currentVersion: version, draft: null, ownerId: actor.id, ownerName: actor.fullName, updatedAt: now },
+    $set: { currentVersion: version, draft: null, updatedAt: now },
     $push: { versions: { version, entry: doc.draft, editorId: actor.id, editorName: actor.fullName, savedAt: now, publishedAt: now } },
   });
   if (!won) throw conflict("This article changed while you were publishing. Reload and try again.");
@@ -190,6 +198,6 @@ export async function restoreKnowledgeVersion(actor: Actor, id: string, version:
   if (!doc) throw notFound("Article not found.");
   const previous = doc.versions.find((item) => item.version === version);
   if (!previous) throw notFound("Version not found.");
-  await db.knowledgeArticles.updateOne({ _id: id }, { $set: { draft: previous.entry, ownerId: actor.id, ownerName: actor.fullName, updatedAt: new Date().toISOString() } });
+  await db.knowledgeArticles.updateOne({ _id: id }, { $set: { draft: stampEditor(structuredClone(previous.entry), actor), ownerId: actor.id, ownerName: actor.fullName, updatedAt: new Date().toISOString() } });
   return viewOf((await db.knowledgeArticles.findOne({ _id: id }))!);
 }

@@ -65,6 +65,15 @@
   .hover-wipe[aria-disabled="true"]::before { transform: translateY(100%); background: transparent; }
 }
 
+@keyframes ai-fill {
+  from { opacity: 0.45; transform: translateY(8px); filter: blur(2px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+.ai-fill-group { animation: ai-fill 500ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .ai-fill-group { animation: none; }
+}
+
 /* ── Header ──────────────────────────────────────────────────────── */
 @keyframes header-in {
   from { opacity: 0; transform: translateY(-10px); }

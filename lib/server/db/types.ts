@@ -57,6 +57,12 @@ export interface Collection<T extends { _id: string }> {
   upsertOne(doc: T): Promise<void>;
 }
 
+export interface AiRateLimitDoc {
+  _id: string;
+  count: number;
+  expiresAt: Date;
+}
+
 export interface Db {
   readonly kind: "memory" | "mongodb";
   employees: Collection<EmployeeDoc>;
@@ -68,6 +74,7 @@ export interface Db {
   assistantLog: Collection<AssistantLogDoc>;
   sessions: Collection<SessionDoc>;
   knowledgeArticles: Collection<KnowledgeArticleDoc>;
+  aiRateLimits: Collection<AiRateLimitDoc>;
   /** Monotonic counters for human-friendly ids (REQ-0001, ESC-0001, ...). */
   nextSeq(name: string): Promise<number>;
   /** Restart every counter, so ids after a demo reset begin again from the first. */

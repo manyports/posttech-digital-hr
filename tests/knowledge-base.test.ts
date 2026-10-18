@@ -151,4 +151,17 @@ describe("HR knowledge base editor", () => {
     const article = (await listKnowledgeArticles(hr))[0];
     await rejectsWith(saveKnowledgeDraft(hr, article.id, { ...article.published!.entry, answer: " " }), 400);
   });
+
+  it("uses the authenticated editor as source owner instead of client-provided names", async () => {
+    const hr = await actor("emp-hr1");
+    const article = (await listKnowledgeArticles(hr))[0];
+    const forged = structuredClone(article.published!.entry);
+    forged.source.owner = "Forged owner";
+    forged.translations!.ru.source.owner = "Forged owner";
+    forged.translations!.kk.source.owner = "Forged owner";
+    const saved = await saveKnowledgeDraft(hr, article.id, forged);
+    assert.equal(saved.draft?.source.owner, hr.fullName);
+    assert.equal(saved.draft?.translations?.ru.source.owner, hr.fullName);
+    assert.equal(saved.draft?.translations?.kk.source.owner, hr.fullName);
+  });
 });

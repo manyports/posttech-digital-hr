@@ -87,6 +87,7 @@ async function ensureIndexes(handle: MongoDbHandle) {
     handle.collection("escalations").createIndexes([{ key: { userId: 1, status: 1 } }, { key: { status: 1 } }]),
     handle.collection("assistantLog").createIndexes([{ key: { outcome: 1, createdAt: -1 } }]),
     handle.collection("sessions").createIndexes([{ key: { expiresAt: 1 } }]),
+    handle.collection("aiRateLimits").createIndexes([{ key: { expiresAt: 1 }, expireAfterSeconds: 0 }]),
   ]);
 }
 
@@ -123,6 +124,7 @@ export async function createMongoDb(uri: string, dbName: string): Promise<Db> {
     assistantLog: col("assistantLog"),
     sessions: col("sessions"),
     knowledgeArticles: col("knowledgeArticles"),
+    aiRateLimits: col("aiRateLimits"),
     async nextSeq(name: string) {
       const res = await counters.findOneAndUpdate(
         { _id: name },

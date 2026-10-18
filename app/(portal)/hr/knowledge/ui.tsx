@@ -1,14 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { KbEntry } from "@/lib/domain/types";
+import { completeGeneratedSource, type GeneratedKnowledgeDraft } from "@/lib/assistant/knowledge-draft";
 import type { KnowledgeArticleView } from "@/lib/server/services/knowledge-base";
-import { patch, post } from "@/lib/client/api";
+import { ApiError, patch, post } from "@/lib/client/api";
 import { useApi } from "@/lib/client/hooks";
 import { Button } from "@/app/components/ui/Button";
 import { Input } from "@/app/components/ui/Input";
 import { Textarea } from "@/app/components/ui/Textarea";
+import { Modal } from "@/app/components/ui/Modal";
 import { ErrorBlock, LoadingBlock, Panel, PageHeader } from "@/app/components/portal/Panel";
 import { Pill } from "@/app/components/portal/StatusBadge";
 import { useToast } from "@/app/components/ui/Toast";
@@ -19,17 +21,17 @@ import { translateKnowledgeEntry } from "@/lib/assistant/reference-translations"
 type ListResponse = { articles: KnowledgeArticleView[] };
 const EMPTY_ARTICLES: KnowledgeArticleView[] = [];
 
-const blankEntry = (): KbEntry => ({
-  id: "new-article",
+const blankEntry = (editorName: string): KbEntry => ({
+  id: `hr-${Date.now().toString(36)}`,
   title: "",
   questions: [""],
   keywords: [],
   answer: "",
   translations: {
-    ru: { title: "", answer: "", questions: [""], keywords: [""], source: { docTitle: "", section: "", owner: "" } },
-    kk: { title: "", answer: "", questions: [""], keywords: [""], source: { docTitle: "", section: "", owner: "" } },
+    ru: { title: "", answer: "", questions: [""], keywords: [""], source: { docTitle: "", section: "", owner: editorName } },
+    kk: { title: "", answer: "", questions: [""], keywords: [""], source: { docTitle: "", section: "", owner: editorName } },
   },
-  source: { docId: "HR-POL-01", docTitle: "", section: "", revision: `rev. ${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`, owner: "HR Department" },
+  source: { docId: "", docTitle: "", section: "", revision: `rev. ${new Date().toISOString().slice(0, 10)}`, owner: editorName },
 });
 
 function lines(values: string[]) { return values.join("\n"); }
@@ -47,6 +49,17 @@ export function KnowledgeEditor() {
   const [entry, setEntry] = useState<KbEntry | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiText, setAiText] = useState("");
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [generating, setGenerating] = useState(false);
+  const [filling, setFilling] = useState(false);
+  const [fillStage, setFillStage] = useState(0);
+  const [aiApplied, setAiApplied] = useState(false);
+  const [aiSourceSuggested, setAiSourceSuggested] = useState(false);
+  const fillTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  useEffect(() => () => fillTimers.current.forEach(clearTimeout), []);
 
   const articles = list.data?.articles ?? EMPTY_ARTICLES;
   const selected = articles.find((article) => article.id === selectedId) ?? null;
@@ -61,6 +74,9 @@ export function KnowledgeEditor() {
   if (user.role !== "hr") return <Panel title={m.common.deniedTitle}><p className="text-[13px] text-hero-muted">{copy.accessDenied}</p></Panel>;
 
   function choose(article: KnowledgeArticleView) {
+    fillTimers.current.forEach(clearTimeout);
+    fillTimers.current = [];
+    setFillStage(0); setAiApplied(false); setAiSourceSuggested(false); setFilling(false);
     setSelectedId(article.id);
     setCreating(false);
     setEntry(article.draft ?? article.published?.entry ?? null);
@@ -75,6 +91,17 @@ export function KnowledgeEditor() {
   function updateSource(change: Partial<KbEntry["source"]>) {
     if (!currentEntry) return;
     setEntry({ ...currentEntry, source: { ...currentEntry.source, ...change } });
+  }
+
+  function updateArticleId(id: string) {
+    if (!currentEntry) return;
+    const oldInternalId = `KB-${currentEntry.id.toUpperCase()}`;
+    update({
+      id,
+      source: currentEntry.source.docId === oldInternalId
+        ? { ...currentEntry.source, docId: `KB-${id.toUpperCase()}` }
+        : currentEntry.source,
+    });
   }
 
   function updateTranslation(language: "ru" | "kk", change: Partial<NonNullable<KbEntry["translations"]>["ru"]>) {
@@ -99,12 +126,75 @@ export function KnowledgeEditor() {
     updateTranslation(language, { source: { ...translations[language].source, ...change } });
   }
 
+  async function generateDraft() {
+    if (!currentEntry || aiText.trim().length < 20 || generating) return;
+    setGenerating(true); setAiError(null);
+    try {
+      const { draft } = await post<{ draft: GeneratedKnowledgeDraft }>("/api/hr/knowledge/generate", { text: aiText });
+      const source = completeGeneratedSource(draft, currentEntry.id, user.fullName, new Date().toISOString().slice(0, 10));
+      setAiSourceSuggested(!draft.docId.trim() || !draft.revision.trim() || (["ru", "kk"] as const).some((language) => !draft[language].source.docTitle.trim() || !draft[language].source.section.trim()));
+      setAiOpen(false);
+      setAiApplied(true);
+      setFilling(true);
+      setError(null);
+      fillTimers.current.forEach(clearTimeout);
+      fillTimers.current = [
+        setTimeout(() => {
+          setFillStage(1);
+          setEntry((previous) => previous && {
+            ...previous,
+            title: draft.ru.title,
+            questions: [...draft.ru.questions, ...draft.kk.questions],
+            keywords: [...draft.ru.keywords, ...draft.kk.keywords],
+            translations: {
+              ru: { ...draft.ru, answer: previous.translations?.ru.answer ?? "", source: previous.translations?.ru.source ?? source.ru },
+              kk: { ...draft.kk, answer: previous.translations?.kk.answer ?? "", source: previous.translations?.kk.source ?? source.kk },
+            },
+          });
+        }, 280),
+        setTimeout(() => {
+          setFillStage(2);
+          setEntry((previous) => previous && {
+            ...previous,
+            answer: draft.ru.answer,
+            answerRu: draft.ru.answer,
+            translations: {
+              ru: { ...previous.translations!.ru, answer: draft.ru.answer },
+              kk: { ...previous.translations!.kk, answer: draft.kk.answer },
+            },
+          });
+        }, 620),
+        setTimeout(() => {
+          setFillStage(3);
+          setEntry((previous) => previous && {
+            ...previous,
+            source: { docId: source.docId, revision: source.revision, ...source.ru },
+            translations: {
+              ru: { ...previous.translations!.ru, source: source.ru },
+              kk: { ...previous.translations!.kk, source: source.kk },
+            },
+          });
+        }, 980),
+        setTimeout(() => { setFillStage(0); setFilling(false); }, 1550),
+      ];
+      toast({ title: copy.aiApplied, variant: "success" });
+    } catch (error) {
+      setAiError(error instanceof ApiError && error.status === 429 ? copy.aiRateLimited : copy.aiError);
+    } finally {
+      setGenerating(false);
+    }
+  }
+
   async function save() {
     if (!currentEntry) return;
+    if (!currentEntry.source.docId.trim() || !currentEntry.source.revision.trim()) {
+      setError(copy.aiReviewSource);
+      return;
+    }
     const translations = currentEntry.translations;
     if (!translations || (["ru", "kk"] as const).some((language) => {
       const copy = translations[language];
-      return !copy.title.trim() || !copy.answer.trim() || !copy.questions.some((item) => item.trim()) || !copy.keywords.some((item) => item.trim()) || !copy.source.docTitle.trim() || !copy.source.section.trim() || !copy.source.owner.trim();
+      return !copy.title.trim() || !copy.answer.trim() || !copy.questions.some((item) => item.trim()) || !copy.keywords.some((item) => item.trim()) || !copy.source.docTitle.trim() || !copy.source.section.trim();
     })) {
       setError(copy.translationsRequired);
       return;
@@ -159,9 +249,9 @@ export function KnowledgeEditor() {
     <div className="grid grid-cols-1 xl:grid-cols-[300px_minmax(0,1fr)] gap-5 items-start">
       <Panel title={copy.articles} padding="p-3">
         <Input label={copy.search} placeholder={copy.searchPlaceholder} value={query} onChange={(event) => setQuery(event.target.value)} fullWidth />
-        <Button className="mt-3" size="sm" variant="outline" fullWidth onClick={() => { setCreating(true); setSelectedId(null); setEntry(blankEntry()); setError(null); }}>＋ {copy.newArticle}</Button>
+        <Button className="mt-3" size="sm" variant="outline" fullWidth disabled={generating || filling} onClick={() => { fillTimers.current.forEach(clearTimeout); setFillStage(0); setAiApplied(false); setAiSourceSuggested(false); setCreating(true); setSelectedId(null); setEntry(blankEntry(user.fullName)); setError(null); }}>＋ {copy.newArticle}</Button>
         <div className="mt-3 flex flex-col gap-1 max-h-[65vh] overflow-y-auto">
-          {filtered.map((article) => <button key={article.id} onClick={() => choose(article)} className={`rounded-xl px-3 py-2.5 text-left hover:bg-hero-cell-bg transition-colors ${selectedId === article.id ? "bg-hero-cell-bg" : ""}`}>
+          {filtered.map((article) => <button key={article.id} disabled={generating || filling} onClick={() => choose(article)} className={`rounded-xl px-3 py-2.5 text-left hover:bg-hero-cell-bg transition-colors disabled:opacity-50 ${selectedId === article.id ? "bg-hero-cell-bg" : ""}`}>
             <span className="block text-[12.5px] font-medium text-hero-foreground leading-snug">{article.draft?.translations?.[locale]?.title ?? article.draft?.title ?? article.published?.entry.translations?.[locale]?.title ?? article.published?.entry.title ?? article.id}</span>
             <span className="mt-1 flex items-center gap-2 text-[11px] text-tertiary"><span>{article.published ? `${copy.published} · v${article.published.version}` : copy.unpublished}</span>{article.draft && <Pill tone="warn">{copy.draft}</Pill>}</span>
           </button>)}
@@ -172,23 +262,24 @@ export function KnowledgeEditor() {
       <div className="flex flex-col gap-5 min-w-0">
         {!currentEntry && <Panel title={copy.chooseArticle}><p className="text-[13px] text-hero-muted">{copy.chooseOrCreate}</p></Panel>}
         {currentEntry && <>
-          <Panel title={creating ? copy.newTitle : copy.content} actions={selected && <Pill tone={selected.draft ? "warn" : "good"}>{selected.draft ? copy.draft : `${copy.published} · v${selected.published?.version ?? 0}`}</Pill>}>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <Panel title={creating ? copy.newTitle : copy.content} actions={<div className="flex flex-wrap items-center gap-2"><Button size="sm" variant="outline" disabled={busy || generating || filling} onClick={() => { setAiError(null); setAiOpen(true); }}>✦ {copy.aiButton}</Button>{selected && <Pill tone={selected.draft ? "warn" : "good"}>{selected.draft ? copy.draft : `${copy.published} · v${selected.published?.version ?? 0}`}</Pill>}</div>}>
+            <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 ${fillStage === 1 ? "ai-fill-group" : ""}`}>
               <Input label={copy.titleRu} value={(currentEntry.translations ?? translateKnowledgeEntry(currentEntry)).ru.title} maxLength={120} onChange={(e) => updateTranslation("ru", { title: e.target.value })} fullWidth />
               <Input label={copy.titleKk} value={(currentEntry.translations ?? translateKnowledgeEntry(currentEntry)).kk.title} maxLength={120} onChange={(e) => updateTranslation("kk", { title: e.target.value })} fullWidth />
-              <Input label={copy.idLabel} hint={copy.idHint} value={currentEntry.id} disabled={!creating} onChange={(e) => update({ id: e.target.value })} fullWidth />
+              <Input label={copy.idLabel} hint={copy.idHint} value={currentEntry.id} disabled={!creating} onChange={(e) => updateArticleId(e.target.value)} fullWidth />
               <Textarea label={copy.questionsRu} hint={copy.questionsHint} value={lines((currentEntry.translations ?? translateKnowledgeEntry(currentEntry)).ru.questions)} onChange={(e) => updateTranslation("ru", { questions: fromLines(e.target.value) })} rows={4} fullWidth />
               <Textarea label={copy.questionsKk} hint={copy.questionsHint} value={lines((currentEntry.translations ?? translateKnowledgeEntry(currentEntry)).kk.questions)} onChange={(e) => updateTranslation("kk", { questions: fromLines(e.target.value) })} rows={4} fullWidth />
               <Textarea label={copy.keywordsRu} value={lines((currentEntry.translations ?? translateKnowledgeEntry(currentEntry)).ru.keywords)} onChange={(e) => updateTranslation("ru", { keywords: fromLines(e.target.value) })} rows={4} fullWidth />
               <Textarea label={copy.keywordsKk} value={lines((currentEntry.translations ?? translateKnowledgeEntry(currentEntry)).kk.keywords)} onChange={(e) => updateTranslation("kk", { keywords: fromLines(e.target.value) })} rows={4} fullWidth />
-              <div className="lg:col-span-2"><Textarea label={copy.answerRu} hint={copy.answerHint} value={(currentEntry.translations ?? translateKnowledgeEntry(currentEntry)).ru.answer} onChange={(e) => updateTranslation("ru", { answer: e.target.value })} rows={6} maxLength={6000} autoResize fullWidth /></div>
-              <div className="lg:col-span-2"><Textarea label={copy.answerKk} hint={copy.answerHint} value={(currentEntry.translations ?? translateKnowledgeEntry(currentEntry)).kk.answer} onChange={(e) => updateTranslation("kk", { answer: e.target.value })} rows={6} maxLength={6000} autoResize fullWidth /></div>
+              <div className={`lg:col-span-2 ${fillStage === 2 ? "ai-fill-group" : ""}`}><Textarea label={copy.answerRu} hint={copy.answerHint} value={(currentEntry.translations ?? translateKnowledgeEntry(currentEntry)).ru.answer} onChange={(e) => updateTranslation("ru", { answer: e.target.value })} rows={6} maxLength={6000} autoResize fullWidth /></div>
+              <div className={`lg:col-span-2 ${fillStage === 2 ? "ai-fill-group" : ""}`}><Textarea label={copy.answerKk} hint={copy.answerHint} value={(currentEntry.translations ?? translateKnowledgeEntry(currentEntry)).kk.answer} onChange={(e) => updateTranslation("kk", { answer: e.target.value })} rows={6} maxLength={6000} autoResize fullWidth /></div>
             </div>
           </Panel>
 
-          {selected && <p className="-mt-3 px-1 text-[11.5px] text-tertiary">{copy.ownerLabel}: <span className="font-medium text-hero-muted">{selected.owner.name}</span></p>}
+          <p className="-mt-3 px-1 text-[11.5px] text-tertiary">{copy.ownerLabel}: <span className="font-medium text-hero-muted">{selected?.owner.name ?? user.fullName}</span></p>
 
-          <Panel title={copy.source}>
+          {aiApplied && aiSourceSuggested && <p role="status" className="rounded-xl border border-warning/40 bg-warning/10 px-4 py-3 text-[13px] text-hero-muted">{copy.aiReviewSource}</p>}
+          <Panel title={copy.source} className={fillStage === 3 ? "ai-fill-group" : ""}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input label={copy.documentId} value={currentEntry.source.docId} onChange={(e) => updateSource({ docId: e.target.value })} fullWidth />
               <Input label={copy.documentTitleRu} value={(currentEntry.translations ?? translateKnowledgeEntry(currentEntry)).ru.source.docTitle} onChange={(e) => updateTranslationSource("ru", { docTitle: e.target.value })} fullWidth />
@@ -196,8 +287,6 @@ export function KnowledgeEditor() {
               <Input label={copy.sectionRu} hint={copy.sectionHint} value={(currentEntry.translations ?? translateKnowledgeEntry(currentEntry)).ru.source.section} onChange={(e) => updateTranslationSource("ru", { section: e.target.value })} fullWidth />
               <Input label={copy.sectionKk} hint={copy.sectionHint} value={(currentEntry.translations ?? translateKnowledgeEntry(currentEntry)).kk.source.section} onChange={(e) => updateTranslationSource("kk", { section: e.target.value })} fullWidth />
               <Input label={copy.revision} value={currentEntry.source.revision} onChange={(e) => updateSource({ revision: e.target.value })} fullWidth />
-              <Input label={copy.ownerRu} value={(currentEntry.translations ?? translateKnowledgeEntry(currentEntry)).ru.source.owner} onChange={(e) => updateTranslationSource("ru", { owner: e.target.value })} fullWidth />
-              <Input label={copy.ownerKk} value={(currentEntry.translations ?? translateKnowledgeEntry(currentEntry)).kk.source.owner} onChange={(e) => updateTranslationSource("kk", { owner: e.target.value })} fullWidth />
             </div>
           </Panel>
 
@@ -216,11 +305,16 @@ export function KnowledgeEditor() {
 
           {error && <p role="alert" className="rounded-xl border border-error/20 bg-error/5 px-4 py-3 text-[13px] text-error">{error}</p>}
           <div className="flex flex-wrap justify-end gap-2">
-            <Button variant="outline" disabled={busy} onClick={() => void save()}>{busy ? copy.saving : copy.saveDraft}</Button>
-            {!creating && <Button disabled={busy || !selected?.draft} onClick={() => void publish()}>{busy ? copy.publishing : copy.publish}</Button>}
+            <Button variant="outline" disabled={busy || generating || filling} onClick={() => void save()}>{busy ? copy.saving : copy.saveDraft}</Button>
+            {!creating && <Button disabled={busy || generating || filling || !selected?.draft} onClick={() => void publish()}>{busy ? copy.publishing : copy.publish}</Button>}
           </div>
         </>}
       </div>
     </div>
+    <Modal open={aiOpen} onClose={() => { if (!generating) setAiOpen(false); }} title={copy.aiTitle} description={copy.aiDescription} actions={<><Button variant="outline" disabled={generating} onClick={() => setAiOpen(false)}>{copy.aiCancel}</Button><Button disabled={generating || aiText.trim().length < 20} onClick={() => void generateDraft()}>{generating ? copy.aiGenerating : copy.aiGenerate}</Button></>}>
+      <Textarea label={copy.aiInput} value={aiText} onChange={(event) => setAiText(event.target.value)} maxLength={20000} rows={10} placeholder={copy.aiPlaceholder} fullWidth />
+      <p className="mt-3 text-[12px] leading-relaxed text-tertiary">{copy.aiPrivacy}</p>
+      {aiError && <p role="alert" className="mt-3 text-[13px] text-error">{aiError}</p>}
+    </Modal>
   </>;
 }
