@@ -6,9 +6,9 @@
  * Org chart
  *   Timur Bekov (CEO, manager role)
  *   |- Aigerim Sadykova   HR Director            [hr]
- *   |- Daniyar Omarov     Head of Engineering    [manager]  team A
+ *   |- Daniyar Omarov     Branch manager, Almaty  [manager]  team A
  *   |    |- Aruzhan Kassymova, Nurlan Abenov, Dana Zhaksylykova, Yerlan Sagyndykov
- *   |- Madina Tleuova     Head of Marketing      [manager]  team B
+ *   |- Madina Tleuova     Branch manager, Astana [manager]  team B
  *        |- Alikhan Ryskulov, Zhanel Amirkhanova, Kamila Sultanova
  */
 import { addDays, nextWeekday, todayISO, workingDays } from "../domain/dates";
@@ -42,24 +42,24 @@ type PersonInput = Omit<
 const PEOPLE: PersonInput[] = [
   { _id: "emp-ceo", emailLocal: "timur.bekov", n: 1, fullName: "Timur Bekov", role: "manager", position: "Chief Executive Officer", department: "Executive", managerId: null, hireDate: "2016-03-01", location: "Almaty", vacationBalance: 20, monthlySalary: 2_000_000 },
   { _id: "emp-hr1", emailLocal: "aigerim.sadykova", n: 2, fullName: "Aigerim Sadykova", role: "hr", position: "HR Director", department: "Human Resources", managerId: "emp-ceo", hireDate: "2018-09-10", location: "Almaty", vacationBalance: 12, monthlySalary: 900_000 },
-  { _id: "emp-m1", emailLocal: "daniyar.omarov", n: 3, fullName: "Daniyar Omarov", role: "manager", position: "Head of Engineering", department: "Engineering", managerId: "emp-ceo", hireDate: "2019-02-18", location: "Almaty", vacationBalance: 14, monthlySalary: 1_100_000 },
-  { _id: "emp-m2", emailLocal: "madina.tleuova", n: 4, fullName: "Madina Tleuova", role: "manager", position: "Head of Marketing", department: "Marketing", managerId: "emp-ceo", hireDate: "2020-06-01", location: "Astana", vacationBalance: 17, monthlySalary: 950_000 },
-  { _id: "emp-e1", emailLocal: "aruzhan.kassymova", n: 5, fullName: "Aruzhan Kassymova", role: "employee", position: "Senior Frontend Developer", department: "Engineering", managerId: "emp-m1", hireDate: "2021-04-12", location: "Almaty", vacationBalance: 15, monthlySalary: 650_000 },
-  { _id: "emp-e2", emailLocal: "nurlan.abenov", n: 6, fullName: "Nurlan Abenov", role: "employee", position: "Backend Developer", department: "Engineering", managerId: "emp-m1", hireDate: "2022-01-24", location: "Almaty", vacationBalance: 20, monthlySalary: 600_000 },
-  { _id: "emp-e3", emailLocal: "dana.zhaksylykova", n: 7, fullName: "Dana Zhaksylykova", role: "employee", position: "QA Engineer", department: "Engineering", managerId: "emp-m1", hireDate: "2023-05-15", location: "Astana", vacationBalance: 18, monthlySalary: 480_000 },
-  { _id: "emp-e4", emailLocal: "yerlan.sagyndykov", n: 8, fullName: "Yerlan Sagyndykov", role: "employee", position: "DevOps Engineer", department: "Engineering", managerId: "emp-m1", hireDate: "2020-11-02", location: "Almaty", vacationBalance: 15, monthlySalary: 620_000 },
-  { _id: "emp-e5", emailLocal: "alikhan.ryskulov", n: 9, fullName: "Alikhan Ryskulov", role: "employee", position: "Marketing Specialist", department: "Marketing", managerId: "emp-m2", hireDate: "2022-08-08", location: "Astana", vacationBalance: 20, monthlySalary: 420_000 },
-  { _id: "emp-e6", emailLocal: "zhanel.amirkhanova", n: 10, fullName: "Zhanel Amirkhanova", role: "employee", position: "Content Manager", department: "Marketing", managerId: "emp-m2", hireDate: "2023-09-04", location: "Astana", vacationBalance: 20, monthlySalary: 400_000 },
-  { _id: "emp-e7", emailLocal: "kamila.sultanova", n: 11, fullName: "Kamila Sultanova", role: "employee", position: "Graphic Designer", department: "Marketing", managerId: "emp-m2", hireDate: "2024-02-19", location: "Almaty", vacationBalance: 20, monthlySalary: 380_000 },
+  { _id: "emp-m1", emailLocal: "daniyar.omarov", n: 3, fullName: "Daniyar Omarov", role: "manager", position: "Начальник отделения", department: "Отделение Алматы", managerId: "emp-ceo", hireDate: "2019-02-18", location: "Almaty", vacationBalance: 14, monthlySalary: 1_100_000 },
+  { _id: "emp-m2", emailLocal: "madina.tleuova", n: 4, fullName: "Madina Tleuova", role: "manager", position: "Начальник отделения", department: "Отделение Астана", managerId: "emp-ceo", hireDate: "2020-06-01", location: "Astana", vacationBalance: 17, monthlySalary: 950_000 },
+  { _id: "emp-e1", emailLocal: "aruzhan.kassymova", n: 5, fullName: "Aruzhan Kassymova", role: "employee", position: "Курьер", department: "Отделение Алматы", managerId: "emp-m1", hireDate: "2021-04-12", location: "Almaty", vacationBalance: 15, monthlySalary: 650_000 },
+  { _id: "emp-e2", emailLocal: "nurlan.abenov", n: 6, fullName: "Nurlan Abenov", role: "employee", position: "Курьер", department: "Отделение Алматы", managerId: "emp-m1", hireDate: "2022-01-24", location: "Almaty", vacationBalance: 20, monthlySalary: 600_000 },
+  { _id: "emp-e3", emailLocal: "dana.zhaksylykova", n: 7, fullName: "Dana Zhaksylykova", role: "employee", position: "Оператор сортировки", department: "Отделение Алматы", managerId: "emp-m1", hireDate: "2023-05-15", location: "Astana", vacationBalance: 18, monthlySalary: 480_000 },
+  { _id: "emp-e4", emailLocal: "yerlan.sagyndykov", n: 8, fullName: "Yerlan Sagyndykov", role: "employee", position: "Курьер", department: "Отделение Алматы", managerId: "emp-m1", hireDate: "2020-11-02", location: "Almaty", vacationBalance: 15, monthlySalary: 620_000 },
+  { _id: "emp-e5", emailLocal: "alikhan.ryskulov", n: 9, fullName: "Alikhan Ryskulov", role: "employee", position: "Курьер", department: "Отделение Астана", managerId: "emp-m2", hireDate: "2022-08-08", location: "Astana", vacationBalance: 20, monthlySalary: 420_000 },
+  { _id: "emp-e6", emailLocal: "zhanel.amirkhanova", n: 10, fullName: "Zhanel Amirkhanova", role: "employee", position: "Оператор сортировки", department: "Отделение Астана", managerId: "emp-m2", hireDate: "2023-09-04", location: "Astana", vacationBalance: 20, monthlySalary: 400_000 },
+  { _id: "emp-e7", emailLocal: "kamila.sultanova", n: 11, fullName: "Kamila Sultanova", role: "employee", position: "Курьер", department: "Отделение Астана", managerId: "emp-m2", hireDate: "2024-02-19", location: "Almaty", vacationBalance: 20, monthlySalary: 380_000 },
 ];
 
 /** Demo personas shown on the login screen (public, fake, no secrets). */
 export const DEMO_PERSONAS = [
-  { email: `aruzhan.kassymova@${DOMAIN}`, name: "Aruzhan Kassymova", label: "Employee", hint: "Senior Frontend Developer · Engineering" },
-  { email: `daniyar.omarov@${DOMAIN}`, name: "Daniyar Omarov", label: "Manager", hint: "Head of Engineering · 4 direct reports" },
+  { email: `aruzhan.kassymova@${DOMAIN}`, name: "Aruzhan Kassymova", label: "Employee", hint: "Courier · Almaty branch" },
+  { email: `daniyar.omarov@${DOMAIN}`, name: "Daniyar Omarov", label: "Manager", hint: "Branch manager · 4 direct reports" },
   { email: `aigerim.sadykova@${DOMAIN}`, name: "Aigerim Sadykova", label: "HR / Admin", hint: "HR Director · sees the whole company" },
-  { email: `alikhan.ryskulov@${DOMAIN}`, name: "Alikhan Ryskulov", label: "Employee · other team", hint: "Marketing Specialist · reports to Madina" },
-  { email: `madina.tleuova@${DOMAIN}`, name: "Madina Tleuova", label: "Manager · other team", hint: "Head of Marketing · 3 direct reports" },
+  { email: `alikhan.ryskulov@${DOMAIN}`, name: "Alikhan Ryskulov", label: "Employee · other team", hint: "Courier · reports to Madina" },
+  { email: `madina.tleuova@${DOMAIN}`, name: "Madina Tleuova", label: "Manager · other team", hint: "Branch manager · 3 direct reports" },
 ] as const;
 
 const isoAt = (now: Date, daysAgo: number, hour = 10) => {

@@ -3,9 +3,10 @@ import type {
   EmployeeSummary,
   ProfileView,
 } from "../../domain/types";
+import { addDays, isValidDate, isWeekend, todayISO } from "../../domain/dates";
 import { getDb } from "../db";
 import type { Db } from "../db";
-import { forbidden, notFound } from "../errors";
+import { badRequest, forbidden, notFound } from "../errors";
 import { canManageTeam, canViewEmployee, isHr, type Actor } from "../policy";
 
 export const ACTIVE_REQUEST_STATUSES = ["submitted", "in_review"] as const;
@@ -81,26 +82,132 @@ export interface TeamMemberView extends EmployeeSummary {
   coursesOverdue: number;
 }
 
+export interface TeamWeekDay {
+  date: string;
+  state: "clear" | "open" | "approved";
+  requestId?: string;
+}
+
+export interface TeamWeekPerson {
+  id: string;
+  fullName: string;
+  days: TeamWeekDay[];
+}
+
+export interface TeamCalendarConflict {
+  date: string;
+  groupLabel: string;
+  absent: number;
+  total: number;
+  pendingRequestIds: string[];
+}
+
+export interface TeamCalendarView {
+  start: string;
+  end: string;
+  people: TeamWeekPerson[];
+  conflicts: TeamCalendarConflict[];
+}
+
+/** Calendar range including open requests so coverage risks are visible before approval. */
+export async function teamCalendar(actor: Actor, start: string, days = 42): Promise<TeamCalendarView> {
+  if (!isValidDate(start)) throw badRequest("Calendar start must be a valid date.");
+  if (!Number.isInteger(days) || days < 7 || days > 62) throw badRequest("Calendar range must be 7–62 days.");
+
+  const db = await getDb();
+  const people = await visibleEmployees(db, actor);
+  const dates = Array.from({ length: days }, (_, i) => addDays(start, i));
+  const live = people.length
+    ? await db.requests.find({
+        employeeId: { $in: people.map((p) => p._id) },
+        type: "vacation",
+        status: { $in: ["submitted", "in_review", "approved"] },
+      })
+    : [];
+  const activeOn = (employeeId: string, date: string) =>
+    live.find(
+      (req) =>
+        req.employeeId === employeeId &&
+        req.payload.kind === "vacation" &&
+        req.payload.startDate <= date &&
+        req.payload.endDate >= date,
+    );
+
+  const calendarPeople = people.map((person) => ({
+    id: person._id,
+    fullName: person.fullName,
+    days: dates.map((date) => {
+      const hit = activeOn(person._id, date);
+      const state: TeamWeekDay["state"] = !hit ? "clear" : hit.status === "approved" ? "approved" : "open";
+      return { date, state, ...(hit ? { requestId: hit._id } : {}) };
+    }),
+  }));
+
+  const groups = new Map<string, EmployeeDoc[]>();
+  for (const person of people) {
+    const key = isHr(actor) ? person.managerId ?? `department:${person.department}` : actor.id;
+    groups.set(key, [...(groups.get(key) ?? []), person]);
+  }
+  const managerIds = [...groups.keys()].filter((key) => !key.startsWith("department:") && key !== actor.id);
+  const managers = new Map(
+    (managerIds.length ? await db.employees.find({ _id: { $in: managerIds } }) : []).map((person) => [person._id, person.fullName]),
+  );
+  const conflicts: TeamCalendarConflict[] = [];
+  for (const date of dates) {
+    if (isWeekend(date)) continue;
+    for (const [key, members] of groups) {
+      const hits = members.flatMap((person) => {
+        const request = activeOn(person._id, date);
+        return request ? [request] : [];
+      });
+      const pendingRequestIds = [...new Set(hits.filter((request) => request.status !== "approved").map((request) => request._id))];
+      if (hits.length !== members.length) continue;
+      conflicts.push({
+        date,
+        groupLabel: key.startsWith("department:") ? key.slice("department:".length) : managers.get(key) ?? actor.fullName,
+        absent: hits.length,
+        total: members.length,
+        pendingRequestIds,
+      });
+    }
+  }
+
+  return { start, end: dates.at(-1) ?? start, people: calendarPeople, conflicts };
+}
+
+export async function teamWeek(actor: Actor, days = 14): Promise<TeamWeekPerson[]> {
+  return (await teamCalendar(actor, todayISO(), days)).people;
+}
+
 export async function listTeam(actor: Actor): Promise<TeamMemberView[]> {
   const db = await getDb();
   const people = await visibleEmployees(db, actor);
-  const names = new Map((await db.employees.find({})).map((e) => [e._id, e]));
+  if (people.length === 0) return [];
+  const ids = people.map((e) => e._id);
+  const managerIds = [...new Set(people.map((e) => e.managerId).filter((id): id is string => Boolean(id)))];
+  const [managers, openByUser, assignments] = await Promise.all([
+    managerIds.length ? db.employees.find({ _id: { $in: managerIds } }) : [],
+    db.requests.countBy({ employeeId: { $in: ids }, status: { $in: [...ACTIVE_REQUEST_STATUSES] } }, "employeeId"),
+    db.assignments.find({ userId: { $in: ids } }),
+  ]);
+  const names = new Map(managers.map((e) => [e._id, e]));
+  const assignmentsByUser = new Map<string, typeof assignments>();
+  for (const assignment of assignments) {
+    const userAssignments = assignmentsByUser.get(assignment.userId) ?? [];
+    userAssignments.push(assignment);
+    assignmentsByUser.set(assignment.userId, userAssignments);
+  }
   const today = new Date().toISOString().slice(0, 10);
 
-  return Promise.all(
-    people.map(async (e) => {
-      const [open, assignments] = await Promise.all([
-        db.requests.count({ employeeId: e._id, status: { $in: [...ACTIVE_REQUEST_STATUSES] } }),
-        db.assignments.find({ userId: e._id }),
-      ]);
-      return {
-        ...toSummary(e, names.get(e.managerId ?? "")),
-        vacationRemaining: e.vacationBalance,
-        openRequests: open,
-        coursesAssigned: assignments.length,
-        coursesCompleted: assignments.filter((a) => a.status === "completed").length,
-        coursesOverdue: assignments.filter((a) => a.status !== "completed" && a.dueDate < today).length,
-      };
-    }),
-  );
+  return people.map((e) => {
+    const personAssignments = assignmentsByUser.get(e._id) ?? [];
+    return {
+      ...toSummary(e, names.get(e.managerId ?? "")),
+      vacationRemaining: e.vacationBalance,
+      openRequests: openByUser.get(e._id) ?? 0,
+      coursesAssigned: personAssignments.length,
+      coursesCompleted: personAssignments.filter((a) => a.status === "completed").length,
+      coursesOverdue: personAssignments.filter((a) => a.status !== "completed" && a.dueDate < today).length,
+    };
+  });
 }

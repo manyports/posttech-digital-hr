@@ -33,7 +33,6 @@ export default function NotificationsPage() {
     <>
       <PageHeader
         title={m.notices.title}
-        description={m.notices.description}
         actions={
           <Button variant="secondary" size="sm" disabled={unread === 0} onClick={() => void markAllRead()}>
             {m.notices.markAll}

@@ -26,6 +26,15 @@ class MongoBackedCollection<T extends { _id: string }> implements Collection<T> 
     return this.c.countDocuments(filter);
   }
 
+  async countBy(filter: Filter, field: keyof T & string): Promise<Map<string, number>> {
+    const rows = await this.c.aggregate<{ _id: unknown; count: number }>([
+      { $match: filter },
+      { $group: { _id: `$${field}`, count: { $sum: 1 } } },
+    ]).toArray();
+    return new Map(rows.filter((row): row is { _id: string; count: number } => typeof row._id === "string")
+      .map((row) => [row._id, row.count]));
+  }
+
   async insertOne(doc: T): Promise<void> {
     await this.c.insertOne(doc as never);
   }
@@ -37,6 +46,10 @@ class MongoBackedCollection<T extends { _id: string }> implements Collection<T> 
   async updateOne(filter: Filter, update: UpdateOps): Promise<boolean> {
     const res = await this.c.updateOne(filter, update as never);
     return res.matchedCount > 0;
+  }
+
+  async updateMany(filter: Filter, update: UpdateOps): Promise<number> {
+    return (await this.c.updateMany(filter, update as never)).modifiedCount;
   }
 
   async deleteMany(filter: Filter = {}): Promise<number> {
@@ -58,17 +71,23 @@ async function ensureIndexes(handle: MongoDbHandle) {
       { key: { email: 1 }, unique: true },
       { key: { managerId: 1, active: 1 } },
       { key: { role: 1, active: 1 } },
+      { key: { active: 1, fullName: 1 } },
     ]),
     handle.collection("requests").createIndexes([
       { key: { employeeId: 1, createdAt: -1 } },
+      { key: { employeeId: 1, status: 1, type: 1 } },
       { key: { approverId: 1, status: 1 } },
       { key: { status: 1 } },
     ]),
-    handle.collection("notifications").createIndexes([{ key: { userId: 1, createdAt: -1 } }]),
+    handle.collection("notifications").createIndexes([
+      { key: { userId: 1, createdAt: -1 } },
+      { key: { userId: 1, readAt: 1 } },
+    ]),
     handle.collection("assignments").createIndexes([{ key: { userId: 1, courseId: 1 } }]),
     handle.collection("escalations").createIndexes([{ key: { userId: 1, status: 1 } }, { key: { status: 1 } }]),
-    handle.collection("assistantLog").createIndexes([{ key: { outcome: 1 } }]),
+    handle.collection("assistantLog").createIndexes([{ key: { outcome: 1, createdAt: -1 } }]),
     handle.collection("sessions").createIndexes([{ key: { expiresAt: 1 } }]),
+    handle.collection("aiRateLimits").createIndexes([{ key: { expiresAt: 1 }, expireAfterSeconds: 0 }]),
   ]);
 }
 
@@ -76,8 +95,14 @@ export async function createMongoDb(uri: string, dbName: string): Promise<Db> {
   const { MongoClient } = await import("mongodb");
   // Reuse the client across serverless invocations of a warm instance.
   const g = globalThis as unknown as { __hrMongoClient?: Promise<InstanceType<typeof MongoClient>> };
-  g.__hrMongoClient ??= new MongoClient(uri, { maxPoolSize: 5 }).connect();
-  const client = await g.__hrMongoClient;
+  g.__hrMongoClient ??= new MongoClient(uri, { maxPoolSize: 5, serverSelectionTimeoutMS: 3000 }).connect();
+  let client;
+  try {
+    client = await g.__hrMongoClient;
+  } catch (error) {
+    g.__hrMongoClient = undefined;
+    throw error;
+  }
   const handle: MongoDbHandle = client.db(dbName);
   // Indexes speed queries up but nothing depends on them existing yet, so a
   // cold start doesn't wait for this.
@@ -98,6 +123,8 @@ export async function createMongoDb(uri: string, dbName: string): Promise<Db> {
     escalations: col("escalations"),
     assistantLog: col("assistantLog"),
     sessions: col("sessions"),
+    knowledgeArticles: col("knowledgeArticles"),
+    aiRateLimits: col("aiRateLimits"),
     async nextSeq(name: string) {
       const res = await counters.findOneAndUpdate(
         { _id: name },

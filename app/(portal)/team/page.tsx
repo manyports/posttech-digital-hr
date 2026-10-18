@@ -1,25 +1,29 @@
 "use client";
 
 import Link from "next/link";
-import type { TeamMemberView } from "@/lib/server/services/employees";
+import { useState } from "react";
+import type { TeamCalendarView, TeamMemberView } from "@/lib/server/services/employees";
 import { useApi } from "@/lib/client/hooks";
+import { addDays, parseDate, todayISO, toISODate } from "@/lib/domain/dates";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import { tx } from "@/lib/i18n/locale";
 import { Avatar } from "../../components/ui/Avatar";
 import { Badge } from "../../components/ui/Badge";
 import { ArrowRightIcon } from "../../components/portal/icons";
 import { AccessDenied, ErrorBlock, LoadingBlock, PageHeader } from "../../components/portal/Panel";
+import { TeamCalendar } from "../../components/portal/TeamWeek";
 import { Pill } from "../../components/portal/StatusBadge";
 import { useUser } from "../../components/portal/UserContext";
-
-const SHADOW =
-  "0 1px 2px rgba(17,17,17,0.04), 0 2px 8px -2px rgba(17,17,17,0.04), 0 0 0 1px rgba(17,17,17,0.05), inset 0 1px 0 rgba(255,255,255,0.9)";
 
 export default function TeamPage() {
   const user = useUser();
   const { m } = useI18n();
-  const { data, error, loading, reload } = useApi<{ team: TeamMemberView[] }>("/api/team", { interval: 10000 });
+  const [month, setMonth] = useState(() => todayISO().slice(0, 7));
+  const calendarStart = monthGridStart(month);
+  const path = `/api/team?start=${calendarStart}&days=42`;
+  const { data, error, loading, reload } = useApi<{ team: TeamMemberView[]; calendar: TeamCalendarView }>(path, { interval: 10000 });
   const isHr = user.role === "hr";
+  const calendar = data?.calendar.start === calendarStart ? data.calendar : null;
 
   if (error?.status === 403) {
     return (
@@ -34,23 +38,28 @@ export default function TeamPage() {
     <>
       <PageHeader
         title={isHr ? m.team.employees : m.nav.myTeam}
-        description={
-          isHr
-            ? m.team.all
-            : tx(m.team.reports, { count: data ? ` (${data.team.length})` : "" })
-        }
       />
 
+      {calendar && calendar.people.length > 0 && (
+        <TeamCalendar
+          calendar={calendar}
+          month={month}
+          onPrevious={() => setMonth((value) => shiftMonth(value, -1))}
+          onNext={() => setMonth((value) => shiftMonth(value, 1))}
+          onToday={() => setMonth(todayISO().slice(0, 7))}
+        />
+      )}
+      {data && !calendar && !error && <LoadingBlock rows={2} />}
+
       {loading && !data && <LoadingBlock rows={3} />}
-      {error && !data && <ErrorBlock message={error.message} onRetry={reload} />}
+      {error && (!data || !calendar) && <ErrorBlock message={error.message} onRetry={reload} />}
 
       <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {data?.team.map((person) => (
           <li key={person.id}>
             <Link
               href={`/team/${person.id}`}
-              className="group/t block bg-hero-elevated rounded-2xl p-5 transition-shadow duration-300 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900"
-              style={{ boxShadow: SHADOW }}
+              className="group/t block bg-hero-elevated rounded-2xl p-5 [box-shadow:var(--surface-shadow)] transition-shadow duration-300 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900"
             >
               <div className="flex items-start gap-3.5">
                 <Avatar name={person.fullName} size="lg" />
@@ -80,6 +89,18 @@ export default function TeamPage() {
       </ul>
     </>
   );
+}
+
+function monthGridStart(month: string) {
+  const first = `${month}-01`;
+  const mondayOffset = (parseDate(first).getUTCDay() + 6) % 7;
+  return addDays(first, -mondayOffset);
+}
+
+function shiftMonth(month: string, delta: number) {
+  const date = parseDate(`${month}-01`);
+  date.setUTCMonth(date.getUTCMonth() + delta);
+  return toISODate(date).slice(0, 7);
 }
 
 function Metric({ label, value }: { label: string; value: React.ReactNode }) {

@@ -18,7 +18,7 @@ type Filter = "all" | "open" | "approved" | "rejected";
 
 const matchers: Record<Filter, (s: RequestStatus) => boolean> = {
   all: () => true,
-  open: (s) => s === "submitted" || s === "in_review",
+  open: (s) => s === "draft" || s === "submitted" || s === "in_review",
   approved: (s) => s === "approved",
   rejected: (s) => s === "rejected" || s === "cancelled",
 };
@@ -57,7 +57,6 @@ function RequestsInner() {
     <>
       <PageHeader
         title={m.requests.title}
-        description={m.requests.description}
         actions={
           <Button variant="primary" size="sm" onClick={() => setManualOpen(true)}>
             <PlusIcon size={14} /> {m.requests.new}

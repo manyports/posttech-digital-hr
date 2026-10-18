@@ -31,6 +31,7 @@ export interface Dict {
   roles: { employee: string; manager: string; hr: string };
   requestType: { vacation: string; salary_advance: string };
   requestStatus: {
+    draft: string;
     submitted: string;
     in_review: string;
     approved: string;
@@ -61,6 +62,20 @@ export interface Dict {
     unread: string;
     done: string;
     live: string;
+    previous: string;
+    next: string;
+    noResults: string;
+    noResultsDetail: string;
+    navigationLabel: string;
+    previousSlide: string;
+    nextSlide: string;
+    apiBadRequest: string;
+    apiConflict: string;
+    apiNotFound: string;
+    apiForbidden: string;
+    apiUnauthorized: string;
+    apiNetwork: string;
+    apiUnknown: string;
   };
   login: {
     title: string;
@@ -125,6 +140,8 @@ export interface Dict {
     todoApprove: string;
     todoEsc: string;
     todoUnread: string;
+    todoRejected: string;
+    todoRejectedPlain: string;
     open: string;
   };
   requests: {
@@ -146,8 +163,10 @@ export interface Dict {
     approvals: string;
     heading: string;
     byYou: string;
+    savedByYou: string;
     live: string;
     canCancel: string;
+    draftActions: string;
     awaitsYou: string;
     details: string;
     employee: string;
@@ -164,10 +183,15 @@ export interface Dict {
     afterApprove: string;
     history: string;
     historyHint: string;
+    coverageEmpty: string;
+    coverageDecember: string;
     progress: string;
     stepDone: string;
   };
   actions: {
+    submit: string;
+    submitTitle: string;
+    submitDone: string;
     start: string;
     startTitle: string;
     startDone: string;
@@ -189,6 +213,10 @@ export interface Dict {
     description: string;
     send: string;
     sending: string;
+    saveDraft: string;
+    savingDraft: string;
+    draftSaved: string;
+    draftSavedHint: string;
     sent: string;
     sentTo: string;
     network: string;
@@ -336,6 +364,25 @@ export interface Dict {
     pickCourse: string;
     mandatory: string;
     dueOptional: string;
+    week: string;
+    weekHint: string;
+    onSite: string;
+    away: string;
+    pendingAway: string;
+    calendar: string;
+    calendarHint: string;
+    today: string;
+    previousMonth: string;
+    nextMonth: string;
+    approvedLeave: string;
+    pendingLeave: string;
+    conflicts: string;
+    conflictCount: string;
+    noConflicts: string;
+    coverageConflict: string;
+    noAbsences: string;
+    absenceCount: string;
+    more: string;
   };
   approvals: {
     title: string;
@@ -403,6 +450,88 @@ export interface Dict {
     resetPassword: string;
     resetBadPassword: string;
   };
+  knowledge: {
+    title: string;
+    articles: string;
+    search: string;
+    searchPlaceholder: string;
+    newArticle: string;
+    noArticles: string;
+    chooseArticle: string;
+    chooseOrCreate: string;
+    newTitle: string;
+    content: string;
+    saveDraftFirst: string;
+    titleLabel: string;
+    titleRu: string;
+    titleKk: string;
+    idLabel: string;
+    idHint: string;
+    questionsLabel: string;
+    questionsHint: string;
+    questionsRu: string;
+    questionsKk: string;
+    keywordsLabel: string;
+    keywordsRu: string;
+    keywordsKk: string;
+    answerLabel: string;
+    answerHint: string;
+    secondaryAnswerLabel: string;
+    answerRu: string;
+    answerKk: string;
+    source: string;
+    sourceHint: string;
+    documentId: string;
+    documentTitle: string;
+    documentTitleRu: string;
+    documentTitleKk: string;
+    section: string;
+    sectionRu: string;
+    sectionKk: string;
+    sectionHint: string;
+    revision: string;
+    owner: string;
+    preview: string;
+    previewText: string;
+    articleHeading: string;
+    answerPlaceholder: string;
+    translationsRequired: string;
+    sections: string;
+    sourceLabel: string;
+    history: string;
+    versionLabel: string;
+    historyHint: string;
+    current: string;
+    restore: string;
+    ownerLabel: string;
+    draftSaved: string;
+    published: string;
+    unpublished: string;
+    draft: string;
+    saveDraft: string;
+    saving: string;
+    publish: string;
+    publishing: string;
+    saveFail: string;
+    publishFail: string;
+    restoreFail: string;
+    notFound: string;
+    accessDenied: string;
+    back: string;
+    aiButton: string;
+    aiTitle: string;
+    aiDescription: string;
+    aiInput: string;
+    aiPlaceholder: string;
+    aiPrivacy: string;
+    aiCancel: string;
+    aiGenerate: string;
+    aiGenerating: string;
+    aiApplied: string;
+    aiError: string;
+    aiRateLimited: string;
+    aiReviewSource: string;
+  };
   assistant: {
     description: string;
     kbOnly: string;
@@ -443,6 +572,7 @@ export interface Dict {
     newline: string;
     greet: string;
     botNotice: string;
+    messages: Record<string, string>;
     bot: string;
     helpful: string;
     yes: string;
@@ -452,7 +582,17 @@ export interface Dict {
     canHelp: string;
     toHuman: string;
     restart: string;
+    openDraft: string;
+    balanceLine: string;
     starters: string[];
+    knowledgeEditor: string;
+    history: string;
+    noHistory: string;
+    newChat: string;
+    deleteChat: string;
+    clearHistory: string;
+    restoreHistoryError: string;
+    saveHistoryError: string;
   };
 }
 
@@ -487,6 +627,7 @@ const ru: Dict = {
   roles: { employee: "Сотрудник", manager: "Руководитель", hr: "HR / Админ" },
   requestType: { vacation: "Отпуск", salary_advance: "Аванс" },
   requestStatus: {
+    draft: "Черновик",
     submitted: "Отправлено",
     in_review: "На рассмотрении",
     approved: "Одобрено",
@@ -517,6 +658,20 @@ const ru: Dict = {
     unread: "не прочитано",
     done: "завершено",
     live: "В реальном времени",
+    previous: "Назад",
+    next: "Вперед",
+    noResults: "Нет результатов",
+    noResultsDetail: "Пока здесь ничего нет.",
+    navigationLabel: "Навигация",
+    previousSlide: "Предыдущий слайд",
+    nextSlide: "Следующий слайд",
+    apiBadRequest: "Проверьте введённые данные и попробуйте снова.",
+    apiConflict: "Данные изменились. Обновите страницу и повторите действие.",
+    apiNotFound: "Запрошенные данные не найдены.",
+    apiForbidden: "У вас нет доступа к этому действию.",
+    apiUnauthorized: "Сессия завершилась. Войдите в портал снова.",
+    apiNetwork: "Не удалось связаться с сервером. Проверьте подключение.",
+    apiUnknown: "Не удалось выполнить запрос. Попробуйте снова.",
   },
   login: {
     title: "Digital HR",
@@ -539,11 +694,11 @@ const ru: Dict = {
       "Manager · other team": "Руководитель · другая команда",
     },
     hints: {
-      "aruzhan.kassymova@jana.example": "Senior Frontend Developer · Инжиниринг",
-      "daniyar.omarov@jana.example": "Руководитель разработки · 4 подчиненных",
+      "aruzhan.kassymova@jana.example": "Курьер · отделение Алматы",
+      "daniyar.omarov@jana.example": "Начальник отделения · 4 подчиненных",
       "aigerim.sadykova@jana.example": "HR-директор · вся компания",
-      "alikhan.ryskulov@jana.example": "Маркетолог · подчиняется Madina",
-      "madina.tleuova@jana.example": "Руководитель маркетинга · 3 подчиненных",
+      "alikhan.ryskulov@jana.example": "Курьер · подчиняется Madina",
+      "madina.tleuova@jana.example": "Начальник отделения · 3 подчиненных",
     },
   },
   dashboard: {
@@ -593,6 +748,8 @@ const ru: Dict = {
     todoApprove: "Заявки ждут вашего решения: {n}",
     todoEsc: "Вопросы сотрудников без ответа: {n}",
     todoUnread: "Непрочитанные уведомления: {n}",
+    todoRejected: "Заявка отклонена. {comment}",
+    todoRejectedPlain: "Заявка отклонена",
     open: "Открыть",
   },
   requests: {
@@ -614,8 +771,10 @@ const ru: Dict = {
     approvals: "Согласования",
     heading: "Заявка: {type}",
     byYou: "Подана вами",
+    savedByYou: "Сохранена вами",
     live: "В реальном времени",
     canCancel: "Вы можете отозвать эту заявку, пока она открыта.",
+    draftActions: "Черновик виден только вам. Отправьте его руководителю, когда будете готовы.",
     awaitsYou: "Эта заявка ожидает вашего решения.",
     details: "Детали заявки",
     employee: "Сотрудник",
@@ -632,10 +791,15 @@ const ru: Dict = {
     afterApprove: "Регистрация после одобрения",
     history: "История",
     historyHint: "Каждое изменение статуса, кто изменил и когда",
+    coverageEmpty: "На эти дни в команде никого не останется.",
+    coverageDecember: "В декабре из отделения нельзя уйти всем сразу. На эти дни никого не останется.",
     progress: "Прогресс заявки",
     stepDone: "завершено",
   },
   actions: {
+    submit: "Отправить руководителю",
+    submitTitle: "Отправить черновик руководителю?",
+    submitDone: "Заявка отправлена. Руководитель уведомлен.",
     start: "Взять в работу",
     startTitle: "Начать рассмотрение заявки?",
     startDone: "Рассмотрение начато. Сотрудник уведомлен.",
@@ -657,6 +821,10 @@ const ru: Dict = {
     description: "Заявка сначала поступает вашему руководителю. Вы сможете отслеживать каждый этап на странице заявки.",
     send: "Отправить заявку",
     sending: "Отправка…",
+    saveDraft: "Сохранить черновик",
+    savingDraft: "Сохранение…",
+    draftSaved: "Черновик сохранён",
+    draftSavedHint: "Заявка {id} сохранена и пока видна только вам.",
     sent: "Заявка отправлена",
     sentTo: "Заявка {id} направлена: {name}.",
     network: "Ошибка сети.",
@@ -804,6 +972,25 @@ const ru: Dict = {
     pickCourse: "Выберите курс…",
     mandatory: "(обязательный)",
     dueOptional: "Срок прохождения (необязательно, по умолчанию 30 дней)",
+    week: "Две недели команды",
+    weekHint: "Кто уже в отпуске и чья заявка ещё открыта",
+    onSite: "Эти дни на месте",
+    away: "в отпуске",
+    pendingAway: "заявка открыта",
+    calendar: "Календарь отпусков команды",
+    calendarHint: "Согласованные отпуска, открытые заявки и риски покрытия до принятия решения",
+    today: "Сегодня",
+    previousMonth: "Предыдущий месяц",
+    nextMonth: "Следующий месяц",
+    approvedLeave: "Согласован отпуск",
+    pendingLeave: "Ожидает решения",
+    conflicts: "Конфликт покрытия",
+    conflictCount: "Конфликтных дней: {n}",
+    noConflicts: "В этом месяце конфликтов покрытия нет.",
+    coverageConflict: "{date} · {group}: отсутствуют все {n} сотрудника(-ов)",
+    noAbsences: "Все на месте",
+    absenceCount: "В отпуске: {n}",
+    more: "+ ещё {n}",
   },
   approvals: {
     title: "Согласования",
@@ -871,6 +1058,88 @@ const ru: Dict = {
     resetPassword: "Демо-пароль",
     resetBadPassword: "Неверный пароль.",
   },
+  knowledge: {
+    title: "База знаний Al Jana",
+    articles: "Статьи",
+    search: "Найти статью",
+    searchPlaceholder: "Например, отпуск или аванс",
+    newArticle: "Новая статья",
+    noArticles: "Ничего не найдено.",
+    chooseArticle: "Выберите статью",
+    chooseOrCreate: "Выберите материал слева или создайте новый.",
+    newTitle: "Новая статья",
+    content: "Содержание статьи",
+    saveDraftFirst: "Сначала сохраните черновик. Изменения станут доступны Al Jana только после публикации.",
+    titleLabel: "Заголовок статьи",
+    titleRu: "Заголовок на русском",
+    titleKk: "Заголовок на казахском",
+    idLabel: "ID статьи",
+    idHint: "Латиница, цифры и дефис; после создания не меняется.",
+    questionsLabel: "Примеры вопросов — по одному в строке",
+    questionsHint: "Так Al Jana поймёт, когда показать этот ответ.",
+    questionsRu: "Примеры вопросов на русском — по одному в строке",
+    questionsKk: "Примеры вопросов на казахском — по одному в строке",
+    keywordsLabel: "Ключевые слова — по одному в строке",
+    keywordsRu: "Ключевые слова на русском — по одному в строке",
+    keywordsKk: "Ключевые слова на казахском — по одному в строке",
+    answerLabel: "Основной ответ",
+    answerHint: "Введите утверждённый ответ из исходного материала.",
+    secondaryAnswerLabel: "Дополнительный вариант ответа",
+    answerRu: "Ответ на русском",
+    answerKk: "Ответ на казахском",
+    source: "Источник ответа",
+    sourceHint: "Эти данные появятся по ссылке рядом с ответом Al Jana.",
+    documentId: "Код документа",
+    documentTitle: "Название документа",
+    documentTitleRu: "Название документа на русском",
+    documentTitleKk: "Название документа на казахском",
+    section: "Раздел документа",
+    sectionRu: "Раздел на русском",
+    sectionKk: "Раздел на казахском",
+    sectionHint: "Например: §2.1 Ежегодный оплачиваемый отпуск",
+    revision: "Редакция документа",
+    owner: "Владелец исходного документа",
+    preview: "Предпросмотр для сотрудника",
+    previewText: "Пример отображения материала в базе Al Jana.",
+    articleHeading: "Заголовок статьи",
+    answerPlaceholder: "Текст ответа появится здесь.",
+    translationsRequired: "Заполните русскую и казахскую версии заголовка, ответа и источника.",
+    sections: "Разделы документа",
+    sourceLabel: "Источник",
+    history: "История публикаций",
+    versionLabel: "Версия",
+    historyHint: "Старая версия сначала загружается как черновик — её можно проверить и только потом опубликовать.",
+    current: "текущая",
+    restore: "Загрузить в черновик",
+    ownerLabel: "Последний редактор",
+    draftSaved: "Черновик сохранён",
+    published: "Опубликована",
+    unpublished: "Не опубликована",
+    draft: "Черновик",
+    saveDraft: "Сохранить черновик",
+    saving: "Сохраняем…",
+    publish: "Опубликовать",
+    publishing: "Публикуем…",
+    saveFail: "Не удалось сохранить статью.",
+    publishFail: "Не удалось опубликовать статью.",
+    restoreFail: "Не удалось восстановить версию.",
+    notFound: "Документ не найден.",
+    accessDenied: "Редактор доступен только сотрудникам HR.",
+    back: "К Al Jana",
+    aiButton: "Заполнить с ИИ",
+    aiTitle: "Подготовить статью с ИИ",
+    aiDescription: "Вставьте готовый материал на любом языке. ИИ подготовит поля на русском и казахском для вашей проверки.",
+    aiInput: "Исходный материал",
+    aiPlaceholder: "Вставьте утверждённый текст, условия и сведения о документе…",
+    aiPrivacy: "Текст будет отправлен в Gemini. Проверьте результат перед сохранением и публикацией.",
+    aiCancel: "Отмена",
+    aiGenerate: "Заполнить форму",
+    aiGenerating: "Готовим статью…",
+    aiApplied: "Форма заполнена — проверьте текст",
+    aiError: "Не удалось подготовить статью. Проверьте настройки ИИ и попробуйте ещё раз.",
+    aiRateLimited: "Достигнут лимит генерации. Попробуйте позже.",
+    aiReviewSource: "Часть сведений об источнике заполнена как внутренняя статья HR. Проверьте код, название и раздел перед сохранением.",
+  },
   assistant: {
     description: "Ваш HR-ассистент. Отвечает строго по корпоративной базе знаний HR, всегда указывает источник и не выдумывает факты.",
     kbOnly: "Ответы только из базы знаний HR",
@@ -911,6 +1180,16 @@ const ru: Dict = {
     newline: "новая строка",
     greet: "Здравствуйте, {name}! Чем помочь?",
     botNotice: "Я бот HR. Отвечаю только по базе знаний и всегда показываю источник.",
+    messages: {
+      greeting: "Здравствуйте! Я Al Jana — HR-ассистент Jana Group. Чем я могу помочь?",
+      howareyou: "Спасибо, всё хорошо! Чем могу помочь по вопросам HR?",
+      thanks: "Пожалуйста! Если появятся другие вопросы, обращайтесь.",
+      bye: "До свидания!",
+      identity: "Я Al Jana, HR-ассистент Jana Group.",
+      noAnswer: "В базе знаний HR не найден надёжный ответ. Могу передать вопрос сотруднику HR.",
+      empty: "Введите вопрос или выберите один из примеров ниже.",
+      injection: "Я отвечаю на вопросы по базе знаний HR. Могу передать этот вопрос сотруднику HR.",
+    },
     bot: "БОТ",
     helpful: "Ответ помог?",
     yes: "Да",
@@ -920,6 +1199,8 @@ const ru: Dict = {
     canHelp: "Я могу помочь с этим:",
     toHuman: "Спросить специалиста HR",
     restart: "Новый диалог",
+    openDraft: "Открыть черновик",
+    balanceLine: "Вам доступно {n} дн.",
     starters: [
       "Сколько дней отпуска мне положено?",
       "Как запросить аванс по зарплате?",
@@ -927,6 +1208,14 @@ const ru: Dict = {
       "Могу ли я работать из дома?",
       "В какой день выплачивается зарплата?",
     ],
+    knowledgeEditor: "Редактор базы знаний",
+    history: "История чатов",
+    noHistory: "Сохранённых чатов пока нет.",
+    newChat: "Новый чат",
+    deleteChat: "Удалить чат",
+    clearHistory: "Очистить историю",
+    restoreHistoryError: "Не удалось прочитать историю чата.",
+    saveHistoryError: "Не удалось сохранить историю на этом устройстве.",
   },
 };
 
@@ -961,6 +1250,7 @@ const kk: Dict = {
   roles: { employee: "Қызметкер", manager: "Басшы", hr: "HR / Әкімші" },
   requestType: { vacation: "Демалыс", salary_advance: "Аванс" },
   requestStatus: {
+    draft: "Жоба",
     submitted: "Жіберілді",
     in_review: "Қаралуда",
     approved: "Мақұлданды",
@@ -991,6 +1281,20 @@ const kk: Dict = {
     unread: "оқылмаған",
     done: "аяқталды",
     live: "Нақты уақытта",
+    previous: "Артқа",
+    next: "Алға",
+    noResults: "Нәтиже жоқ",
+    noResultsDetail: "Әзірге мұнда ештеңе жоқ.",
+    navigationLabel: "Навигация",
+    previousSlide: "Алдыңғы слайд",
+    nextSlide: "Келесі слайд",
+    apiBadRequest: "Енгізілген деректерді тексеріп, қайталап көріңіз.",
+    apiConflict: "Деректер өзгерді. Бетті жаңартып, әрекетті қайталаңыз.",
+    apiNotFound: "Сұралған дерек табылмады.",
+    apiForbidden: "Бұл әрекетке рұқсатыңыз жоқ.",
+    apiUnauthorized: "Сессия аяқталды. Порталға қайта кіріңіз.",
+    apiNetwork: "Серверге қосылу мүмкін болмады. Байланысты тексеріңіз.",
+    apiUnknown: "Сұрауды орындау мүмкін болмады. Қайталап көріңіз.",
   },
   login: {
     title: "Digital HR",
@@ -1013,11 +1317,11 @@ const kk: Dict = {
       "Manager · other team": "Басшы · басқа команда",
     },
     hints: {
-      "aruzhan.kassymova@jana.example": "Senior Frontend Developer · Инжиниринг",
-      "daniyar.omarov@jana.example": "Әзірлеу басшысы · 4 бағынышты",
+      "aruzhan.kassymova@jana.example": "Курьер · Алматы бөлімшесі",
+      "daniyar.omarov@jana.example": "Бөлімше басшысы · 4 бағынышты",
       "aigerim.sadykova@jana.example": "HR-директор · бүкіл компания",
-      "alikhan.ryskulov@jana.example": "Маркетолог · Madina-ға бағынады",
-      "madina.tleuova@jana.example": "Маркетинг басшысы · 3 бағынышты",
+      "alikhan.ryskulov@jana.example": "Курьер · Madina-ға бағынады",
+      "madina.tleuova@jana.example": "Бөлімше басшысы · 3 бағынышты",
     },
   },
   dashboard: {
@@ -1067,6 +1371,8 @@ const kk: Dict = {
     todoApprove: "Шешіміңізді күтетін өтінімдер: {n}",
     todoEsc: "Жауапсыз сұрақтар: {n}",
     todoUnread: "Оқылмаған хабарламалар: {n}",
+    todoRejected: "Өтінім қабылданбады. {comment}",
+    todoRejectedPlain: "Өтінім қабылданбады",
     open: "Ашу",
   },
   requests: {
@@ -1088,8 +1394,10 @@ const kk: Dict = {
     approvals: "Келісу",
     heading: "Өтінім: {type}",
     byYou: "Сіз бердіңіз",
+    savedByYou: "Сіз сақтадыңыз",
     live: "Нақты уақытта",
     canCancel: "Өтінім ашық тұрғанда оны кері қайтара аласыз.",
+    draftActions: "Жоба тек сізге көрінеді. Дайын болғанда оны басшыға жіберіңіз.",
     awaitsYou: "Бұл өтінім сіздің шешіміңізді күтуде.",
     details: "Өтінім мәліметі",
     employee: "Қызметкер",
@@ -1106,10 +1414,15 @@ const kk: Dict = {
     afterApprove: "Мақұлданғаннан кейін тіркеледі",
     history: "Тарих",
     historyHint: "Әр күй өзгерісі: кім және қашан",
+    coverageEmpty: "Осы күндері командада ешкім қалмайды.",
+    coverageDecember: "Желтоқсанда бөлімшеден бәрі бірдей кете алмайды. Осы күндері ешкім қалмайды.",
     progress: "Өтінім барысы",
     stepDone: "аяқталды",
   },
   actions: {
+    submit: "Басшыға жіберу",
+    submitTitle: "Жобаны басшыға жіберу керек пе?",
+    submitDone: "Өтінім жіберілді. Басшыға хабар берілді.",
     start: "Жұмысқа алу",
     startTitle: "Өтінімді қарауды бастау керек пе?",
     startDone: "Қарау басталды. Қызметкерге хабар жіберілді.",
@@ -1131,6 +1444,10 @@ const kk: Dict = {
     description: "Өтінім алдымен басшыңызға түседі. Әр кезеңді өтінім бетінде көресіз.",
     send: "Өтінім жіберу",
     sending: "Жіберілуде…",
+    saveDraft: "Жобаны сақтау",
+    savingDraft: "Сақталуда…",
+    draftSaved: "Жоба сақталды",
+    draftSavedHint: "{id} өтінімі сақталды және әзірге тек сізге көрінеді.",
     sent: "Өтінім жіберілді",
     sentTo: "{id} өтінімі {name} адамға жіберілді.",
     network: "Желі қатесі.",
@@ -1278,6 +1595,25 @@ const kk: Dict = {
     pickCourse: "Курсты таңдаңыз…",
     mandatory: "(міндетті)",
     dueOptional: "Өту мерзімі (міндетті емес, әдепкі 30 күн)",
+    week: "Команданың екі аптасы",
+    weekHint: "Кім демалыста және кімнің өтінімі ашық",
+    onSite: "Осы күндері орнында",
+    away: "демалыста",
+    pendingAway: "өтінім ашық",
+    calendar: "Команданың демалыс күнтізбесі",
+    calendarHint: "Мақұлданған демалыстар, ашық өтінімдер және шешімге дейінгі қамту тәуекелдері",
+    today: "Бүгін",
+    previousMonth: "Алдыңғы ай",
+    nextMonth: "Келесі ай",
+    approvedLeave: "Демалыс мақұлданды",
+    pendingLeave: "Шешім күтуде",
+    conflicts: "Қамту қайшылығы",
+    conflictCount: "Қайшылықты күндер: {n}",
+    noConflicts: "Бұл айда қамту қайшылығы жоқ.",
+    coverageConflict: "{date} · {group}: барлық {n} қызметкер жоқ",
+    noAbsences: "Барлығы орнында",
+    absenceCount: "Демалыста: {n}",
+    more: "+ тағы {n}",
   },
   approvals: {
     title: "Келісу",
@@ -1345,6 +1681,88 @@ const kk: Dict = {
     resetPassword: "Демо-құпиясөз",
     resetBadPassword: "Құпиясөз қате.",
   },
+  knowledge: {
+    title: "Al Jana білім базасы",
+    articles: "Мақалалар",
+    search: "Мақаланы іздеу",
+    searchPlaceholder: "Мысалы, демалыс немесе аванс",
+    newArticle: "Жаңа мақала",
+    noArticles: "Ештеңе табылмады.",
+    chooseArticle: "Мақаланы таңдаңыз",
+    chooseOrCreate: "Сол жақтан материалды таңдаңыз немесе жаңасын жасаңыз.",
+    newTitle: "Жаңа мақала",
+    content: "Мақала мазмұны",
+    saveDraftFirst: "Алдымен жобаны сақтаңыз. Өзгерістер жарияланғаннан кейін Al Jana жүйесінде қолжетімді болады.",
+    titleLabel: "Мақала тақырыбы",
+    titleRu: "Орыс тіліндегі тақырып",
+    titleKk: "Қазақ тіліндегі тақырып",
+    idLabel: "Мақала ID-і",
+    idHint: "Латын әріптері, сандар және дефис; жасалғаннан кейін өзгермейді.",
+    questionsLabel: "Сұрақ үлгілері — әр жолға біреуден",
+    questionsHint: "Al Jana бұл жауапты қашан көрсету керегін түсінеді.",
+    questionsRu: "Орыс тіліндегі сұрақ үлгілері — әр жолға біреуден",
+    questionsKk: "Қазақ тіліндегі сұрақ үлгілері — әр жолға біреуден",
+    keywordsLabel: "Түйінді сөздер — әр жолға біреуден",
+    keywordsRu: "Орыс тіліндегі түйінді сөздер — әр жолға біреуден",
+    keywordsKk: "Қазақ тіліндегі түйінді сөздер — әр жолға біреуден",
+    answerLabel: "Негізгі жауап",
+    answerHint: "Бастапқы материалдағы бекітілген жауапты енгізіңіз.",
+    secondaryAnswerLabel: "Жауаптың қосымша нұсқасы",
+    answerRu: "Орыс тіліндегі жауап",
+    answerKk: "Қазақ тіліндегі жауап",
+    source: "Жауап дереккөзі",
+    sourceHint: "Бұл мәліметтер Al Jana жауабының жанындағы сілтемеде көрінеді.",
+    documentId: "Құжат коды",
+    documentTitle: "Құжат атауы",
+    documentTitleRu: "Құжаттың орыс тіліндегі атауы",
+    documentTitleKk: "Құжаттың қазақ тіліндегі атауы",
+    section: "Құжат бөлімі",
+    sectionRu: "Орыс тіліндегі бөлім атауы",
+    sectionKk: "Қазақ тіліндегі бөлім атауы",
+    sectionHint: "Мысалы: §2.1 Жыл сайынғы ақылы демалыс",
+    revision: "Құжат нұсқасы",
+    owner: "Бастапқы құжат иесі",
+    preview: "Қызметкерге арналған көрініс",
+    previewText: "Материалдың Al Jana білім базасында көріну үлгісі.",
+    articleHeading: "Мақала тақырыбы",
+    answerPlaceholder: "Жауап мәтіні осында көрінеді.",
+    translationsRequired: "Тақырыптың, жауаптың және дереккөздің орысша және қазақша нұсқаларын толтырыңыз.",
+    sections: "Құжат бөлімдері",
+    sourceLabel: "Дереккөз",
+    history: "Жарияланымдар тарихы",
+    versionLabel: "Нұсқа",
+    historyHint: "Ескі нұсқа алдымен жоба ретінде жүктеледі. Оны тексеріп, содан кейін жариялауға болады.",
+    current: "ағымдағы",
+    restore: "Жобаға жүктеу",
+    ownerLabel: "Соңғы редактор",
+    draftSaved: "Жоба сақталды",
+    published: "Жарияланған",
+    unpublished: "Жарияланбаған",
+    draft: "Жоба",
+    saveDraft: "Жобаны сақтау",
+    saving: "Сақталуда…",
+    publish: "Жариялау",
+    publishing: "Жариялануда…",
+    saveFail: "Мақаланы сақтау мүмкін болмады.",
+    publishFail: "Мақаланы жариялау мүмкін болмады.",
+    restoreFail: "Нұсқаны қалпына келтіру мүмкін болмады.",
+    notFound: "Құжат табылмады.",
+    accessDenied: "Редакторға тек HR қызметкерлері кіре алады.",
+    back: "Al Jana-ға қайту",
+    aiButton: "ЖИ арқылы толтыру",
+    aiTitle: "ЖИ арқылы мақала дайындау",
+    aiDescription: "Дайын материалды кез келген тілде енгізіңіз. ЖИ орысша және қазақша өрістерді тексеруіңіз үшін дайындайды.",
+    aiInput: "Бастапқы материал",
+    aiPlaceholder: "Бекітілген мәтінді, шарттарды және құжат деректерін енгізіңіз…",
+    aiPrivacy: "Мәтін Gemini жүйесіне жіберіледі. Сақтап, жарияламас бұрын нәтижені тексеріңіз.",
+    aiCancel: "Бас тарту",
+    aiGenerate: "Нысанды толтыру",
+    aiGenerating: "Мақала дайындалуда…",
+    aiApplied: "Нысан толтырылды — мәтінді тексеріңіз",
+    aiError: "Мақаланы дайындау мүмкін болмады. ЖИ баптауын тексеріп, қайта көріңіз.",
+    aiRateLimited: "Генерация шегіне жетті. Кейінірек қайталап көріңіз.",
+    aiReviewSource: "Дереккөздің кейбір мәліметі ішкі HR мақаласы ретінде толтырылды. Сақтамас бұрын кодты, атауды және бөлімді тексеріңіз.",
+  },
   assistant: {
     description: "HR көмекшісі. Тек HR білім базасы бойынша жауап береді, дереккөзді көрсетеді және ойдан шығармайды.",
     kbOnly: "Жауап тек HR білім базасынан",
@@ -1385,6 +1803,16 @@ const kk: Dict = {
     newline: "жаңа жол",
     greet: "Сәлеметсіз бе, {name}! Қалай көмектесейін?",
     botNotice: "Мен HR ботымын. Тек білім базасы бойынша жауап беремін және дереккөзді көрсетемін.",
+    messages: {
+      greeting: "Сәлеметсіз бе! Мен Jana Group компаниясының HR көмекшісі Al Jana-мын. Қалай көмектесейін?",
+      howareyou: "Рақмет, бәрі жақсы! HR бойынша қандай сұрағыңыз бар?",
+      thanks: "Оқасы жоқ! Басқа сұрақ болса, жазыңыз.",
+      bye: "Сау болыңыз!",
+      identity: "Мен Jana Group компаниясының HR көмекшісі Al Jana-мын.",
+      noAnswer: "HR білім базасынан сенімді жауап табылмады. Сұрақты HR қызметкеріне жібере аламын.",
+      empty: "Сұрақ енгізіңіз немесе төмендегі үлгілердің бірін таңдаңыз.",
+      injection: "Мен HR білім базасы бойынша жауап беремін. Бұл сұрақты HR қызметкеріне жібере аламын.",
+    },
     bot: "БОТ",
     helpful: "Жауап көмектесті ме?",
     yes: "Иә",
@@ -1394,13 +1822,23 @@ const kk: Dict = {
     canHelp: "Мен мына тақырыптар бойынша көмектесемін:",
     toHuman: "HR маманынан сұрау",
     restart: "Жаңа диалог",
+    openDraft: "Жобаны ашу",
+    balanceLine: "Сізге {n} күн қолжетімді.",
     starters: [
-      "Сколько дней отпуска мне положено?",
-      "Как запросить аванс по зарплате?",
-      "Что делать, если я заболел?",
-      "Могу ли я работать из дома?",
-      "В какой день выплачивается зарплата?",
+      "Жылына неше күн демалыс беріледі?",
+      "Жалақы авансын қалай сұраймын?",
+      "Ауырып қалсам не істеуім керек?",
+      "Үйден жұмыс істей аламын ба?",
+      "Жалақы қай күні төленеді?",
     ],
+    knowledgeEditor: "Білім базасының редакторы",
+    history: "Чаттар тарихы",
+    noHistory: "Сақталған чаттар жоқ.",
+    newChat: "Жаңа чат",
+    deleteChat: "Чатты жою",
+    clearHistory: "Тарихты тазалау",
+    restoreHistoryError: "Чат тарихын оқу мүмкін болмады.",
+    saveHistoryError: "Тарихты осы құрылғыда сақтау мүмкін болмады.",
   },
 };
 

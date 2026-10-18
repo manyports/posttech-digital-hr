@@ -11,6 +11,12 @@
 
 export type Role = "employee" | "manager" | "hr";
 
+/** User-facing reference copy stored in both supported interface languages. */
+export interface BilingualText {
+  ru: string;
+  kk: string;
+}
+
 export interface EmployeeDoc {
   _id: string; // e.g. "emp-e1"
   email: string;
@@ -61,6 +67,7 @@ export interface ProfileView extends EmployeeSummary {
 export type RequestType = "vacation" | "salary_advance";
 
 export type RequestStatus =
+  | "draft"
   | "submitted"
   | "in_review"
   | "approved"
@@ -112,7 +119,7 @@ export interface HrRequestDoc {
   integration: IntegrationRefs;
 }
 
-export type RequestAction = "start_review" | "approve" | "reject" | "cancel";
+export type RequestAction = "submit" | "start_review" | "approve" | "reject" | "cancel";
 
 export interface RequestView {
   id: string;
@@ -127,6 +134,7 @@ export interface RequestView {
   integration: IntegrationRefs;
   /** Actions the *current caller* may perform right now (server-computed). */
   allowedActions: RequestAction[];
+  coverage?: { remainingOnSite: number; december: boolean };
 }
 
 /* ── Notifications ──────────────────────────────────────────────────── */
@@ -155,6 +163,14 @@ export interface Lesson {
   summary: string; // one sentence
   body: string[]; // paragraphs
   keyPoints: string[];
+  translations?: { ru: LessonText; kk: LessonText };
+}
+
+export interface LessonText {
+  title: string;
+  summary: string;
+  body: string[];
+  keyPoints: string[];
 }
 
 export interface TestQuestion {
@@ -162,6 +178,18 @@ export interface TestQuestion {
   text: string;
   options: string[]; // 3-4 options
   correctIndex: number; // SERVER-ONLY: stripped before sending to clients
+  translations?: { ru: TestQuestionText; kk: TestQuestionText };
+}
+
+export interface TestQuestionText {
+  text: string;
+  options: string[];
+}
+
+export interface CourseText {
+  title: string;
+  description: string;
+  category: string;
 }
 
 export interface CourseDoc {
@@ -173,6 +201,7 @@ export interface CourseDoc {
   mandatory: boolean;
   lessons: Lesson[];
   test: { passScore: number; questions: TestQuestion[] }; // passScore in percent
+  translations?: { ru: CourseText; kk: CourseText };
 }
 
 export type AssignmentStatus = "assigned" | "in_progress" | "completed";
@@ -213,6 +242,7 @@ export interface CourseSummary {
   lessonCount: number;
   questionCount: number;
   passScore: number;
+  translations?: { ru: CourseText; kk: CourseText };
 }
 
 export interface AssignmentView {
@@ -276,11 +306,37 @@ export interface KbEntry {
   keywords: string[];
   /** The ONLY text ever shown to the user for this entry. Written by HR. */
   answer: string;
+  /** Optional Russian text; if omitted, Al Jana uses the legacy translation. */
+  answerRu?: string;
+  /** Russian and Kazakh reference copy for the portal and source viewer. */
+  translations?: {
+    ru: { title: string; answer: string; questions: string[]; keywords: string[]; source: { docTitle: string; section: string; owner: string } };
+    kk: { title: string; answer: string; questions: string[]; keywords: string[]; source: { docTitle: string; section: string; owner: string } };
+  };
   source: KbSource;
   /** Optional deep link into the portal. */
   action?: { label: string; href: string };
   /** Ids of related entries, shown as follow-up suggestions. */
   related?: string[];
+}
+
+export interface KnowledgeArticleVersion {
+  version: number;
+  entry: KbEntry;
+  editorId: string;
+  editorName: string;
+  savedAt: string;
+  publishedAt: string;
+}
+
+export interface KnowledgeArticleDoc {
+  _id: string;
+  ownerId: string;
+  ownerName: string;
+  currentVersion: number;
+  draft: KbEntry | null;
+  versions: KnowledgeArticleVersion[];
+  updatedAt: string;
 }
 
 export type AssistantReply =
@@ -291,9 +347,11 @@ export type AssistantReply =
       title: string;
       answer: string;
       source: KbSource;
+      localizedSource?: Pick<KbSource, "docTitle" | "section" | "owner">;
       action?: { label: string; href: string };
       related: { entryId: string; question: string }[];
       confidence: number; // 0-1
+      personalBalance?: { available: number };
     }
   | {
       kind: "no_answer";

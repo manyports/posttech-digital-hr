@@ -45,4 +45,12 @@ describe("demo data reset", () => {
     assert.equal((await db.courses.findOne({ _id: course._id }))?.title, "Edited");
     assert.equal(await db.courses.count({ _id: course._id }), 1);
   });
+
+  it("counts matching requests by employee without loading request documents", async () => {
+    const db = await getDb();
+    const counts = await db.requests.countBy({ status: { $in: ["submitted", "in_review"] } }, "employeeId");
+    for (const [employeeId, count] of counts) {
+      assert.equal(count, await db.requests.count({ employeeId, status: { $in: ["submitted", "in_review"] } }));
+    }
+  });
 });

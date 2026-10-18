@@ -1,4 +1,17 @@
 import type { Collection, Db, Filter, FindOptions, UpdateOps } from "./types";
+import { resolve } from "node:path";
+import { JsonFileCollection } from "./json-collection";
+import type { KnowledgeArticleDoc } from "../../domain/types";
+
+export function createLocalKnowledgeCollection() {
+  return new JsonFileCollection<KnowledgeArticleDoc>(
+    process.env.JANA_KB_STORE_PATH ?? resolve(process.cwd(), "data/ai-jana-knowledge.json"),
+  );
+}
+
+export function createMemoryAiRateLimitCollection(): Db["aiRateLimits"] {
+  return new MemoryCollection();
+}
 
 /** Deep-clone so callers can never mutate stored state by accident. */
 const clone = <T>(v: T): T => structuredClone(v);
@@ -65,6 +78,16 @@ class MemoryCollection<T extends { _id: string }> implements Collection<T> {
     return n;
   }
 
+  async countBy(filter: Filter, field: keyof T & string): Promise<Map<string, number>> {
+    const counts = new Map<string, number>();
+    for (const doc of this.docs.values()) {
+      if (!matches(doc as Record<string, unknown>, filter)) continue;
+      const key = doc[field];
+      if (typeof key === "string") counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+    return counts;
+  }
+
   async insertOne(doc: T): Promise<void> {
     if (this.docs.has(doc._id)) throw new Error(`Duplicate _id ${doc._id}`);
     this.docs.set(doc._id, clone(doc));
@@ -95,6 +118,29 @@ class MemoryCollection<T extends { _id: string }> implements Collection<T> {
       return true;
     }
     return false;
+  }
+
+  async updateMany(filter: Filter, update: UpdateOps): Promise<number> {
+    let count = 0;
+    for (const d of this.docs.values()) {
+      if (!matches(d as Record<string, unknown>, filter)) continue;
+      const target = d as Record<string, unknown>;
+      if (update.$set) Object.assign(target, clone(update.$set));
+      if (update.$push) {
+        for (const [k, v] of Object.entries(update.$push)) {
+          const arr = (target[k] as unknown[] | undefined) ?? [];
+          arr.push(clone(v));
+          target[k] = arr;
+        }
+      }
+      if (update.$inc) {
+        for (const [k, v] of Object.entries(update.$inc)) {
+          target[k] = ((target[k] as number | undefined) ?? 0) + v;
+        }
+      }
+      count++;
+    }
+    return count;
   }
 
   async deleteMany(filter: Filter = {}): Promise<number> {
@@ -129,6 +175,8 @@ export class MemoryDb implements Db {
   escalations = col<"escalations">();
   assistantLog = col<"assistantLog">();
   sessions = col<"sessions">();
+  knowledgeArticles = createLocalKnowledgeCollection();
+  aiRateLimits = createMemoryAiRateLimitCollection();
   private seqs = new Map<string, number>();
 
   async nextSeq(name: string): Promise<number> {

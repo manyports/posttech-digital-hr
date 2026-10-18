@@ -52,7 +52,7 @@ export function canDecideRequestOf(actor: Actor, employee: Pick<EmployeeDoc, "_i
 /**
  * The state machine for requests, filtered by who is asking.
  *
- *   submitted --start_review--> in_review --approve--> approved
+ *   draft --submit--> submitted --start_review--> in_review --approve--> approved
  *       |                           |      \--reject--> rejected
  *       \------------ cancel (owner only) ---/--> cancelled
  */
@@ -62,6 +62,10 @@ export function allowedRequestActions(
   employee: Pick<EmployeeDoc, "_id" | "managerId">,
 ): RequestAction[] {
   const actions: RequestAction[] = [];
+  if (actor.id === request.employeeId && request.status === "draft") {
+    actions.push("submit", "cancel");
+    return actions;
+  }
   const open = request.status === "submitted" || request.status === "in_review";
   if (actor.id === request.employeeId && open) actions.push("cancel");
   if (canDecideRequestOf(actor, employee)) {

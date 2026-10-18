@@ -224,7 +224,7 @@ function simplePlain(text: string): string {
   return text
     .toLowerCase()
     .replace(/[’‘`']/g, "")
-    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/[^a-z0-9а-яё]+/g, " ")
     .trim();
 }
 
@@ -241,7 +241,7 @@ function plainText(text: string): string {
     .replace(/'s\b/g, "")
     .replace(/'/g, "")
     .replace(/(\d):(\d)/g, "$1$2")
-    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/[^a-z0-9а-яё]+/g, " ")
     .trim();
 }
 
@@ -337,7 +337,7 @@ const indexCache = new WeakMap<KbEntry[], Index>();
 
 function signatureOf(kb: KbEntry[]): string {
   return kb
-    .map((e) => `${e.id}:${e.title.length}:${e.questions.join("|").length}:${e.keywords.join("|").length}:${e.answer.length}`)
+    .map((e) => `${e.id}:${e.title.length}:${e.questions.join("|").length}:${e.keywords.join("|").length}:${e.translations?.ru.title.length ?? 0}:${e.translations?.ru.questions.join("|").length ?? 0}:${e.translations?.ru.keywords.join("|").length ?? 0}:${e.translations?.kk.title.length ?? 0}:${e.translations?.kk.questions.join("|").length ?? 0}:${e.translations?.kk.keywords.join("|").length ?? 0}:${e.answer.length}`)
     .join(";");
 }
 
@@ -362,9 +362,23 @@ function buildIndex(kb: KbEntry[]): Index {
       add(q, FIELD_WEIGHT.question, true);
       phrases.push(new Set(tokenize(q)));
     }
+    for (const locale of ["ru", "kk"] as const) {
+      for (const q of entry.translations?.[locale].questions ?? []) {
+        add(q, FIELD_WEIGHT.question, true);
+        phrases.push(new Set(tokenize(q)));
+      }
+    }
     add(entry.title, FIELD_WEIGHT.title, true);
     phrases.push(new Set(tokenize(entry.title)));
+    for (const locale of ["ru", "kk"] as const) {
+      const title = entry.translations?.[locale].title ?? "";
+      add(title, FIELD_WEIGHT.title, true);
+      if (title) phrases.push(new Set(tokenize(title)));
+    }
     for (const k of entry.keywords) add(k, FIELD_WEIGHT.keyword, true);
+    for (const locale of ["ru", "kk"] as const) {
+      for (const k of entry.translations?.[locale].keywords ?? []) add(k, FIELD_WEIGHT.keyword, true);
+    }
     add(entry.answer, FIELD_WEIGHT.answer, false);
     let length = 0;
     for (const v of tf.values()) length += v;
@@ -576,7 +590,7 @@ export interface Explanation {
 /** Full decision trace (used by tests and debugging; `ask` is built on it). */
 export function explain(question: string, kb: KbEntry[] = KB): Explanation {
   const raw = typeof question === "string" ? question.slice(0, MAX_QUESTION_CHARS) : "";
-  if (!/[a-z0-9]{2}/i.test(raw)) {
+  if (!/[a-z0-9а-яё]{2}/i.test(raw)) {
     return { tokens: [], candidates: [], decision: "empty", reason: "no usable text" };
   }
   if (classifySmalltalk(raw)) {
@@ -624,6 +638,43 @@ export function explain(question: string, kb: KbEntry[] = KB): Explanation {
   return { tokens, candidates, decision: "answer", reason: "passed all gates", entryId: best.entryId };
 }
 
+function relatedQuestions(entry: KbEntry, kb: KbEntry[]): { entryId: string; question: string }[] {
+  const related: { entryId: string; question: string }[] = [];
+  for (const id of entry.related ?? []) {
+    const rel = kb.find((e) => e.id === id);
+    if (rel && rel.id !== entry.id && rel.questions.length > 0 && related.length < 3) {
+      related.push({ entryId: rel.id, question: rel.questions[0] });
+    }
+  }
+  return related;
+}
+
+export function answerFromEntry(entryId: string, question: string, kb: KbEntry[] = KB): AssistantReply | null {
+  const entry = kb.find((e) => e.id === entryId);
+  if (!entry) return null;
+  return {
+    kind: "answer",
+    question,
+    entryId: entry.id,
+    title: entry.title,
+    answer: entry.answer,
+    source: entry.source,
+    ...(entry.action ? { action: entry.action } : {}),
+    related: relatedQuestions(entry, kb),
+    confidence: 1,
+  };
+}
+
+export function noAnswerReply(question: string, kb: KbEntry[] = KB): AssistantReply {
+  return {
+    kind: "no_answer",
+    question,
+    message: MESSAGES.noAnswer,
+    suggestions: starterQuestions(kb),
+    canEscalate: true,
+  };
+}
+
 export function ask(question: string, kb: KbEntry[] = KB): AssistantReply {
   const q = typeof question === "string" ? question.trim() : "";
   const exp = explain(q, kb);
@@ -633,28 +684,11 @@ export function ask(question: string, kb: KbEntry[] = KB): AssistantReply {
     return { kind: "smalltalk", question: q, message: MESSAGES[kind], suggestions: starterQuestions(kb) };
   }
   if (exp.decision === "answer" && exp.entryId) {
-    const entry = kb.find((e) => e.id === exp.entryId);
+    const built = answerFromEntry(exp.entryId, q, kb);
     const best = exp.candidates[0];
-    if (entry) {
-      const related: { entryId: string; question: string }[] = [];
-      for (const id of entry.related ?? []) {
-        const rel = kb.find((e) => e.id === id);
-        if (rel && rel.id !== entry.id && rel.questions.length > 0 && related.length < 3) {
-          related.push({ entryId: rel.id, question: rel.questions[0] });
-        }
-      }
+    if (built && built.kind === "answer") {
       const confidence = Math.min(0.99, Math.round((0.5 * best.coverage + 0.5 * best.dice) * 100) / 100);
-      return {
-        kind: "answer",
-        question: q,
-        entryId: entry.id,
-        title: entry.title,
-        answer: entry.answer,
-        source: entry.source,
-        ...(entry.action ? { action: entry.action } : {}),
-        related,
-        confidence,
-      };
+      return { ...built, confidence };
     }
   }
   const message =

@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 
 const variantStyles: Record<
   "default" | "accent" | "warning",
@@ -43,6 +44,7 @@ export function Banner({
   action?: ReactNode;
   className?: string;
 }) {
+  const { m } = useI18n();
   const style = variantStyles[variant];
 
   return (
@@ -65,7 +67,7 @@ export function Banner({
         <button
           onClick={onDismiss}
           className="ml-3 flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-hero-on-foreground/50 hover:text-hero-on-foreground hover:bg-hero-elevated/10 cursor-pointer transition-all duration-150"
-          aria-label="Закрыть"
+          aria-label={m.common.close}
         >
           <svg
             width="11"

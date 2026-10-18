@@ -12,10 +12,13 @@
     "test:mongo": "node scripts/test-mongo.mjs"
   },
   "dependencies": {
+    "@ai-sdk/google": "^4.0.99",
+    "ai": "^7.0.143",
     "mongodb": "^6.10.0",
     "next": "16.2.3",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

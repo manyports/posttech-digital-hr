@@ -11,7 +11,7 @@ describe("Al Jana service (scenarios 5 and 6)", () => {
     const r = await ask(await actor("emp-e1"), "How many vacation days do I get?");
     assert.equal(r.kind, "answer");
     if (r.kind !== "answer") return;
-    assert.match(r.answer, /20 paid vacation days/);
+    assert.match(r.answer, /20 оплачиваемых рабочих дней/);
     assert.ok(r.source.docId && r.source.docTitle && r.source.section && r.source.revision);
   });
 

@@ -41,7 +41,6 @@ export default function ApprovalsPage() {
     <>
       <PageHeader
         title={isHr ? m.approvals.allTitle : m.approvals.title}
-        description={isHr ? m.approvals.hrHint : m.approvals.mgrHint}
       />
 
       <Tabs

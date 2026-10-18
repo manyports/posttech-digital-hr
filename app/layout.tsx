@@ -29,7 +29,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const locale = parseLocale(jar.get("hr-locale")?.value);
   return (
     <html lang={locale} className={`${archivo.variable} h-full antialiased`}>
-      <body className="page-matte min-h-full font-sans tracking-[-0.05em] selection:bg-primary/10 selection:text-primary">
+      <body className="page-matte min-h-full font-sans tracking-tighter selection:bg-primary/10 selection:text-primary">
         <Providers locale={locale}>{children}</Providers>
       </body>
     </html>

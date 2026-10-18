@@ -25,3 +25,5 @@ npm-debug.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+data/ai-jana-knowledge.json
+.codex-review

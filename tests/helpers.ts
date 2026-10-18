@@ -1,8 +1,16 @@
 import assert from "node:assert/strict";
+import { after } from "node:test";
+import { randomUUID } from "node:crypto";
+import { resolve } from "node:path";
+import { rm } from "node:fs/promises";
 import { addDays, nextWeekday, todayISO } from "../lib/domain/dates";
 import { getDb, resetDemoData } from "../lib/server/db";
 import { HttpError } from "../lib/server/errors";
 import type { Actor } from "../lib/server/policy";
+
+const testKnowledgeStore = resolve(process.cwd(), `.test-ai-jana-${randomUUID()}.json`);
+process.env.JANA_KB_STORE_PATH ??= testKnowledgeStore;
+after(async () => { await rm(testKnowledgeStore, { force: true }); });
 
 /** Restore pristine fake data (in-memory DB). Call in beforeEach. */
 export const fresh = () => resetDemoData();

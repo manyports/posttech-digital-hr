@@ -3,7 +3,9 @@ import assert from "node:assert/strict";
 
 import type { AssistantReply } from "../lib/domain/types";
 import { KB } from "../lib/assistant/knowledge-base";
+import { sourceHref, sourceSectionId } from "../lib/assistant/source-links";
 import { ask, explain, normalize, tokenize } from "../lib/assistant/engine";
+import { withKnowledgeTranslations } from "../lib/assistant/reference-translations";
 
 /** Paraphrases (NOT copies of KB questions) that must be answered by this exact entry. */
 const IN_KB: [question: string, entryId: string][] = [
@@ -198,6 +200,13 @@ describe("Al Jana: smalltalk", () => {
 });
 
 describe("Al Jana: knowledge base invariants", () => {
+  it("links a cited source to its document and exact section anchor", () => {
+    const entry = KB.find((item) => item.id === "annual-leave-entitlement");
+    assert.ok(entry);
+    assert.equal(sourceHref(entry.source), "/sources/HR-POL-01#2-1-annual-paid-leave");
+    assert.equal(sourceSectionId("§2.1 Annual paid leave"), "2-1-annual-paid-leave");
+  });
+
   it("has a sensible number of entries", () => {
     assert.ok(KB.length >= 28 && KB.length <= 40, `entries: ${KB.length}`);
   });
@@ -346,6 +355,29 @@ describe("Al Jana: facts that the real system enforces", () => {
 });
 
 describe("Al Jana: text pipeline", () => {
+  it("can retrieve HR articles written with Russian example questions", () => {
+    const russianArticle = {
+      ...KB[0],
+      id: "russian-article",
+      title: "Справка с места работы",
+      questions: ["Как получить справку с места работы?"],
+      keywords: ["справка", "работа"],
+      answer: "Employment certificates are issued by HR.",
+    };
+    const reply = ask("Как получить справку с места работы?", [russianArticle]);
+    assert.equal(reply.kind, "answer");
+    assert.equal(reply.kind === "answer" && reply.entryId, "russian-article");
+  });
+
+  it("retrieves seeded articles from Russian and Kazakh localized search phrases", () => {
+    const article = withKnowledgeTranslations(KB[0]);
+    for (const question of ["Сколько дней оплачиваемого отпуска положено?", "Жылына қанша күн ақылы демалыс беріледі?"]) {
+      const reply = ask(question, [article]);
+      assert.equal(reply.kind, "answer", question);
+      assert.equal(reply.kind === "answer" && reply.entryId, article.id, question);
+    }
+  });
+
   it("maps synonyms to the same terms", () => {
     assert.deepEqual(tokenize("work from home"), tokenize("WFH"));
     assert.deepEqual(tokenize("time off"), tokenize("vacation"));

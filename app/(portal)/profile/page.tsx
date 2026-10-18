@@ -29,7 +29,7 @@ export default function ProfilePage() {
 
   return (
     <>
-      <PageHeader title={m.profile.title} description={m.profile.description} />
+      <PageHeader title={m.profile.title} />
       {loading && !data && <LoadingBlock rows={3} />}
       {error && !data && <ErrorBlock message={error.message} onRetry={reload} />}
       {data && <ProfileBody bundle={data} />}

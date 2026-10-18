@@ -1,4 +1,5 @@
 import React from "react";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 
 interface Column<T> {
   key: keyof T | string;
@@ -25,6 +26,7 @@ export function Table<T extends Record<string, unknown>>({
   className = "",
   onRowClick,
 }: TableProps<T>) {
+  const { m } = useI18n();
   return (
     <div
       className={["w-full rounded-2xl bg-hero-elevated overflow-hidden", className].join(" ")}
@@ -97,8 +99,8 @@ export function Table<T extends Record<string, unknown>>({
             {rows.length === 0 && (
               <tr>
                 <td colSpan={columns.length} className="px-5 py-12 text-center">
-                  <p className="text-[13px] font-medium text-tertiary">No results</p>
-                  <p className="text-[12px] text-tertiary mt-0.5">Nothing to show here yet.</p>
+                  <p className="text-[13px] font-medium text-tertiary">{m.common.noResults}</p>
+                  <p className="text-[12px] text-tertiary mt-0.5">{m.common.noResultsDetail}</p>
                 </td>
               </tr>
             )}

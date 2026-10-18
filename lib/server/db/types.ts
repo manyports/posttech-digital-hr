@@ -5,6 +5,7 @@ import type {
   EmployeeDoc,
   EscalationDoc,
   HrRequestDoc,
+  KnowledgeArticleDoc,
   NotificationDoc,
   SessionDoc,
 } from "../../domain/types";
@@ -38,6 +39,8 @@ export interface Collection<T extends { _id: string }> {
   find(filter?: Filter, opts?: FindOptions): Promise<T[]>;
   findOne(filter: Filter): Promise<T | null>;
   count(filter?: Filter): Promise<number>;
+  /** Counts matching documents by a string field without returning the documents. */
+  countBy(filter: Filter, field: keyof T & string): Promise<Map<string, number>>;
   insertOne(doc: T): Promise<void>;
   insertMany(docs: T[]): Promise<void>;
   /**
@@ -47,9 +50,17 @@ export interface Collection<T extends { _id: string }> {
    * concurrency, so two concurrent approvals cannot both succeed.
    */
   updateOne(filter: Filter, update: UpdateOps): Promise<boolean>;
+  /** Apply the same update to every matching document without loading them. */
+  updateMany(filter: Filter, update: UpdateOps): Promise<number>;
   deleteMany(filter?: Filter): Promise<number>;
   /** Insert `doc`, or replace the stored document with the same `_id` in one step. */
   upsertOne(doc: T): Promise<void>;
+}
+
+export interface AiRateLimitDoc {
+  _id: string;
+  count: number;
+  expiresAt: Date;
 }
 
 export interface Db {
@@ -62,6 +73,8 @@ export interface Db {
   escalations: Collection<EscalationDoc>;
   assistantLog: Collection<AssistantLogDoc>;
   sessions: Collection<SessionDoc>;
+  knowledgeArticles: Collection<KnowledgeArticleDoc>;
+  aiRateLimits: Collection<AiRateLimitDoc>;
   /** Monotonic counters for human-friendly ids (REQ-0001, ESC-0001, ...). */
   nextSeq(name: string): Promise<number>;
   /** Restart every counter, so ids after a demo reset begin again from the first. */

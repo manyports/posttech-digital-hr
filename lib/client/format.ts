@@ -48,6 +48,7 @@ export const TYPE_LABEL: Record<RequestType, string> = {
 };
 
 export const STATUS_LABEL: Record<RequestStatus, string> = {
+  draft: "Черновик",
   submitted: "Отправлено",
   in_review: "На рассмотрении",
   approved: "Одобрено",

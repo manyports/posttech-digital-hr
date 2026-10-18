@@ -4,13 +4,19 @@ import type {
   EscalationDoc,
   EscalationView,
 } from "../../domain/types";
-import { ask as askKnowledgeBase } from "../../assistant/engine";
+import { answerFromEntry, ask as askKnowledgeBase, noAnswerReply } from "../../assistant/engine";
+import { routeEntryId } from "../../assistant/model-router";
+import { parseVacationRange } from "../../assistant/vacation-phrase";
 import { getDb } from "../db";
 import type { Db } from "../db";
 import { badRequest, conflict, forbidden, notFound } from "../errors";
 import { isHr, type Actor } from "../policy";
 import { notify } from "./notifications";
-import { KB_ANSWERS_RU, MESSAGES_RU } from "../../assistant/translations";
+import { pendingVacationDays } from "./employees";
+import { createRequest } from "./requests";
+import { MESSAGES_RU } from "../../assistant/translations";
+import { localizedKnowledgeQuestion, translateKnowledgeEntry } from "../../assistant/reference-translations";
+import { getPublishedKnowledgeBase } from "./knowledge-base";
 
 const MAX_QUESTION = 500;
 
@@ -34,14 +40,51 @@ const RU_TO_EN_EXACT: Record<string, string> = {
   "в какой день выплачивается зарплата": "When is salary paid?",
   "есть ли у нас опционы на акции?": "Do we have stock options?",
   "есть ли у нас опционы на акции": "Do we have stock options?",
+  "жылына неше күн демалыс беріледі?": "How many vacation days do I get?",
+  "жылына неше күн демалыс беріледі": "How many vacation days do I get?",
+  "жалақы авансын қалай сұраймын?": "How do I request a salary advance?",
+  "жалақы авансын қалай сұраймын": "How do I request a salary advance?",
+  "ауырып қалсам не істеуім керек?": "What should I do if I am sick?",
+  "ауырып қалсам не істеуім керек": "What should I do if I am sick?",
+  "үйден жұмыс істей аламын ба?": "Can I work from home?",
+  "үйден жұмыс істей аламын ба": "Can I work from home?",
+  "жалақы қай күні төленеді?": "When is salary paid?",
+  "жалақы қай күні төленеді": "When is salary paid?",
 };
+
+const CYRILLIC = /[а-яёәғқңөұүһі]/i;
 
 function mapRussianQuery(raw: string): string {
   const lower = raw.toLowerCase().trim();
   if (RU_TO_EN_EXACT[lower]) return RU_TO_EN_EXACT[lower];
 
   // If no Cyrillic characters, return as is.
-  if (!/[а-яё]/i.test(raw)) return raw;
+  if (!CYRILLIC.test(raw)) return raw;
+
+  if (/отпуск|демалыс/i.test(raw) && parseVacationRange(raw)) return "How do I apply for a vacation?";
+  if (/декабр/i.test(raw) && /отпуск/i.test(raw)) return "Can the whole branch take December off together?";
+  if (/желтоқсан/i.test(raw) && /демалыс/i.test(raw)) return "Can the whole branch take December off together?";
+
+  if (/демалыс/i.test(raw)) {
+    if (/қалдық|баланс|неше/i.test(raw)) return "How many vacation days do I get?";
+    if (/қалай|өтінім/i.test(raw)) return "How do I apply for a vacation?";
+    if (/келісім|кім/i.test(raw)) return "Who has to approve my leave?";
+    if (/келесі жыл/i.test(raw)) return "Can I carry unused vacation over into next year?";
+    if (/жалақысыз/i.test(raw)) return "Is it possible to get leave without pay?";
+    return "How many vacation days do I get?";
+  }
+  if (/ауыр/i.test(raw)) {
+    if (/ақы|төлен/i.test(raw)) return "Do I get paid during sick leave?";
+    if (/анықтама|парақ/i.test(raw)) return "Do I need a medical certificate when I am sick?";
+    return "What should I do if I am sick?";
+  }
+  if (/аванс/i.test(raw)) {
+    if (/қанша|лимит|пайыз|максимум/i.test(raw)) return "How much can I take as an advance on my salary?";
+    if (/қашан|мерзім/i.test(raw)) return "How long until my advance is paid out?";
+    return "How do I request a salary advance?";
+  }
+  if (/үйден|қашықтан/i.test(raw)) return "Can I work from home?";
+  if (/жалақы/i.test(raw) && !/аванс/i.test(raw)) return "When is salary paid?";
 
   if (/опцион|акци/i.test(raw)) return "Do we have stock options?";
   if (/привет|здравствуй|добрый (день|вечер|утро)/i.test(raw)) return "hello";
@@ -84,11 +127,24 @@ function mapRussianQuery(raw: string): string {
  * Answer from the knowledge base ONLY. The engine is deterministic retrieval;
  * the returned text is the KB entry verbatim, never generated.
  */
-export async function ask(actor: Actor, question: unknown): Promise<AssistantReply> {
+export async function ask(actor: Actor, question: unknown, locale: "ru" | "kk" = "ru"): Promise<AssistantReply> {
   const q = cleanQuestion(question);
-  const isRu = /[а-яё]/i.test(q);
-  const effectiveQuestion = mapRussianQuery(q);
-  const reply = askKnowledgeBase(effectiveQuestion);
+  const kb = await getPublishedKnowledgeBase();
+  const cyrillic = CYRILLIC.test(q);
+  const routed = await routeEntryId(q, undefined, kb);
+  let reply: AssistantReply;
+  if (routed.status === "picked") {
+    reply = answerFromEntry(routed.entryId, q, kb) ?? askKnowledgeBase(mapRussianQuery(q), kb);
+  } else if (routed.status === "none") {
+    reply = noAnswerReply(q, kb);
+  } else {
+    reply = askKnowledgeBase(mapRussianQuery(q), kb);
+  }
+  const range = parseVacationRange(q);
+  if (range && /отпуск|демалыс/i.test(q)) {
+    const forced = answerFromEntry("how-to-request-vacation", q, kb);
+    if (forced && forced.kind === "answer") reply = forced;
+  }
   const db = await getDb();
   const log: AssistantLogDoc = {
     _id: `log-${await db.nextSeq("assistantLog")}`,
@@ -100,15 +156,51 @@ export async function ask(actor: Actor, question: unknown): Promise<AssistantRep
   };
   await db.assistantLog.insertOne(log);
 
-  if (isRu) {
-    if (reply.kind === "answer") {
-      const ruAnswer = KB_ANSWERS_RU[reply.entryId];
-      return {
-        ...reply,
-        question: q,
-        answer: ruAnswer ?? reply.answer,
-      };
+  if (range && reply.kind === "answer" && reply.entryId === "how-to-request-vacation") {
+    try {
+      const created = await createRequest(actor, {
+        type: "vacation",
+        intent: "draft",
+        startDate: range.startDate,
+        endDate: range.endDate,
+      });
+      reply = { ...reply, action: { label: "draft", href: `/requests/${created.id}` } };
+    } catch {
+      reply = { ...reply };
     }
+  }
+
+  if (reply.kind === "answer" && reply.entryId === "vacation-balance-personal") {
+    const me = await db.employees.findOne({ _id: actor.id });
+    if (me) {
+      const pending = await pendingVacationDays(db, me._id);
+      reply = { ...reply, personalBalance: { available: Math.max(0, me.vacationBalance - pending) } };
+    }
+  }
+
+  if (reply.kind === "answer") {
+    const entry = kb.find((item) => item.id === reply.entryId);
+    const translations = entry ? (entry.translations ?? translateKnowledgeEntry(entry)) : null;
+    const localized = locale === "kk" ? translations?.kk : translations?.ru;
+    const legacyRussian = entry?.answerRu ?? entry?.answer;
+    return {
+      ...reply,
+      question: q,
+      title: localized?.title ?? reply.title,
+      answer: localized?.answer ?? legacyRussian ?? reply.answer,
+      localizedSource: localized?.source,
+      related: reply.related.map((item) => ({
+        ...item,
+        question: localizedKnowledgeQuestion(
+          item.entryId,
+          locale,
+          kb.find((entry) => entry.id === item.entryId)?.translations?.[locale].questions[0] ?? item.question,
+        ),
+      })),
+    };
+  }
+
+  if (cyrillic && locale === "ru") {
     if (reply.kind === "no_answer") {
       return {
         ...reply,
@@ -123,7 +215,6 @@ export async function ask(actor: Actor, question: unknown): Promise<AssistantRep
     };
   }
 
-  // Keep original question in the reply for UI consistency
   return { ...reply, question: q };
 }
 

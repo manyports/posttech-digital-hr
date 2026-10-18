@@ -22,6 +22,16 @@ export default function DashboardPage() {
   // Only things the user can act on, most urgent first.
   const todos: { key: string; text: string; meta?: string; href: string; warn?: boolean }[] = [];
   if (data) {
+    if (data.rejected) {
+      todos.push({
+        key: "rejected",
+        text: data.rejected.comment
+          ? tx(m.dashboard.todoRejected, { comment: data.rejected.comment })
+          : m.dashboard.todoRejectedPlain,
+        href: `/requests/${data.rejected.id}`,
+        warn: true,
+      });
+    }
     const awaiting = data.manager?.awaitingDecision ?? data.hr?.awaitingDecision ?? 0;
     if (awaiting) todos.push({ key: "approve", text: tx(m.dashboard.todoApprove, { n: awaiting }), href: "/approvals", warn: true });
     if (data.hr?.openEscalations) todos.push({ key: "esc", text: tx(m.dashboard.todoEsc, { n: data.hr.openEscalations }), href: "/hr", warn: true });
@@ -43,7 +53,6 @@ export default function DashboardPage() {
     <>
       <PageHeader
         title={tx(m.dashboard.welcome, { name: first })}
-        description={`${user.position} · ${user.department}`}
         actions={
           <>
             <Link href="/assistant">
