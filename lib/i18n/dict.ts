@@ -81,15 +81,12 @@ export interface Dict {
     title: string;
     lead: string;
     email: string;
-    password: string;
     enter: string;
     entering: string;
     fail: string;
     sso: string;
-    ssoPassword: string;
     demos: string;
     demoHint: string;
-    passwordFirst: string;
     roles: Record<string, string>;
     hints: Record<string, string>;
   };
@@ -677,15 +674,12 @@ const ru: Dict = {
     title: "Digital HR",
     lead: "Заявки, обучение и ответы на вопросы.\nЕдиный портал вместо пяти систем.",
     email: "Рабочий e-mail",
-    password: "Демо-пароль",
     enter: "Войти",
     entering: "Вход…",
     fail: "Не удалось войти.",
     sso: "Тестовый SSO: пароли не требуются в прототипе. В рабочей среде используется корпоративный Identity Provider.",
-    ssoPassword: "Тестовый SSO с общим демо-паролем.",
     demos: "Демо-аккаунты",
     demoHint: "демо-пользователи",
-    passwordFirst: "Сначала введите демо-пароль выше, затем выберите аккаунт.",
     roles: {
       Employee: "Сотрудник",
       Manager: "Руководитель",
@@ -1300,15 +1294,12 @@ const kk: Dict = {
     title: "Digital HR",
     lead: "Өтінімдер, оқыту және сұрақтарға жауап.\nБес жүйенің орнына бір портал.",
     email: "Жұмыс e-mail",
-    password: "Демо-құпиясөз",
     enter: "Кіру",
     entering: "Кіру…",
     fail: "Кіру мүмкін болмады.",
     sso: "Сынақ SSO: прототипте құпиясөз керек емес. Жұмыс ортасында корпоративтік Identity Provider қолданылады.",
-    ssoPassword: "Ортақ демо-құпиясөзі бар сынақ SSO.",
     demos: "Демо-аккаунттар",
     demoHint: "демо-пайдаланушылар",
-    passwordFirst: "Алдымен жоғарыдағы демо-құпиясөзді енгізіп, содан кейін аккаунтты таңдаңыз.",
     roles: {
       Employee: "Қызметкер",
       Manager: "Басшы",

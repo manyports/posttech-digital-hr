@@ -11,8 +11,7 @@ import type { Role } from "../../domain/types";
  * `sessions`) and sent in an httpOnly cookie. There is no signing secret and
  * no password in the repository: tokens are generated at runtime.
  *
- * Login is a mock SSO: employees sign in by e-mail. If the DEMO_PASSWORD
- * environment variable is set, that shared password is also required.
+ * Login is a mock SSO: employees sign in by e-mail, no password.
  * In production this module is replaced by the corporate IdP (OIDC/SAML).
  */
 
@@ -39,24 +38,17 @@ function safeEqual(a: string, b: string): boolean {
   return ab.length === bb.length && timingSafeEqual(ab, bb);
 }
 
-export function passwordRequired(): boolean {
-  return Boolean(process.env.DEMO_PASSWORD);
-}
-
 /** Fails closed: with no DEMO_PASSWORD configured, nothing matches. */
 export function checkDemoPassword(password: unknown): boolean {
   const expected = process.env.DEMO_PASSWORD;
   return Boolean(expected) && typeof password === "string" && safeEqual(password, expected!);
 }
 
-export async function login(email: string, password?: string) {
+export async function login(email: string) {
   const db = await getDb();
   const user = await db.employees.findOne({ email: email.trim().toLowerCase() });
-  const expected = process.env.DEMO_PASSWORD;
-  const passwordOk = !expected || (password !== undefined && safeEqual(password, expected));
-  // Same message for unknown e-mail and wrong password (no account probing).
-  if (!user || !user.active || !passwordOk) {
-    throw unauthorized("Invalid e-mail or password.");
+  if (!user || !user.active) {
+    throw unauthorized("Invalid e-mail.");
   }
 
   const now = Date.now();

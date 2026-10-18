@@ -17,28 +17,21 @@ interface Persona {
   hint: string;
 }
 
-export function LoginForm({
-  personas,
-  passwordRequired,
-}: {
-  personas: Persona[];
-  passwordRequired: boolean;
-}) {
+export function LoginForm({ personas }: { personas: Persona[] }) {
   const router = useRouter();
   const { m } = useI18n();
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const PERSONA_LABELS = m.login.roles;
   const PERSONA_HINTS = m.login.hints;
 
-  async function signIn(address: string, pwd?: string) {
+  async function signIn(address: string) {
     setBusy(address);
     setError(null);
     try {
-      await post("/api/auth/login", { email: address, password: pwd });
+      await post("/api/auth/login", { email: address });
       clearApiCache();
       router.replace("/dashboard");
       router.refresh();
@@ -64,7 +57,7 @@ export function LoginForm({
             className="mt-8 flex flex-col gap-3"
             onSubmit={(e) => {
               e.preventDefault();
-              void signIn(email, passwordRequired ? password : undefined);
+              void signIn(email);
             }}
           >
             <Input
@@ -77,17 +70,6 @@ export function LoginForm({
               fullWidth
               required
             />
-            {passwordRequired && (
-              <Input
-                label={m.login.password}
-                type="password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                fullWidth
-                required
-              />
-            )}
             {error && (
               <p role="alert" className="text-[12.5px] text-error font-medium">
                 {error}
@@ -97,7 +79,7 @@ export function LoginForm({
               {busy === email ? m.login.entering : m.login.enter}
             </Button>
           </form>
-          <p className="mt-3 text-[11.5px] text-tertiary leading-relaxed">{passwordRequired ? m.login.ssoPassword : m.login.sso}</p>
+          <p className="mt-3 text-[11.5px] text-tertiary leading-relaxed">{m.login.sso}</p>
 
           <section aria-labelledby="demo-accounts" className="mt-10">
             <div className="flex items-center gap-3">
@@ -113,7 +95,7 @@ export function LoginForm({
                   <button
                     type="button"
                     disabled={busy !== null}
-                    onClick={() => void signIn(p.email, passwordRequired ? password : undefined)}
+                    onClick={() => void signIn(p.email)}
                     className="group/p w-full flex items-center gap-3 text-left px-3.5 py-3 cursor-pointer transition-colors hover:bg-hero-cell-bg/70 disabled:opacity-50 disabled:cursor-default"
                   >
                     <Avatar name={p.name} size="sm" />
@@ -134,7 +116,6 @@ export function LoginForm({
                 </li>
               ))}
             </ul>
-            {passwordRequired && <p className="mt-2.5 text-[11.5px] text-tertiary">{m.login.passwordFirst}</p>}
           </section>
         </div>
       </main>
