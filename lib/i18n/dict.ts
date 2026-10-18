@@ -355,6 +355,19 @@ export interface Dict {
     onSite: string;
     away: string;
     pendingAway: string;
+    calendar: string;
+    calendarHint: string;
+    today: string;
+    previousMonth: string;
+    nextMonth: string;
+    approvedLeave: string;
+    pendingLeave: string;
+    conflicts: string;
+    conflictCount: string;
+    noConflicts: string;
+    coverageConflict: string;
+    noAbsences: string;
+    more: string;
   };
   approvals: {
     title: string;
@@ -842,6 +855,19 @@ const ru: Dict = {
     onSite: "Эти дни на месте",
     away: "в отпуске",
     pendingAway: "заявка открыта",
+    calendar: "Календарь отпусков команды",
+    calendarHint: "Согласованные отпуска, открытые заявки и риски покрытия до принятия решения",
+    today: "Сегодня",
+    previousMonth: "Предыдущий месяц",
+    nextMonth: "Следующий месяц",
+    approvedLeave: "Согласован отпуск",
+    pendingLeave: "Ожидает решения",
+    conflicts: "Конфликт покрытия",
+    conflictCount: "Конфликтных дней: {n}",
+    noConflicts: "В этом месяце конфликтов покрытия нет.",
+    coverageConflict: "{date} · {group}: отсутствуют все {n} сотрудника(-ов)",
+    noAbsences: "Все на месте",
+    more: "+ ещё {n}",
   },
   approvals: {
     title: "Согласования",
@@ -1335,6 +1361,19 @@ const kk: Dict = {
     onSite: "Осы күндері орнында",
     away: "демалыста",
     pendingAway: "өтінім ашық",
+    calendar: "Команданың демалыс күнтізбесі",
+    calendarHint: "Мақұлданған демалыстар, ашық өтінімдер және шешімге дейінгі қамту тәуекелдері",
+    today: "Бүгін",
+    previousMonth: "Алдыңғы ай",
+    nextMonth: "Келесі ай",
+    approvedLeave: "Демалыс мақұлданды",
+    pendingLeave: "Шешім күтуде",
+    conflicts: "Қамту қайшылығы",
+    conflictCount: "Қайшылықты күндер: {n}",
+    noConflicts: "Бұл айда қамту қайшылығы жоқ.",
+    coverageConflict: "{date} · {group}: барлық {n} қызметкер жоқ",
+    noAbsences: "Барлығы орнында",
+    more: "+ тағы {n}",
   },
   approvals: {
     title: "Келісу",

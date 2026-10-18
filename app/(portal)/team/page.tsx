@@ -1,15 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import type { TeamMemberView, TeamWeekPerson } from "@/lib/server/services/employees";
+import { useState } from "react";
+import type { TeamCalendarView, TeamMemberView } from "@/lib/server/services/employees";
 import { useApi } from "@/lib/client/hooks";
+import { addDays, parseDate, todayISO, toISODate } from "@/lib/domain/dates";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import { tx } from "@/lib/i18n/locale";
 import { Avatar } from "../../components/ui/Avatar";
 import { Badge } from "../../components/ui/Badge";
 import { ArrowRightIcon } from "../../components/portal/icons";
 import { AccessDenied, ErrorBlock, LoadingBlock, PageHeader } from "../../components/portal/Panel";
-import { TeamWeek } from "../../components/portal/TeamWeek";
+import { TeamCalendar } from "../../components/portal/TeamWeek";
 import { Pill } from "../../components/portal/StatusBadge";
 import { useUser } from "../../components/portal/UserContext";
 
@@ -19,8 +21,12 @@ const SHADOW =
 export default function TeamPage() {
   const user = useUser();
   const { m } = useI18n();
-  const { data, error, loading, reload } = useApi<{ team: TeamMemberView[]; week: TeamWeekPerson[] }>("/api/team", { interval: 10000 });
+  const [month, setMonth] = useState(() => todayISO().slice(0, 7));
+  const calendarStart = monthGridStart(month);
+  const path = `/api/team?start=${calendarStart}&days=42`;
+  const { data, error, loading, reload } = useApi<{ team: TeamMemberView[]; calendar: TeamCalendarView }>(path, { interval: 10000 });
   const isHr = user.role === "hr";
+  const calendar = data?.calendar.start === calendarStart ? data.calendar : null;
 
   if (error?.status === 403) {
     return (
@@ -42,10 +48,19 @@ export default function TeamPage() {
         }
       />
 
-      {data?.week && data.week.length > 0 && <TeamWeek people={data.week} />}
+      {calendar && calendar.people.length > 0 && (
+        <TeamCalendar
+          calendar={calendar}
+          month={month}
+          onPrevious={() => setMonth((value) => shiftMonth(value, -1))}
+          onNext={() => setMonth((value) => shiftMonth(value, 1))}
+          onToday={() => setMonth(todayISO().slice(0, 7))}
+        />
+      )}
+      {data && !calendar && !error && <LoadingBlock rows={2} />}
 
       {loading && !data && <LoadingBlock rows={3} />}
-      {error && !data && <ErrorBlock message={error.message} onRetry={reload} />}
+      {error && (!data || !calendar) && <ErrorBlock message={error.message} onRetry={reload} />}
 
       <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {data?.team.map((person) => (
@@ -83,6 +98,18 @@ export default function TeamPage() {
       </ul>
     </>
   );
+}
+
+function monthGridStart(month: string) {
+  const first = `${month}-01`;
+  const mondayOffset = (parseDate(first).getUTCDay() + 6) % 7;
+  return addDays(first, -mondayOffset);
+}
+
+function shiftMonth(month: string, delta: number) {
+  const date = parseDate(`${month}-01`);
+  date.setUTCMonth(date.getUTCMonth() + delta);
+  return toISODate(date).slice(0, 7);
 }
 
 function Metric({ label, value }: { label: string; value: React.ReactNode }) {
