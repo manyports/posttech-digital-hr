@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import type { NotificationKind, NotificationView } from "@/lib/domain/types";
 import { fmtRelative } from "@/lib/client/format";
+import { useNow } from "@/lib/client/hooks";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import { localizeBody, localizeTitle } from "@/lib/i18n/notices";
 import { Button } from "../../components/ui/Button";
@@ -14,6 +15,7 @@ import { LoadingBlock, PageHeader, Panel } from "../../components/portal/Panel";
 export default function NotificationsPage() {
   const router = useRouter();
   const { m, locale } = useI18n();
+  const now = useNow();
   const { notifications, unread, loading, markRead, markAllRead } = useNotifications();
   const KIND: Record<NotificationKind, { icon: React.ReactNode; label: string }> = {
     request: { icon: <DocIcon size={15} />, label: m.notices.request },
@@ -71,7 +73,7 @@ export default function NotificationsPage() {
                       </span>
                       <span className="block text-[13px] text-hero-muted mt-0.5 leading-relaxed">{localizeBody(n.body, locale)}</span>
                       <span className="block text-[11.5px] text-tertiary mt-1.5">
-                        {k.label} · {fmtRelative(n.createdAt, Date.now(), locale)}
+                        {k.label} · {fmtRelative(n.createdAt, now, locale)}
                       </span>
                     </span>
                   </button>

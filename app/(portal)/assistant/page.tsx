@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { AssistantReply, EscalationView } from "@/lib/domain/types";
 import { ApiError, post } from "@/lib/client/api";
 import { fmtRelative } from "@/lib/client/format";
-import { useApi } from "@/lib/client/hooks";
+import { useApi, useNow } from "@/lib/client/hooks";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import { tx } from "@/lib/i18n/locale";
 import { Avatar } from "../../components/ui/Avatar";
@@ -39,6 +39,7 @@ const clock = (at: number) => {
 export default function AssistantPage() {
   const { toast } = useToast();
   const { m, locale } = useI18n();
+  const now = useNow();
   const user = useUser();
   const agent = m.nav.assistant;
   const starters = m.assistant.starters;
@@ -106,7 +107,7 @@ export default function AssistantPage() {
   const empty = messages.length === 0;
   const escalations = esc?.escalations ?? [];
   const lastBot = [...messages].reverse().find((x): x is BotMsg => x.role === "bot");
-  const relative = (iso: string) => fmtRelative(iso, Date.now(), locale);
+  const relative = (iso: string) => fmtRelative(iso, now, locale);
 
   return (
     <>

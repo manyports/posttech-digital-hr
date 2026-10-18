@@ -4,10 +4,11 @@ import { useState } from "react";
 import type { EscalationView } from "@/lib/domain/types";
 import { ApiError, post } from "@/lib/client/api";
 import { fmtRelative } from "@/lib/client/format";
-import { clearApiCache, useApi } from "@/lib/client/hooks";
+import { clearApiCache, useApi, useNow } from "@/lib/client/hooks";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import { tx } from "@/lib/i18n/locale";
 import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
 import { Modal } from "../../components/ui/Modal";
 import { Tabs } from "../../components/ui/Tabs";
 import { Textarea } from "../../components/ui/Textarea";
@@ -27,6 +28,7 @@ export default function HrPage() {
   const user = useUser();
   const { toast } = useToast();
   const { m, locale } = useI18n();
+  const now = useNow();
   const esc = useApi<{ escalations: EscalationView[] }>("/api/assistant/escalations", { interval: 6000 });
   const insights = useApi<Insights>("/api/hr/assistant-insights", { interval: 10000 });
   const [tab, setTab] = useState<"open" | "answered">("open");
@@ -35,6 +37,8 @@ export default function HrPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resetOpen, setResetOpen] = useState(false);
+  const [resetPassword, setResetPassword] = useState("");
+  const [resetError, setResetError] = useState<string | null>(null);
 
   if (user.role !== "hr" || insights.error?.status === 403) {
     return (
@@ -70,14 +74,19 @@ export default function HrPage() {
 
   async function resetDemo() {
     setBusy(true);
+    setResetError(null);
     try {
-      await post("/api/admin/reset");
+      await post("/api/admin/reset", { password: resetPassword });
       clearApiCache();
       toast({ title: m.hr.resetOk, description: m.hr.resetOkHint, variant: "success" });
       setResetOpen(false);
       esc.reload();
       insights.reload();
     } catch (e) {
+      if (e instanceof ApiError && e.status === 403) {
+        setResetError(m.hr.resetBadPassword);
+        return;
+      }
       toast({ title: m.hr.resetFail, description: e instanceof ApiError ? e.message : undefined, variant: "error" });
     } finally {
       setBusy(false);
@@ -120,7 +129,7 @@ export default function HrPage() {
             <Panel key={e.id} padding="p-5" as="div">
               <div className="flex items-center justify-between gap-3">
                 <span className="text-[12px] text-tertiary tabular-nums">
-                  {e.id} · {e.employee.fullName} · {fmtRelative(e.createdAt, Date.now(), locale)}
+                  {e.id} · {e.employee.fullName} · {fmtRelative(e.createdAt, now, locale)}
                 </span>
                 <Pill tone={e.status === "answered" ? "good" : "warn"}>{e.status === "answered" ? m.hr.replied : m.hr.waiting}</Pill>
               </div>
@@ -173,7 +182,7 @@ export default function HrPage() {
           <Panel title={m.hr.demo} description={m.hr.demoHint}>
             <p className="text-[13px] text-hero-muted leading-relaxed">{m.hr.demoBody}</p>
             <div className="mt-3">
-              <Button variant="outline" size="sm" onClick={() => setResetOpen(true)}>
+              <Button variant="outline" size="sm" onClick={() => { setResetOpen(true); setResetPassword(""); setResetError(null); }}>
                 <RefreshIcon size={14} /> {m.hr.reset}
               </Button>
             </div>
@@ -207,12 +216,25 @@ export default function HrPage() {
         actions={
           <>
             <Button variant="ghost" size="sm" onClick={() => setResetOpen(false)} disabled={busy}>{m.common.cancel}</Button>
-            <Button variant="primary" size="sm" disabled={busy} onClick={() => void resetDemo()}>
+            <Button variant="primary" size="sm" disabled={busy || !resetPassword} onClick={() => void resetDemo()}>
               {busy ? m.hr.resetting : m.hr.reset}
             </Button>
           </>
         }
-      />
+      >
+        <form onSubmit={(e) => { e.preventDefault(); if (!busy && resetPassword) void resetDemo(); }}>
+          <Input
+            label={m.hr.resetPassword}
+            type="password"
+            autoComplete="current-password"
+            value={resetPassword}
+            onChange={(e) => setResetPassword(e.target.value)}
+            autoFocus
+            fullWidth
+          />
+        </form>
+        {resetError && <p role="alert" className="text-[12.5px] text-error font-medium mt-2">{resetError}</p>}
+      </Modal>
     </>
   );
 }

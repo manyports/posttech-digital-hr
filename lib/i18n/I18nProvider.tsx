@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useSyncExternalStore } from "react";
 import { DICT, type Dict } from "./dict";
 import { LOCALE_COOKIE, parseLocale, type Locale } from "./locale";
 
@@ -12,18 +12,24 @@ interface I18nValue {
 
 const I18nContext = createContext<I18nValue | null>(null);
 
-export function I18nProvider({ initial, children }: { initial: Locale; children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(initial);
+/**
+ * The locale cookie is the source of truth on the client. The server renders
+ * with `initial` (read from the same cookie); after hydration React switches
+ * to the cookie value if they differ (e.g. a cached page after a switch).
+ */
+const listeners = new Set<() => void>();
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
 
-  useEffect(() => {
-    const stored = readLocaleCookie();
-    if (stored !== locale) setLocaleState(stored);
-  }, [initial]);
+export function I18nProvider({ initial, children }: { initial: Locale; children: React.ReactNode }) {
+  const locale = useSyncExternalStore(subscribe, readLocaleCookie, () => initial);
 
   function setLocale(next: Locale) {
-    setLocaleState(next);
     document.cookie = `${LOCALE_COOKIE}=${next}; path=/; max-age=31536000; samesite=lax`;
     document.documentElement.lang = next;
+    listeners.forEach((l) => l());
   }
 
   return <I18nContext.Provider value={{ locale, setLocale, m: DICT[locale] }}>{children}</I18nContext.Provider>;

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { ProfileBundle } from "@/lib/server/services/dashboard";
 import { fmtDate, fmtRelative } from "@/lib/client/format";
-import { useApi } from "@/lib/client/hooks";
+import { useApi, useNow } from "@/lib/client/hooks";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import { localizeBody, localizeTitle } from "@/lib/i18n/notices";
 import { tx } from "@/lib/i18n/locale";
@@ -40,6 +40,7 @@ export default function ProfilePage() {
 function ProfileBody({ bundle }: { bundle: ProfileBundle }) {
   const { profile: p, training, notifications, unread } = bundle;
   const { m, locale } = useI18n();
+  const now = useNow();
   const used = p.vacation.entitlement - p.vacation.remaining;
 
   return (
@@ -157,7 +158,7 @@ function ProfileBody({ bundle }: { bundle: ProfileBundle }) {
                     <p className="text-[13px] font-semibold text-hero-foreground">{localizeTitle(n.title, locale)}</p>
                     <p className="text-[12.5px] text-hero-muted mt-0.5 line-clamp-2">{localizeBody(n.body, locale)}</p>
                   </div>
-                  <span className="text-[11px] text-tertiary shrink-0 mt-0.5">{fmtRelative(n.createdAt, Date.now(), locale)}</span>
+                  <span className="text-[11px] text-tertiary shrink-0 mt-0.5">{fmtRelative(n.createdAt, now, locale)}</span>
                 </Link>
               </li>
             ))}

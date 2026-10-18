@@ -5,6 +5,12 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  {
+    rules: {
+      // `({ secret: _secret, ...rest }) => rest` strips a field on purpose.
+      "@typescript-eslint/no-unused-vars": ["warn", { ignoreRestSiblings: true }],
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

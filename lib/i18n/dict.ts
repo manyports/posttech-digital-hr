@@ -400,6 +400,8 @@ export interface Dict {
     resetTitle: string;
     resetBody: string;
     resetting: string;
+    resetPassword: string;
+    resetBadPassword: string;
   };
   assistant: {
     description: string;
@@ -866,6 +868,8 @@ const ru: Dict = {
     resetTitle: "Сбросить демо-данные?",
     resetBody: "Это удалит все созданные во время демонстрации данные (новые заявки, назначения, уведомления, вопросы в HR) и восстановит исходные данные. Текущие сессии останутся активными.",
     resetting: "Сброс…",
+    resetPassword: "Демо-пароль",
+    resetBadPassword: "Неверный пароль.",
   },
   assistant: {
     description: "Ваш HR-ассистент. Отвечает строго по корпоративной базе знаний HR, всегда указывает источник и не выдумывает факты.",
@@ -1338,6 +1342,8 @@ const kk: Dict = {
     resetTitle: "Демо-деректі қалпына келтіру керек пе?",
     resetBody: "Көрсетілімде жасалған дерек (жаңа өтінім, тағайындау, хабарлама, HR сұрақтары) жойылып, бастапқы дерек қайтады. Сессиялар ашық қалады.",
     resetting: "Қалпына келтіру…",
+    resetPassword: "Демо-құпиясөз",
+    resetBadPassword: "Құпиясөз қате.",
   },
   assistant: {
     description: "HR көмекшісі. Тек HR білім базасы бойынша жауап береді, дереккөзді көрсетеді және ойдан шығармайды.",

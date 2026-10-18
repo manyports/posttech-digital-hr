@@ -43,6 +43,12 @@ export function passwordRequired(): boolean {
   return Boolean(process.env.DEMO_PASSWORD);
 }
 
+/** Fails closed: with no DEMO_PASSWORD configured, nothing matches. */
+export function checkDemoPassword(password: unknown): boolean {
+  const expected = process.env.DEMO_PASSWORD;
+  return Boolean(expected) && typeof password === "string" && safeEqual(password, expected!);
+}
+
 export async function login(email: string, password?: string) {
   const db = await getDb();
   const user = await db.employees.findOne({ email: email.trim().toLowerCase() });

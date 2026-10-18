@@ -65,3 +65,16 @@ export function useApi<T>(path: string | null, { interval = 0 }: { interval?: nu
 
   return { ...state, reload };
 }
+
+/**
+ * Current time for relative labels ("5 min ago"). Read once on mount and then
+ * every `interval` ms, so render stays pure and the labels don't go stale.
+ */
+export function useNow(interval = 30_000): number {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), interval);
+    return () => clearInterval(t);
+  }, [interval]);
+  return now;
+}
