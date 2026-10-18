@@ -5,6 +5,7 @@ import type { AssistantReply } from "../lib/domain/types";
 import { KB } from "../lib/assistant/knowledge-base";
 import { sourceHref, sourceSectionId } from "../lib/assistant/source-links";
 import { ask, explain, normalize, tokenize } from "../lib/assistant/engine";
+import { withKnowledgeTranslations } from "../lib/assistant/reference-translations";
 
 /** Paraphrases (NOT copies of KB questions) that must be answered by this exact entry. */
 const IN_KB: [question: string, entryId: string][] = [
@@ -366,6 +367,15 @@ describe("Al Jana: text pipeline", () => {
     const reply = ask("Как получить справку с места работы?", [russianArticle]);
     assert.equal(reply.kind, "answer");
     assert.equal(reply.kind === "answer" && reply.entryId, "russian-article");
+  });
+
+  it("retrieves seeded articles from Russian and Kazakh localized search phrases", () => {
+    const article = withKnowledgeTranslations(KB[0]);
+    for (const question of ["Сколько дней оплачиваемого отпуска положено?", "Жылына қанша күн ақылы демалыс беріледі?"]) {
+      const reply = ask(question, [article]);
+      assert.equal(reply.kind, "answer", question);
+      assert.equal(reply.kind === "answer" && reply.entryId, article.id, question);
+    }
   });
 
   it("maps synonyms to the same terms", () => {

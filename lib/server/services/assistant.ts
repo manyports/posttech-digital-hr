@@ -191,7 +191,11 @@ export async function ask(actor: Actor, question: unknown, locale: "ru" | "kk" =
       localizedSource: localized?.source,
       related: reply.related.map((item) => ({
         ...item,
-        question: localizedKnowledgeQuestion(item.entryId, locale, item.question),
+        question: localizedKnowledgeQuestion(
+          item.entryId,
+          locale,
+          kb.find((entry) => entry.id === item.entryId)?.translations?.[locale].questions[0] ?? item.question,
+        ),
       })),
     };
   }

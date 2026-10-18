@@ -310,8 +310,8 @@ export interface KbEntry {
   answerRu?: string;
   /** Russian and Kazakh reference copy for the portal and source viewer. */
   translations?: {
-    ru: { title: string; answer: string; source: { docTitle: string; section: string; owner: string } };
-    kk: { title: string; answer: string; source: { docTitle: string; section: string; owner: string } };
+    ru: { title: string; answer: string; questions: string[]; keywords: string[]; source: { docTitle: string; section: string; owner: string } };
+    kk: { title: string; answer: string; questions: string[]; keywords: string[]; source: { docTitle: string; section: string; owner: string } };
   };
   source: KbSource;
   /** Optional deep link into the portal. */

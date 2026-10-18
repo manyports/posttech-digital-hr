@@ -26,8 +26,8 @@ const blankEntry = (): KbEntry => ({
   keywords: [],
   answer: "",
   translations: {
-    ru: { title: "", answer: "", source: { docTitle: "", section: "", owner: "" } },
-    kk: { title: "", answer: "", source: { docTitle: "", section: "", owner: "" } },
+    ru: { title: "", answer: "", questions: [""], keywords: [""], source: { docTitle: "", section: "", owner: "" } },
+    kk: { title: "", answer: "", questions: [""], keywords: [""], source: { docTitle: "", section: "", owner: "" } },
   },
   source: { docId: "HR-POL-01", docTitle: "", section: "", revision: `rev. ${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`, owner: "HR Department" },
 });
@@ -104,7 +104,7 @@ export function KnowledgeEditor() {
     const translations = currentEntry.translations;
     if (!translations || (["ru", "kk"] as const).some((language) => {
       const copy = translations[language];
-      return !copy.title.trim() || !copy.answer.trim() || !copy.source.docTitle.trim() || !copy.source.section.trim() || !copy.source.owner.trim();
+      return !copy.title.trim() || !copy.answer.trim() || !copy.questions.some((item) => item.trim()) || !copy.keywords.some((item) => item.trim()) || !copy.source.docTitle.trim() || !copy.source.section.trim() || !copy.source.owner.trim();
     })) {
       setError(copy.translationsRequired);
       return;
@@ -177,8 +177,10 @@ export function KnowledgeEditor() {
               <Input label={copy.titleRu} value={(currentEntry.translations ?? translateKnowledgeEntry(currentEntry)).ru.title} maxLength={120} onChange={(e) => updateTranslation("ru", { title: e.target.value })} fullWidth />
               <Input label={copy.titleKk} value={(currentEntry.translations ?? translateKnowledgeEntry(currentEntry)).kk.title} maxLength={120} onChange={(e) => updateTranslation("kk", { title: e.target.value })} fullWidth />
               <Input label={copy.idLabel} hint={copy.idHint} value={currentEntry.id} disabled={!creating} onChange={(e) => update({ id: e.target.value })} fullWidth />
-              <Textarea label={copy.questionsLabel} hint={copy.questionsHint} value={lines(currentEntry.questions)} onChange={(e) => update({ questions: fromLines(e.target.value) })} rows={4} fullWidth />
-              <Textarea label={copy.keywordsLabel} value={lines(currentEntry.keywords)} onChange={(e) => update({ keywords: fromLines(e.target.value) })} rows={4} fullWidth />
+              <Textarea label={copy.questionsRu} hint={copy.questionsHint} value={lines((currentEntry.translations ?? translateKnowledgeEntry(currentEntry)).ru.questions)} onChange={(e) => updateTranslation("ru", { questions: fromLines(e.target.value) })} rows={4} fullWidth />
+              <Textarea label={copy.questionsKk} hint={copy.questionsHint} value={lines((currentEntry.translations ?? translateKnowledgeEntry(currentEntry)).kk.questions)} onChange={(e) => updateTranslation("kk", { questions: fromLines(e.target.value) })} rows={4} fullWidth />
+              <Textarea label={copy.keywordsRu} value={lines((currentEntry.translations ?? translateKnowledgeEntry(currentEntry)).ru.keywords)} onChange={(e) => updateTranslation("ru", { keywords: fromLines(e.target.value) })} rows={4} fullWidth />
+              <Textarea label={copy.keywordsKk} value={lines((currentEntry.translations ?? translateKnowledgeEntry(currentEntry)).kk.keywords)} onChange={(e) => updateTranslation("kk", { keywords: fromLines(e.target.value) })} rows={4} fullWidth />
               <div className="lg:col-span-2"><Textarea label={copy.answerRu} hint={copy.answerHint} value={(currentEntry.translations ?? translateKnowledgeEntry(currentEntry)).ru.answer} onChange={(e) => updateTranslation("ru", { answer: e.target.value })} rows={6} maxLength={6000} autoResize fullWidth /></div>
               <div className="lg:col-span-2"><Textarea label={copy.answerKk} hint={copy.answerHint} value={(currentEntry.translations ?? translateKnowledgeEntry(currentEntry)).kk.answer} onChange={(e) => updateTranslation("kk", { answer: e.target.value })} rows={6} maxLength={6000} autoResize fullWidth /></div>
             </div>

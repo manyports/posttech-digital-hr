@@ -337,7 +337,7 @@ const indexCache = new WeakMap<KbEntry[], Index>();
 
 function signatureOf(kb: KbEntry[]): string {
   return kb
-    .map((e) => `${e.id}:${e.title.length}:${e.questions.join("|").length}:${e.keywords.join("|").length}:${e.answer.length}`)
+    .map((e) => `${e.id}:${e.title.length}:${e.questions.join("|").length}:${e.keywords.join("|").length}:${e.translations?.ru.title.length ?? 0}:${e.translations?.ru.questions.join("|").length ?? 0}:${e.translations?.ru.keywords.join("|").length ?? 0}:${e.translations?.kk.title.length ?? 0}:${e.translations?.kk.questions.join("|").length ?? 0}:${e.translations?.kk.keywords.join("|").length ?? 0}:${e.answer.length}`)
     .join(";");
 }
 
@@ -362,9 +362,23 @@ function buildIndex(kb: KbEntry[]): Index {
       add(q, FIELD_WEIGHT.question, true);
       phrases.push(new Set(tokenize(q)));
     }
+    for (const locale of ["ru", "kk"] as const) {
+      for (const q of entry.translations?.[locale].questions ?? []) {
+        add(q, FIELD_WEIGHT.question, true);
+        phrases.push(new Set(tokenize(q)));
+      }
+    }
     add(entry.title, FIELD_WEIGHT.title, true);
     phrases.push(new Set(tokenize(entry.title)));
+    for (const locale of ["ru", "kk"] as const) {
+      const title = entry.translations?.[locale].title ?? "";
+      add(title, FIELD_WEIGHT.title, true);
+      if (title) phrases.push(new Set(tokenize(title)));
+    }
     for (const k of entry.keywords) add(k, FIELD_WEIGHT.keyword, true);
+    for (const locale of ["ru", "kk"] as const) {
+      for (const k of entry.translations?.[locale].keywords ?? []) add(k, FIELD_WEIGHT.keyword, true);
+    }
     add(entry.answer, FIELD_WEIGHT.answer, false);
     let length = 0;
     for (const v of tf.values()) length += v;

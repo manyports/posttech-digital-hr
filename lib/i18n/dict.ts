@@ -466,7 +466,11 @@ export interface Dict {
     idHint: string;
     questionsLabel: string;
     questionsHint: string;
+    questionsRu: string;
+    questionsKk: string;
     keywordsLabel: string;
+    keywordsRu: string;
+    keywordsKk: string;
     answerLabel: string;
     answerHint: string;
     secondaryAnswerLabel: string;
@@ -1056,7 +1060,11 @@ const ru: Dict = {
     idHint: "Латиница, цифры и дефис; после создания не меняется.",
     questionsLabel: "Примеры вопросов — по одному в строке",
     questionsHint: "Так Al Jana поймёт, когда показать этот ответ.",
+    questionsRu: "Примеры вопросов на русском — по одному в строке",
+    questionsKk: "Примеры вопросов на казахском — по одному в строке",
     keywordsLabel: "Ключевые слова — по одному в строке",
+    keywordsRu: "Ключевые слова на русском — по одному в строке",
+    keywordsKk: "Ключевые слова на казахском — по одному в строке",
     answerLabel: "Основной ответ",
     answerHint: "Введите утверждённый ответ из исходного материала.",
     secondaryAnswerLabel: "Дополнительный вариант ответа",
@@ -1661,7 +1669,11 @@ const kk: Dict = {
     idHint: "Латын әріптері, сандар және дефис; жасалғаннан кейін өзгермейді.",
     questionsLabel: "Сұрақ үлгілері — әр жолға біреуден",
     questionsHint: "Al Jana бұл жауапты қашан көрсету керегін түсінеді.",
+    questionsRu: "Орыс тіліндегі сұрақ үлгілері — әр жолға біреуден",
+    questionsKk: "Қазақ тіліндегі сұрақ үлгілері — әр жолға біреуден",
     keywordsLabel: "Түйінді сөздер — әр жолға біреуден",
+    keywordsRu: "Орыс тіліндегі түйінді сөздер — әр жолға біреуден",
+    keywordsKk: "Қазақ тіліндегі түйінді сөздер — әр жолға біреуден",
     answerLabel: "Негізгі жауап",
     answerHint: "Бастапқы материалдағы бекітілген жауапты енгізіңіз.",
     secondaryAnswerLabel: "Жауаптың қосымша нұсқасы",

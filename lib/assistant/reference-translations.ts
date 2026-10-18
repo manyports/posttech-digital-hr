@@ -260,8 +260,8 @@ const SECTION_RU: Record<string, string> = {
 };
 
 export interface KnowledgeEntryTranslations {
-  ru: { title: string; answer: string; source: { docTitle: string; section: string; owner: string } };
-  kk: { title: string; answer: string; source: { docTitle: string; section: string; owner: string } };
+  ru: { title: string; answer: string; questions: string[]; keywords: string[]; source: { docTitle: string; section: string; owner: string } };
+  kk: { title: string; answer: string; questions: string[]; keywords: string[]; source: { docTitle: string; section: string; owner: string } };
 }
 
 export function translateKnowledgeEntry(entry: KbEntry, useSeedCopy = false): KnowledgeEntryTranslations {
@@ -269,21 +269,25 @@ export function translateKnowledgeEntry(entry: KbEntry, useSeedCopy = false): Kn
   const ownerIsFinance = /finance|финанс/i.test(entry.source.owner);
   return {
     ru: {
-      title: (useSeedCopy ? RU_TITLES[id] : undefined) ?? entry.title,
-      answer: (useSeedCopy ? KB_ANSWERS_RU[id] : undefined) ?? entry.answerRu ?? entry.answer,
+      title: (useSeedCopy ? RU_TITLES[id] : undefined) ?? entry.translations?.ru.title ?? entry.title,
+      answer: (useSeedCopy ? KB_ANSWERS_RU[id] : undefined) ?? entry.translations?.ru.answer ?? entry.answerRu ?? entry.answer,
+      questions: entry.translations?.ru.questions ?? [RU_QUESTIONS[id] ?? entry.questions[0] ?? entry.title],
+      keywords: entry.translations?.ru.keywords ?? [RU_TITLES[id] ?? entry.title],
       source: {
-        docTitle: (useSeedCopy ? DOC_TITLES_RU[entry.source.docId] : undefined) ?? entry.source.docTitle,
-        section: (useSeedCopy ? SECTION_RU[entry.source.section] : undefined) ?? entry.source.section,
-        owner: ownerIsFinance ? "Финансы и HR" : entry.source.owner,
+        docTitle: (useSeedCopy ? DOC_TITLES_RU[entry.source.docId] : undefined) ?? entry.translations?.ru.source.docTitle ?? entry.source.docTitle,
+        section: (useSeedCopy ? SECTION_RU[entry.source.section] : undefined) ?? entry.translations?.ru.source.section ?? entry.source.section,
+        owner: ownerIsFinance ? "Финансы и HR" : entry.translations?.ru.source.owner ?? entry.source.owner,
       },
     },
     kk: {
-      title: (useSeedCopy ? KK_TITLES[id] : undefined) ?? entry.title,
-      answer: (useSeedCopy ? KK_ANSWERS[id] : undefined) ?? entry.answer,
+      title: (useSeedCopy ? KK_TITLES[id] : undefined) ?? entry.translations?.kk.title ?? entry.title,
+      answer: (useSeedCopy ? KK_ANSWERS[id] : undefined) ?? entry.translations?.kk.answer ?? entry.answer,
+      questions: entry.translations?.kk.questions ?? [KK_QUESTIONS[id] ?? entry.questions[0] ?? entry.title],
+      keywords: entry.translations?.kk.keywords ?? [KK_TITLES[id] ?? entry.title],
       source: {
-        docTitle: (useSeedCopy ? DOC_TITLES_KK[entry.source.docId] : undefined) ?? entry.source.docTitle,
-        section: (useSeedCopy ? SECTION_KK[entry.source.section] : undefined) ?? entry.source.section,
-        owner: ownerIsFinance ? "Қаржы және HR" : entry.source.owner,
+        docTitle: (useSeedCopy ? DOC_TITLES_KK[entry.source.docId] : undefined) ?? entry.translations?.kk.source.docTitle ?? entry.source.docTitle,
+        section: (useSeedCopy ? SECTION_KK[entry.source.section] : undefined) ?? entry.translations?.kk.source.section ?? entry.source.section,
+        owner: ownerIsFinance ? "Қаржы және HR" : entry.translations?.kk.source.owner ?? entry.source.owner,
       },
     },
   };
@@ -297,7 +301,7 @@ export function localizedKnowledgeQuestion(id: string, locale: "ru" | "kk", fall
   return (locale === "kk" ? KK_QUESTIONS : RU_QUESTIONS)[id] ?? fallback;
 }
 
-export function withKnowledgeTranslations(entry: KbEntry): KbEntry {
-  return { ...entry, translations: translateKnowledgeEntry(entry, true) };
+export function withKnowledgeTranslations(entry: KbEntry, useSeedCopy = true): KbEntry {
+  return { ...entry, translations: translateKnowledgeEntry(entry, useSeedCopy) };
 }
 

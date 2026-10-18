@@ -31,14 +31,16 @@ function validateEntry(value: unknown): KbEntry {
     const copy = translations?.[locale];
     if (!copy || typeof copy.title !== "string" || !copy.title.trim() || copy.title.length > 120) errors[`title_${locale}`] = `Add the ${locale.toUpperCase()} article title.`;
     if (!copy || typeof copy.answer !== "string" || copy.answer.trim().length < 3 || copy.answer.length > 6000) errors[`answer_${locale}`] = `Add the ${locale.toUpperCase()} answer.`;
+    if (!copy || !Array.isArray(copy.questions) || !copy.questions.length || copy.questions.some((item) => typeof item !== "string" || !item.trim())) errors[`questions_${locale}`] = `Add at least one ${locale.toUpperCase()} example question.`;
+    if (!copy || !Array.isArray(copy.keywords) || !copy.keywords.length || copy.keywords.some((item) => typeof item !== "string" || !item.trim())) errors[`keywords_${locale}`] = `Add at least one ${locale.toUpperCase()} keyword.`;
     if (!copy?.source || [copy.source.docTitle, copy.source.section, copy.source.owner].some((part) => typeof part !== "string" || !part.trim())) errors[`source_${locale}`] = `Complete the ${locale.toUpperCase()} source details.`;
   }
-  if (!Array.isArray(entry.questions) || entry.questions.length < 1 || entry.questions.some((item) => typeof item !== "string" || !item.trim())) errors.questions = "Add at least one example question.";
-  if (!Array.isArray(entry.keywords) || entry.keywords.some((item) => typeof item !== "string" || !item.trim())) errors.keywords = "Remove empty keywords.";
+  if (!Array.isArray(entry.questions) || entry.questions.some((item) => typeof item !== "string")) errors.questions = "Check the example questions.";
+  if (!Array.isArray(entry.keywords) || entry.keywords.some((item) => typeof item !== "string")) errors.keywords = "Check the keywords.";
   const source = entry.source;
   if (!source || [source.docId, source.docTitle, source.section, source.revision, source.owner].some((part) => typeof part !== "string" || !part.trim())) errors.source = "Complete all source details.";
   if (entry.action && (typeof entry.action.label !== "string" || typeof entry.action.href !== "string" || !/^\/(profile|requests|academy|notifications|assistant)$/.test(entry.action.href))) errors.action = "Choose a valid portal link.";
-  if (errors.id || errors.title || errors.answer || errors.questions || errors.keywords || errors.source || errors.action || Object.keys(errors).some((key) => key.startsWith("title_") || key.startsWith("answer_") || key.startsWith("source_"))) {
+  if (errors.id || errors.title || errors.answer || errors.questions || errors.keywords || errors.source || errors.action || Object.keys(errors).some((key) => key.startsWith("title_") || key.startsWith("answer_") || key.startsWith("questions_") || key.startsWith("keywords_") || key.startsWith("source_"))) {
     throw badRequest("Check the highlighted article details.", errors);
   }
   const valid = structuredClone(entry as KbEntry);
@@ -46,6 +48,8 @@ function validateEntry(value: unknown): KbEntry {
   valid.title = russian.title;
   valid.answer = russian.answer;
   valid.answerRu = russian.answer;
+  valid.questions = [...new Set([...valid.questions, ...russian.questions, ...valid.translations!.kk.questions].map((item) => item.trim()).filter(Boolean))];
+  valid.keywords = [...new Set([...valid.keywords, ...russian.keywords, ...valid.translations!.kk.keywords].map((item) => item.trim()).filter(Boolean))];
   valid.source = { ...valid.source, ...russian.source };
   return valid;
 }
@@ -61,13 +65,13 @@ async function ensureImported() {
     if (!initial) continue;
     let changed = false;
     const upgrade = (entry: KbEntry | null) => {
-      if (!entry || entry.translations) return entry;
+      if (!entry) return entry;
+      if (entry.translations?.ru.questions?.length && entry.translations?.kk.questions?.length && entry.translations?.ru.keywords?.length && entry.translations?.kk.keywords?.length) return entry;
       // Only auto-backfill unchanged shipped copy. HR-authored legacy edits are
       // left intact and can be given both versions in the editor.
       const isShipped = entry.title === initial.title && entry.answer === initial.answer;
-      if (!isShipped) return entry;
       changed = true;
-      return withKnowledgeTranslations({ ...entry, answerRu: entry.answerRu ?? KB_ANSWERS_RU[entry.id] });
+      return withKnowledgeTranslations({ ...entry, answerRu: entry.answerRu ?? (isShipped ? KB_ANSWERS_RU[entry.id] : undefined) }, isShipped);
     };
     const draft = upgrade(article.draft);
     const versions = article.versions.map((version) => ({ ...version, entry: upgrade(version.entry)! }));
